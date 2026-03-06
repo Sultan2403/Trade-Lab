@@ -1,4 +1,4 @@
-const {Joi} = require("celebrate")
+const { Joi } = require("celebrate");
 
 const tradeSchema = Joi.object({
   pair: Joi.string().required(),
@@ -11,4 +11,4 @@ const tradeSchema = Joi.object({
   status: Joi.string().valid("open", "closed").default("open"),
 });
 
-module.exports = {tradeSchema}
+module.exports = { tradeSchema };
