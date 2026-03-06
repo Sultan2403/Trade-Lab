@@ -1,87 +1,82 @@
-const tradeService = require("../services/trade.service")
+const tradeService = require("../services/trade.service");
 
 const createTrade = async (req, res) => {
   try {
-    const trade = await tradeService.createTrade(
-      req.user.id,
-      req.body
-    )
+    const trade = await tradeService.createTrade(req.user.id, req.body);
 
-    res.status(201).json(trade)
-
+    res.status(201).json(trade);
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    console.error(error);
+    res.status(500).json({ message: error.message });
   }
-}
+};
 
 const getTrades = async (req, res) => {
   try {
+    const { userId } = req.user;
 
-    const {userId} = req.user
-
-    const page = parseInt(req.query.page) || 1
-    const limit = parseInt(req.query.limit) || 20
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
 
     const result = await tradeService.getTrades({
-     userId,
+      userId,
       page,
-      limit}
-    )
+      limit,
+    });
 
-    res.json(result)
-
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    console.error(error);
+    res.status(500).json({ message: error.message });
   }
-}
+};
 
 const getTrade = async (req, res) => {
   try {
-    const trade = await tradeService.getTradeById(
-      req.user.id,
-      req.params.id
-    )
+    const { userId } = req.user;
+    const tradeId = req.params.id;
 
-    res.json(trade)
+    const trade = await tradeService.getTradeById({
+      userId,
+      tradeId,
+    });
 
+    res.json(trade);
   } catch (error) {
-    res.status(404).json({ message: error.message })
+    console.error(error);
+    res.status(404).json({ message: error.message });
   }
-}
+};
 
 const updateTrade = async (req, res) => {
   try {
-    const trade = await tradeService.updateTrade(
-      req.user.id,
-      req.params.id,
-      req.body
-    )
+    const { userId } = req.user;
+    const tradeId = req.params.id;
+    const update = req.body;
+    const trade = await tradeService.updateTrade({ userId, tradeId, update });
 
-    res.json(trade)
-
+    res.json(trade);
   } catch (error) {
-    res.status(404).json({ message: error.message })
+    console.error(error);
+    res.status(404).json({ message: error.message });
   }
-}
+};
 
 const deleteTrade = async (req, res) => {
   try {
-    await tradeService.deleteTrade(
-      req.user.id,
-      req.params.id
-    )
+    await tradeService.deleteTrade(req.user.id, req.params.id);
 
-    res.json({ message: "Trade deleted" })
-
+    res.json({ message: "Trade deleted" });
   } catch (error) {
-    res.status(404).json({ message: error.message })
+    console.error(error);
+    res.status(404).json({ message: error.message });
   }
-}
+};
 
 module.exports = {
   createTrade,
   getTrades,
   getTrade,
   updateTrade,
-  deleteTrade
-}
+  deleteTrade,
+};
