@@ -27,7 +27,7 @@ app.use(express.json());
 // Routes
 
 app.use("/auth", authLimiter, authRouter);
-app.use("/auth", tradesRouter);
+app.use("/trades", tradesRouter);
 
 
 app.get("/health", (req, res) => {
