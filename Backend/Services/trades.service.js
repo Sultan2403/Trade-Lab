@@ -1,62 +1,76 @@
-const Trade = require("../models/trade.model")
+const Trade = require("../models/trade.model");
 
-const createTrade = async (userId, tradeData) => {
+const createTrade = async ({ userId, tradeData }) => {
   const trade = await Trade.create({
     ...tradeData,
-    userId
-  })
+    userId,
+  });
 
-  return trade
-}
+  return trade;
+};
 
-const getTrades = async (userId) => {
-  return await Trade.find({ userId }).sort({ createdAt: -1 })
-}
+const getTrades = async ({ userId, page = 1, limit = 20 }) => {
+  const skip = (page - 1) * limit;
 
-const getTradeById = async (userId, tradeId) => {
+  const trades = await Trade.find({ userId })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const total = await Trade.countDocuments({ userId });
+
+  return {
+    trades,
+    pagination: {
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+    },
+  };
+};
+
+const getTradeById = async ({ userId, tradeId }) => {
   const trade = await Trade.findOne({
     _id: tradeId,
-    userId
-  })
+    userId,
+  });
 
   if (!trade) {
-    throw new Error("Trade not found")
+    throw new Error("Trade not found");
   }
 
-  return trade
-}
+  return trade;
+};
 
-const updateTrade = async (userId, tradeId, updateData) => {
-  const trade = await Trade.findOneAndUpdate(
-    { _id: tradeId, userId },
-    updateData,
-    { new: true }
-  )
+const updateTrade = async ({ userId, tradeId, update }) => {
+  const trade = await Trade.findOneAndUpdate({ _id: tradeId, userId }, update, {
+    new: true,
+  });
 
   if (!trade) {
-    throw new Error("Trade not found")
+    throw new Error("Trade not found");
   }
 
-  return trade
-}
+  return trade;
+};
 
-const deleteTrade = async (userId, tradeId) => {
+const deleteTrade = async ({ userId, tradeId }) => {
   const trade = await Trade.findOneAndDelete({
     _id: tradeId,
-    userId
-  })
+    userId,
+  });
 
   if (!trade) {
-    throw new Error("Trade not found")
+    throw new Error("Trade not found");
   }
 
-  return trade
-}
+  return trade;
+};
 
 module.exports = {
   createTrade,
   getTrades,
   getTradeById,
   updateTrade,
-  deleteTrade
-}
+  deleteTrade,
+};
