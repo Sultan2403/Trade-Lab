@@ -14,7 +14,7 @@ const tradeSchema = new mongoose.Schema(
 
     direction: {
       type: String,
-      enum: ["long", "short"],
+      enum: ["Long", "Short"],
       required: true,
     },
 
@@ -40,8 +40,8 @@ const tradeSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["open", "closed"],
-      default: "open",
+      enum: ["Open", "Closed"],
+      default: "Open",
     },
 
     closedPrice: {
