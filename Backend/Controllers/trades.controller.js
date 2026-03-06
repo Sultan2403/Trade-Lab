@@ -1,8 +1,10 @@
-const tradeService = require("../services/trade.service");
+const tradeService = require("../Services/trades.service");
 
 const createTrade = async (req, res) => {
   try {
-    const trade = await tradeService.createTrade(req.user.id, req.body);
+    const userId = req.user.id;
+    const tradeData = req.body;
+    const trade = await tradeService.createTrade({ userId, tradeData });
 
     res.status(201).json({ succes: true, trade });
   } catch (error) {
@@ -13,7 +15,7 @@ const createTrade = async (req, res) => {
 
 const getTrades = async (req, res) => {
   try {
-    const { userId } = req.user;
+    const userId = req.user.id;
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -64,7 +66,9 @@ const updateTrade = async (req, res) => {
 
 const deleteTrade = async (req, res) => {
   try {
-    await tradeService.deleteTrade(req.user.id, req.params.id);
+    const userId = req.user.id;
+    const tradeId = req.params.id;
+    await tradeService.deleteTrade({ userId, tradeId });
 
     res.json({ success: true, message: "Trade deleted" });
   } catch (error) {

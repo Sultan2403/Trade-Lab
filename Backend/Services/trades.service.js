@@ -1,4 +1,4 @@
-  const Trade = require("../models/trade.model");
+  const Trade = require("../DB/Models/trades.model");
 
   const createTrade = async ({ userId, tradeData }) => {
     const trade = await Trade.create({
