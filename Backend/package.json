@@ -1,0 +1,21 @@
+{
+  "name": "trade-lab-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm start",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sultan2403/Trade-Lab.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sultan2403/Trade-Lab/issues"
+  },
+  "homepage": "https://github.com/Sultan2403/Trade-Lab#readme"
+}
