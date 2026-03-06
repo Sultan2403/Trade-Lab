@@ -16,9 +16,19 @@ const createTrade = async (req, res) => {
 
 const getTrades = async (req, res) => {
   try {
-    const trades = await tradeService.getTrades(req.user.id)
 
-    res.json(trades)
+    const {userId} = req.user
+
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 20
+
+    const result = await tradeService.getTrades({
+     userId,
+      page,
+      limit}
+    )
+
+    res.json(result)
 
   } catch (error) {
     res.status(500).json({ message: error.message })
