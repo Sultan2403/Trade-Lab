@@ -4,10 +4,10 @@ const createTrade = async (req, res) => {
   try {
     const trade = await tradeService.createTrade(req.user.id, req.body);
 
-    res.status(201).json(trade);
+    res.status(201).json({ succes: true, trade });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -18,16 +18,16 @@ const getTrades = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
 
-    const result = await tradeService.getTrades({
+    const trades = await tradeService.getTrades({
       userId,
       page,
       limit,
     });
 
-    res.json(result);
+    res.json({ success: true, trades });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -41,10 +41,10 @@ const getTrade = async (req, res) => {
       tradeId,
     });
 
-    res.json(trade);
+    res.json({ success: true, trade });
   } catch (error) {
     console.error(error);
-    res.status(404).json({ message: error.message });
+    res.status(404).json({ success: false, message: error.message });
   }
 };
 
@@ -55,10 +55,10 @@ const updateTrade = async (req, res) => {
     const update = req.body;
     const trade = await tradeService.updateTrade({ userId, tradeId, update });
 
-    res.json(trade);
+    res.json({ success: true, trade });
   } catch (error) {
     console.error(error);
-    res.status(404).json({ message: error.message });
+    res.status(404).json({ success: false, message: error.message });
   }
 };
 
@@ -66,10 +66,10 @@ const deleteTrade = async (req, res) => {
   try {
     await tradeService.deleteTrade(req.user.id, req.params.id);
 
-    res.json({ message: "Trade deleted" });
+    res.json({ success: true, message: "Trade deleted" });
   } catch (error) {
     console.error(error);
-    res.status(404).json({ message: error.message });
+    res.status(404).json({ success: false, message: error.message });
   }
 };
 
