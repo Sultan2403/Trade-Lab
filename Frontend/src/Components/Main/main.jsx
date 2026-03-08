@@ -6,7 +6,7 @@ export default function Main() {
   return (
     <div className="flex h-screen w-full">
       <aside className="w-[20%] h-full overflow-y-auto">
-        <Nav />
+        {/* <Nav /> */}
       </aside>
 
       <div className="flex-1 flex flex-col">
