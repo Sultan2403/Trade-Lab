@@ -1,22 +1,81 @@
-import { useState, useEffect } from "react";
-import { TextField, Button, InputAdornment, Alert } from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Alert,
+  Box,
+  Button,
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  IconButton,
+  Paper,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { ArrowUpRight, Eye, EyeOff, Github } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Mail, Lock } from "lucide-react";
-import AuthLayout from "./Layout";
+
 import useAuth from "../../Hooks/useAuth";
+import { setAccessToken, setRefreshToken } from "../../Helpers/Auth/tokens";
 import { validateUserLogin } from "../../Validators/auth.validator";
-import { setRefreshToken, setAccessToken } from "../../Helpers/Auth/tokens";
+
+function getCelebrateFieldErrors(error) {
+  const bodyValidation = error?.response?.data?.validation?.body;
+
+  if (!bodyValidation) {
+    return {};
+  }
+
+  if (Array.isArray(bodyValidation.details)) {
+    return bodyValidation.details.reduce((acc, detail) => {
+      const key = detail?.path?.[0];
+      if (typeof key === "string") {
+        acc[key] = detail?.message || "Invalid value";
+      }
+      return acc;
+    }, {});
+  }
+
+  if (Array.isArray(bodyValidation.keys)) {
+    return bodyValidation.keys.reduce((acc, key) => {
+      acc[key] = bodyValidation.message || "Invalid value";
+      return acc;
+    }, {});
+  }
+
+  return {};
+}
+
+function getBackendError(error) {
+  const data = error?.response?.data;
+
+  if (!data) {
+    return "Login failed. Please try again.";
+  }
+
+  if (typeof data.message === "string" && data.message.trim()) {
+    return data.message;
+  }
+
+  if (typeof data?.validation?.body?.message === "string") {
+    return data.validation.body.message;
+  }
+
+  return "Login failed. Please try again.";
+}
 
 export default function Login() {
-  // State init
-
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState({ email: "", password: "" });
   const [fieldErrors, setFieldErrors] = useState({});
-  const navigate = useNavigate();
+  const [rememberMe, setRememberMe] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { data, error, loading, login } = useAuth();
+  const navigate = useNavigate();
 
-  // Funcs
+  const formError = useMemo(() => getBackendError(error), [error]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,7 +85,6 @@ export default function Login() {
       [name]: value,
     }));
 
-    // clear field error as user types
     if (fieldErrors[name]) {
       setFieldErrors((prev) => ({ ...prev, [name]: null }));
     }
@@ -46,88 +104,191 @@ export default function Login() {
   };
 
   useEffect(() => {
+    if (!error) {
+      return;
+    }
+
+    const backendFieldErrors = getCelebrateFieldErrors(error);
+
+    if (Object.keys(backendFieldErrors).length > 0) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        ...backendFieldErrors,
+      }));
+    }
+  }, [error]);
+
+  useEffect(() => {
     if (data?.success) {
       setRefreshToken(data?.tokens?.refreshToken);
       setAccessToken(data?.tokens?.accessToken);
       navigate("/");
     }
-  }, [data]);
+  }, [data, navigate]);
 
   return (
-    <AuthLayout
-      title="Welcome Back"
-      subtitle="Sign in to your account"
-      footer={
-        <>
-          Don’t have an account?{" "}
-          <NavLink to="/register" style={{ color: "#6366f1", fontWeight: 500 }}>
-            Register
-          </NavLink>
-        </>
-      }
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "#f5f6f8",
+        px: 2,
+      }}
     >
-      <form onSubmit={handleSubmit} noValidate>
-        {/* FORM-LEVEL ERROR (backend / unexpected) */}
-        {error && !fieldErrors.email && !fieldErrors.password && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error?.response?.data?.message ||
-              "Login failed. Please try again."}
-          </Alert>
-        )}
+      <Paper
+        elevation={0}
+        sx={{
+          width: "100%",
+          maxWidth: 520,
+          p: { xs: 3, sm: 4 },
+          border: "1px solid #d5dce3",
+          borderRadius: 2,
+        }}
+      >
+        <Stack spacing={1.5} alignItems="center" mb={3.5}>
+          <Box
+            sx={{
+              width: 56,
+              height: 56,
+              borderRadius: 2,
+              bgcolor: "#0f5c6d",
+              display: "grid",
+              placeItems: "center",
+            }}
+          >
+            <ArrowUpRight size={28} color="#fff" />
+          </Box>
+          <Typography variant="h4" fontWeight={700} sx={{ fontSize: "2rem" }}>
+            TradeLog
+          </Typography>
+          <Typography color="text.secondary">Your professional trading journal</Typography>
+        </Stack>
 
-        <TextField
-          fullWidth
-          label="Email"
-          name="email"
-          value={userData.email || ""}
-          onChange={handleChange}
-          margin="normal"
-          error={Boolean(fieldErrors.email)}
-          helperText={fieldErrors.email}
-          slotProps={{
-            htmlInput: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Mail size={18} />
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
+        <Tabs value={0} variant="fullWidth" sx={{ mb: 2.5 }}>
+          <Tab label="Log In" sx={{ textTransform: "none", fontWeight: 600 }} />
+          <Tab
+            component={NavLink}
+            to="/register"
+            label="Sign Up"
+            sx={{ textTransform: "none", color: "text.secondary" }}
+          />
+        </Tabs>
 
-        <TextField
-          fullWidth
-          label="Password"
-          name="password"
-          type="password"
-          value={userData.password || ""}
-          onChange={handleChange}
-          margin="normal"
-          error={Boolean(fieldErrors.password)}
-          helperText={fieldErrors.password}
-          slotProps={{
-            htmlInput: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Lock size={18} />
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
+        <Box component="form" onSubmit={handleSubmit} noValidate>
+          {!!error && !fieldErrors.email && !fieldErrors.password && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {formError}
+            </Alert>
+          )}
 
-        <Button
-          fullWidth
-          size="large"
-          type="submit"
-          variant="contained"
-          sx={{ mt: 3, py: 1.2 }}
-          disabled={loading}
-          loading={loading}
-        >
-          {loading ? "Logging in..." : "Login"}
-        </Button>
-      </form>
-    </AuthLayout>
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Email"
+            name="email"
+            value={userData.email}
+            onChange={handleChange}
+            placeholder="Enter your email"
+            error={Boolean(fieldErrors.email)}
+            helperText={fieldErrors.email}
+          />
+
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Password"
+            name="password"
+            value={userData.password}
+            onChange={handleChange}
+            type={showPassword ? "text" : "password"}
+            placeholder="Enter your password"
+            error={Boolean(fieldErrors.password)}
+            helperText={fieldErrors.password}
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <IconButton
+                    size="small"
+                    edge="end"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </IconButton>
+                ),
+              },
+            }}
+          />
+
+          <Stack direction="row" alignItems="center" justifyContent="space-between" mt={1}>
+            <FormControlLabel
+              label="Remember me"
+              control={
+                <Checkbox
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+              }
+            />
+            <Button type="button" variant="text" sx={{ textTransform: "none", color: "#0f5c6d" }}>
+              Forgot password?
+            </Button>
+          </Stack>
+
+          <Button
+            fullWidth
+            type="submit"
+            variant="contained"
+            disabled={loading}
+            sx={{
+              mt: 1,
+              py: 1.2,
+              textTransform: "none",
+              fontSize: "1.1rem",
+              bgcolor: "#0f5c6d",
+              "&:hover": { bgcolor: "#0c5160" },
+            }}
+          >
+            {loading ? "Logging in..." : "Log In"}
+          </Button>
+
+          <Stack direction="row" alignItems="center" spacing={1.5} my={3}>
+            <Divider sx={{ flex: 1 }} />
+            <Typography color="text.secondary">or continue with</Typography>
+            <Divider sx={{ flex: 1 }} />
+          </Stack>
+
+          <Stack spacing={1.5}>
+            <Button fullWidth variant="outlined" type="button" sx={{ py: 1.1, textTransform: "none" }}>
+              Continue with Google
+            </Button>
+            <Button
+              fullWidth
+              variant="outlined"
+              type="button"
+              startIcon={<Github size={18} />}
+              sx={{ py: 1.1, textTransform: "none" }}
+            >
+              Continue with GitHub
+            </Button>
+          </Stack>
+
+          <Typography align="center" color="text.secondary" mt={3.5}>
+            Don&apos;t have an account?{" "}
+            <Button
+              component={NavLink}
+              to="/register"
+              type="button"
+              variant="text"
+              sx={{ textTransform: "none", color: "#0f5c6d", p: 0, minWidth: 0 }}
+            >
+              Sign up
+            </Button>
+          </Typography>
+        </Box>
+      </Paper>
+    </Box>
   );
 }
