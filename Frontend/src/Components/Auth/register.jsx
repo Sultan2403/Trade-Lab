@@ -1,23 +1,55 @@
-import { useState, useEffect } from "react";
-import { TextField, Button, InputAdornment, Alert } from "@mui/material";
-import { User, Mail, Lock } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Alert,
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  InputAdornment,
+  Stack,
+  TextField,
+} from "@mui/material";
+import { Eye, EyeOff, Github } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
+
 import AuthLayout from "./Layout";
 import useAuth from "../../Hooks/useAuth";
 import { validateUserRegister } from "../../Validators/auth.validator";
 
 export default function Register() {
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [fieldErrors, setFieldErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   const { data, error, loading, register } = useAuth();
+
+  const backendError = useMemo(
+    () => error?.response?.data?.message || error?.response?.data?.validation?.body?.message,
+    [error],
+  );
+
+  const inputStyles = {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 1,
+      backgroundColor: "#f6f7f8",
+      "& fieldset": { borderColor: "#d2d9df" },
+      "&:hover fieldset": { borderColor: "#bcc7d0" },
+      "&.Mui-focused fieldset": { borderColor: "#0f5c6d" },
+    },
+    "& .MuiInputBase-input::placeholder": { opacity: 1, color: "#9ca3af" },
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserData((prev) => ({ ...prev, [name]: value }));
 
-    // clear field error as user types
     if (fieldErrors[name]) {
       setFieldErrors((prev) => ({ ...prev, [name]: null }));
     }
@@ -36,92 +68,101 @@ export default function Register() {
 
   useEffect(() => {
     if (data?.success) {
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         navigate("/login");
-      }, 5000);
+      }, 2000);
+
+      return () => clearTimeout(timeout);
     }
-  }, [data]);
+  }, [data, navigate]);
 
   return (
     <AuthLayout
-      title="Create Account"
-      subtitle="Get started in seconds"
+      tab="register"
       footer={
         <>
           Already have an account?{" "}
-          <NavLink to="/login" style={{ color: "#6366f1", fontWeight: 500 }}>
-            Login
-          </NavLink>
+          <Button
+            component={NavLink}
+            to="/login"
+            type="button"
+            variant="text"
+            sx={{
+              textTransform: "none",
+              color: "#0f5c6d",
+              p: 0,
+              minWidth: 0,
+              fontSize: "inherit",
+            }}
+          >
+            Log in
+          </Button>
         </>
       }
     >
-      <form onSubmit={handleSubmit} noValidate>
-        {/* Form-level backend error */}
-        {error && (
+      <Box component="form" onSubmit={handleSubmit} noValidate>
+        {backendError && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            {error?.response?.data?.message || error?.response?.data?.validation?.body?.message ||
-              "Registration failed. Please try again later."}
+            {backendError}
           </Alert>
         )}
+
         {data?.success && (
-          <div className="bg-green-600">Registration successful, redirecting to login....</div>
+          <Alert severity="success" sx={{ mb: 2 }}>
+            Registration successful. Redirecting to login...
+          </Alert>
         )}
 
         <TextField
           fullWidth
           label="Username"
           name="username"
-          value={userData.username || ""}
+          value={userData.username}
           onChange={handleChange}
           margin="normal"
+          placeholder="Choose a username"
           error={Boolean(fieldErrors.username)}
           helperText={fieldErrors.username}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <User size={18} />
-                </InputAdornment>
-              ),
-            },
-          }}
+          sx={inputStyles}
         />
 
         <TextField
           fullWidth
           label="Email"
           name="email"
-          value={userData.email || ""}
+          value={userData.email}
           onChange={handleChange}
           margin="normal"
+          placeholder="Enter your email"
           error={Boolean(fieldErrors.email)}
           helperText={fieldErrors.email}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Mail size={18} />
-                </InputAdornment>
-              ),
-            },
-          }}
+          sx={inputStyles}
         />
 
         <TextField
           fullWidth
           label="Password"
           name="password"
-          type="password"
-          value={userData.password || ""}
+          type={showPassword ? "text" : "password"}
+          value={userData.password}
           onChange={handleChange}
           margin="normal"
+          placeholder="••••••••••••••••"
           error={Boolean(fieldErrors.password)}
           helperText={fieldErrors.password}
+          sx={inputStyles}
           slotProps={{
             input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Lock size={18} />
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    size="small"
+                    edge="end"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </IconButton>
                 </InputAdornment>
               ),
             },
@@ -132,17 +173,26 @@ export default function Register() {
           fullWidth
           label="Confirm Password"
           name="confirmPassword"
-          type="password"
-          value={userData.confirmPassword || ""}
+          type={showConfirmPassword ? "text" : "password"}
+          value={userData.confirmPassword}
           onChange={handleChange}
           margin="normal"
+          placeholder="••••••••••••••••"
           error={Boolean(fieldErrors.confirmPassword)}
           helperText={fieldErrors.confirmPassword}
+          sx={inputStyles}
           slotProps={{
             input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Lock size={18} />
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    size="small"
+                    edge="end"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  >
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </IconButton>
                 </InputAdornment>
               ),
             },
@@ -154,13 +204,61 @@ export default function Register() {
           size="large"
           type="submit"
           variant="contained"
-          sx={{ mt: 3, py: 1.2 }}
+          sx={{
+            mt: 2,
+            py: 1.3,
+            textTransform: "none",
+            fontSize: "1.35rem",
+            bgcolor: "#0f5c6d",
+            borderRadius: 1,
+            boxShadow: "none",
+            "&:hover": { bgcolor: "#0c5160", boxShadow: "none" },
+          }}
           disabled={loading}
-          loading={loading}
         >
-          {loading ? "Creating account..." : "Register"}
+          {loading ? "Creating account..." : "Sign Up"}
         </Button>
-      </form>
+
+        <Stack direction="row" alignItems="center" spacing={1.5} my={3}>
+          <Divider sx={{ flex: 1 }} />
+          <Box sx={{ color: "#6b7280", whiteSpace: "nowrap" }}>or continue with</Box>
+          <Divider sx={{ flex: 1 }} />
+        </Stack>
+
+        <Stack spacing={1.5}>
+          <Button
+            fullWidth
+            variant="outlined"
+            type="button"
+            sx={{
+              py: 1.15,
+              textTransform: "none",
+              borderColor: "#d2d9df",
+              color: "#111827",
+              borderRadius: 1,
+              fontSize: "1.15rem",
+            }}
+          >
+            Continue with Google
+          </Button>
+          <Button
+            fullWidth
+            variant="outlined"
+            type="button"
+            startIcon={<Github size={18} />}
+            sx={{
+              py: 1.15,
+              textTransform: "none",
+              borderColor: "#d2d9df",
+              color: "#111827",
+              borderRadius: 1,
+              fontSize: "1.15rem",
+            }}
+          >
+            Continue with GitHub
+          </Button>
+        </Stack>
+      </Box>
     </AuthLayout>
   );
 }
