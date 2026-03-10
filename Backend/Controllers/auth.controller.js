@@ -68,7 +68,7 @@ const loginUser = async (req, res) => {
     console.error(error, error.message);
     return res
       .status(500)
-      .json({ success: false, message: "An error ossured" });
+      .json({ success: false, message: "An error occured" });
   }
 };
 

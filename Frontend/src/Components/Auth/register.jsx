@@ -16,7 +16,7 @@ export default function Register() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserData((prev) => ({ ...prev, [name]: value }));
- 
+
     // clear field error as user types
     if (fieldErrors[name]) {
       setFieldErrors((prev) => ({ ...prev, [name]: null }));
@@ -35,11 +35,10 @@ export default function Register() {
   };
 
   useEffect(() => {
-    (data)
     if (data?.success) {
-      setToken(data?.token)
-      (data?.token)
-      navigate("/");
+      setTimeout(() => {
+        navigate("/login");
+      }, 5000);
     }
   }, [data]);
 
@@ -60,8 +59,12 @@ export default function Register() {
         {/* Form-level backend error */}
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            {error?.response?.data?.message || "Registration failed. Please try again later."}
+            {error?.response?.data?.message || error?.response?.data?.validation?.body?.message ||
+              "Registration failed. Please try again later."}
           </Alert>
+        )}
+        {data?.success && (
+          <div>Registration successful, redirecting to login....</div>
         )}
 
         <TextField

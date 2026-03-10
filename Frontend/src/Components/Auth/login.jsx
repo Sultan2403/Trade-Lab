@@ -21,50 +21,6 @@ import useAuth from "../../Hooks/useAuth";
 import { setAccessToken, setRefreshToken } from "../../Helpers/Auth/tokens";
 import { validateUserLogin } from "../../Validators/auth.validator";
 
-function getCelebrateFieldErrors(error) {
-  const bodyValidation = error?.response?.data?.validation?.body;
-
-  if (!bodyValidation) {
-    return {};
-  }
-
-  if (Array.isArray(bodyValidation.details)) {
-    return bodyValidation.details.reduce((acc, detail) => {
-      const key = detail?.path?.[0];
-      if (typeof key === "string") {
-        acc[key] = detail?.message || "Invalid value";
-      }
-      return acc;
-    }, {});
-  }
-
-  if (Array.isArray(bodyValidation.keys)) {
-    return bodyValidation.keys.reduce((acc, key) => {
-      acc[key] = bodyValidation.message || "Invalid value";
-      return acc;
-    }, {});
-  }
-
-  return {};
-}
-
-function getBackendError(error) {
-  const data = error?.response?.data;
-
-  if (!data) {
-    return "Login failed. Please try again.";
-  }
-
-  if (typeof data.message === "string" && data.message.trim()) {
-    return data.message;
-  }
-
-  if (typeof data?.validation?.body?.message === "string") {
-    return data.validation.body.message;
-  }
-
-  return "Login failed. Please try again.";
-}
 
 export default function Login() {
   const [userData, setUserData] = useState({ email: "", password: "" });
@@ -75,7 +31,9 @@ export default function Login() {
   const { data, error, loading, login } = useAuth();
   const navigate = useNavigate();
 
-  const formError = useMemo(() => getBackendError(error), [error]);
+  const backendErrMsg = error?.response?.data?.message
+
+  const formError = useMemo(() => backendErrMsg, [error]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -107,24 +65,16 @@ export default function Login() {
     if (!error) {
       return;
     }
-
-    const backendFieldErrors = getCelebrateFieldErrors(error);
-
-    if (Object.keys(backendFieldErrors).length > 0) {
-      setFieldErrors((prev) => ({
-        ...prev,
-        ...backendFieldErrors,
-      }));
-    }
   }, [error]);
 
   useEffect(() => {
     if (data?.success) {
-      setRefreshToken(data?.tokens?.refreshToken);
-      setAccessToken(data?.tokens?.accessToken);
-      navigate("/");
+      const { accessToken, refreshToken } = data.tokens;
+      setRefreshToken(refreshToken);
+      setAccessToken(accessToken);
+      navigate("/dashboard");
     }
-  }, [data, navigate]);
+  }, [data]);
 
   return (
     <Box
@@ -163,7 +113,9 @@ export default function Login() {
           <Typography variant="h4" fontWeight={700} sx={{ fontSize: "2rem" }}>
             TradeLog
           </Typography>
-          <Typography color="text.secondary">Your professional trading journal</Typography>
+          <Typography color="text.secondary">
+            Your professional trading journal
+          </Typography>
         </Stack>
 
         <Tabs value={0} variant="fullWidth" sx={{ mb: 2.5 }}>
@@ -213,7 +165,9 @@ export default function Login() {
                     size="small"
                     edge="end"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </IconButton>
@@ -222,7 +176,12 @@ export default function Login() {
             }}
           />
 
-          <Stack direction="row" alignItems="center" justifyContent="space-between" mt={1}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            mt={1}
+          >
             <FormControlLabel
               label="Remember me"
               control={
@@ -232,7 +191,11 @@ export default function Login() {
                 />
               }
             />
-            <Button type="button" variant="text" sx={{ textTransform: "none", color: "#0f5c6d" }}>
+            <Button
+              type="button"
+              variant="text"
+              sx={{ textTransform: "none", color: "#0f5c6d" }}
+            >
               Forgot password?
             </Button>
           </Stack>
@@ -261,7 +224,12 @@ export default function Login() {
           </Stack>
 
           <Stack spacing={1.5}>
-            <Button fullWidth variant="outlined" type="button" sx={{ py: 1.1, textTransform: "none" }}>
+            <Button
+              fullWidth
+              variant="outlined"
+              type="button"
+              sx={{ py: 1.1, textTransform: "none" }}
+            >
               Continue with Google
             </Button>
             <Button
@@ -282,7 +250,12 @@ export default function Login() {
               to="/register"
               type="button"
               variant="text"
-              sx={{ textTransform: "none", color: "#0f5c6d", p: 0, minWidth: 0 }}
+              sx={{
+                textTransform: "none",
+                color: "#0f5c6d",
+                p: 0,
+                minWidth: 0,
+              }}
             >
               Sign up
             </Button>
