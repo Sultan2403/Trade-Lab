@@ -16,8 +16,12 @@ export default function Login() {
   const { data, error, loading, login } = useAuth();
   const navigate = useNavigate();
 
-  const backendErrMsg = error?.response?.data?.message;
-  const formError = useMemo(() => backendErrMsg, [backendErrMsg]);
+  const formError = useMemo(
+    () =>
+      error?.response?.data?.validation?.body?.message ||
+      error?.response?.data?.message,
+    [error],
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -60,7 +64,10 @@ export default function Login() {
       footer={
         <>
           Don&apos;t have an account?{" "}
-          <NavLink to="/register" className="font-medium text-brand-800 hover:text-brand-900">
+          <NavLink
+            to="/register"
+            className="font-medium text-brand-800 hover:text-brand-900"
+          >
             Sign up
           </NavLink>
         </>
@@ -74,7 +81,10 @@ export default function Login() {
         )}
 
         <div>
-          <label htmlFor="email" className="mb-1.5 block text-caption font-medium text-text-secondary">
+          <label
+            htmlFor="email"
+            className="mb-1.5 block text-caption font-medium text-text-secondary"
+          >
             Email
           </label>
           <input
@@ -86,11 +96,18 @@ export default function Login() {
             placeholder="Enter your email"
             className="ui-input py-2.5 text-caption"
           />
-          {fieldErrors.email && <p className="mt-1 text-caption text-state-danger">{fieldErrors.email}</p>}
+          {fieldErrors.email && (
+            <p className="mt-1 text-caption text-state-danger">
+              {fieldErrors.email}
+            </p>
+          )}
         </div>
 
         <div>
-          <label htmlFor="password" className="mb-1.5 block text-caption font-medium text-text-secondary">
+          <label
+            htmlFor="password"
+            className="mb-1.5 block text-caption font-medium text-text-secondary"
+          >
             Password
           </label>
           <div className="relative">
@@ -112,7 +129,11 @@ export default function Login() {
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
-          {fieldErrors.password && <p className="mt-1 text-caption text-state-danger">{fieldErrors.password}</p>}
+          {fieldErrors.password && (
+            <p className="mt-1 text-caption text-state-danger">
+              {fieldErrors.password}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
@@ -126,12 +147,19 @@ export default function Login() {
             Remember me
           </label>
 
-          <button type="button" className="text-caption font-medium text-brand-800 hover:text-brand-900">
+          <button
+            type="button"
+            className="text-caption font-medium text-brand-800 hover:text-brand-900"
+          >
             Forgot password?
           </button>
         </div>
 
-        <button type="submit" disabled={loading} className="ui-btn-primary mt-1 w-full py-2 text-body">
+        <button
+          type="submit"
+          disabled={loading}
+          className="ui-btn-primary mt-1 w-full py-2 text-body"
+        >
           {loading ? "Logging in..." : "Log In"}
         </button>
 
@@ -142,7 +170,10 @@ export default function Login() {
         </div>
 
         <div className="space-y-2.5">
-          <button type="button" className="ui-btn-secondary w-full py-2 text-caption text-text-primary">
+          <button
+            type="button"
+            className="ui-btn-secondary w-full py-2 text-caption text-text-primary"
+          >
             Continue with Google
           </button>
           <button
