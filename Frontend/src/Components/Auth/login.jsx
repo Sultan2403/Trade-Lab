@@ -21,17 +21,15 @@ import useAuth from "../../Hooks/useAuth";
 import { setAccessToken, setRefreshToken } from "../../Helpers/Auth/tokens";
 import { validateUserLogin } from "../../Validators/auth.validator";
 
-
 export default function Login() {
   const [userData, setUserData] = useState({ email: "", password: "" });
   const [fieldErrors, setFieldErrors] = useState({});
-  const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
   const { data, error, loading, login } = useAuth();
   const navigate = useNavigate();
 
-  const backendErrMsg = error?.response?.data?.message
+  const backendErrMsg = error?.response?.data?.message;
 
   const formError = useMemo(() => backendErrMsg, [error]);
 
@@ -182,15 +180,6 @@ export default function Login() {
             justifyContent="space-between"
             mt={1}
           >
-            <FormControlLabel
-              label="Remember me"
-              control={
-                <Checkbox
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-              }
-            />
             <Button
               type="button"
               variant="text"
