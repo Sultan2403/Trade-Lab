@@ -1,3 +1,34 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-surface-base text-text-primary font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-text-primary tracking-tightest;
+  }
+}
+
+@layer components {
+  .ui-card {
+    @apply rounded-panel border border-border bg-surface-card;
+  }
+
+  .ui-input {
+    @apply w-full rounded-pill border border-border bg-surface-card px-4 py-3 text-body text-text-primary placeholder:text-text-muted focus:border-brand-700 focus:outline-none;
+  }
+
+  .ui-btn-primary {
+    @apply rounded-pill border border-brand-800 bg-brand-800 px-4 py-2 text-body-lg text-text-inverse transition-colors hover:bg-brand-900;
+  }
+
+  .ui-btn-secondary {
+    @apply rounded-pill border border-brand-800 bg-transparent px-4 py-2 text-body-lg text-brand-800 transition-colors hover:bg-brand-800/10;
+  }
+}
