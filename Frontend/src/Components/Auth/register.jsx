@@ -1,14 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  Alert,
-  Box,
-  Button,
-  Divider,
-  IconButton,
-  InputAdornment,
-  Stack,
-  TextField,
-} from "@mui/material";
 import { Eye, EyeOff, Github } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 
@@ -34,17 +24,6 @@ export default function Register() {
     () => error?.response?.data?.message || error?.response?.data?.validation?.body?.message,
     [error],
   );
-
-  const inputStyles = {
-    "& .MuiOutlinedInput-root": {
-      borderRadius: 1,
-      backgroundColor: "#f6f7f8",
-      "& fieldset": { borderColor: "#d2d9df" },
-      "&:hover fieldset": { borderColor: "#bcc7d0" },
-      "&.Mui-focused fieldset": { borderColor: "#0f5c6d" },
-    },
-    "& .MuiInputBase-input::placeholder": { opacity: 1, color: "#9ca3af" },
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -82,183 +61,133 @@ export default function Register() {
       footer={
         <>
           Already have an account?{" "}
-          <Button
-            component={NavLink}
-            to="/login"
-            type="button"
-            variant="text"
-            sx={{
-              textTransform: "none",
-              color: "#0f5c6d",
-              p: 0,
-              minWidth: 0,
-              fontSize: "inherit",
-            }}
-          >
+          <NavLink to="/login" className="font-medium text-brand-800 hover:text-brand-900">
             Log in
-          </Button>
+          </NavLink>
         </>
       }
     >
-      <Box component="form" onSubmit={handleSubmit} noValidate>
+      <form onSubmit={handleSubmit} noValidate className="space-y-3">
         {backendError && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <p className="rounded-panel border border-state-danger-soft bg-state-danger-soft px-3 py-2 text-caption text-state-danger">
             {backendError}
-          </Alert>
+          </p>
         )}
 
         {data?.success && (
-          <Alert severity="success" sx={{ mb: 2 }}>
+          <p className="rounded-panel border border-state-success-soft bg-state-success-soft px-3 py-2 text-caption text-state-success">
             Registration successful. Redirecting to login...
-          </Alert>
+          </p>
         )}
 
-        <TextField
-          fullWidth
-          label="Username"
-          name="username"
-          value={userData.username}
-          onChange={handleChange}
-          margin="normal"
-          placeholder="Choose a username"
-          error={Boolean(fieldErrors.username)}
-          helperText={fieldErrors.username}
-          sx={inputStyles}
-        />
+        <div>
+          <label htmlFor="username" className="mb-1.5 block text-caption font-medium text-text-secondary">
+            Username
+          </label>
+          <input
+            id="username"
+            name="username"
+            value={userData.username}
+            onChange={handleChange}
+            placeholder="Choose a username"
+            className="ui-input py-2.5 text-caption"
+          />
+          {fieldErrors.username && <p className="mt-1 text-caption text-state-danger">{fieldErrors.username}</p>}
+        </div>
 
-        <TextField
-          fullWidth
-          label="Email"
-          name="email"
-          value={userData.email}
-          onChange={handleChange}
-          margin="normal"
-          placeholder="Enter your email"
-          error={Boolean(fieldErrors.email)}
-          helperText={fieldErrors.email}
-          sx={inputStyles}
-        />
+        <div>
+          <label htmlFor="email" className="mb-1.5 block text-caption font-medium text-text-secondary">
+            Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={userData.email}
+            onChange={handleChange}
+            placeholder="Enter your email"
+            className="ui-input py-2.5 text-caption"
+          />
+          {fieldErrors.email && <p className="mt-1 text-caption text-state-danger">{fieldErrors.email}</p>}
+        </div>
 
-        <TextField
-          fullWidth
-          label="Password"
-          name="password"
-          type={showPassword ? "text" : "password"}
-          value={userData.password}
-          onChange={handleChange}
-          margin="normal"
-          placeholder="••••••••••••••••"
-          error={Boolean(fieldErrors.password)}
-          helperText={fieldErrors.password}
-          sx={inputStyles}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    size="small"
-                    edge="end"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
+        <div>
+          <label htmlFor="password" className="mb-1.5 block text-caption font-medium text-text-secondary">
+            Password
+          </label>
+          <div className="relative">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={userData.password}
+              onChange={handleChange}
+              placeholder="••••••••••••••••"
+              className="ui-input py-2.5 pr-11 text-caption"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary"
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+          {fieldErrors.password && <p className="mt-1 text-caption text-state-danger">{fieldErrors.password}</p>}
+        </div>
 
-        <TextField
-          fullWidth
-          label="Confirm Password"
-          name="confirmPassword"
-          type={showConfirmPassword ? "text" : "password"}
-          value={userData.confirmPassword}
-          onChange={handleChange}
-          margin="normal"
-          placeholder="••••••••••••••••"
-          error={Boolean(fieldErrors.confirmPassword)}
-          helperText={fieldErrors.confirmPassword}
-          sx={inputStyles}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    size="small"
-                    edge="end"
-                    onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                  >
-                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
+        <div>
+          <label htmlFor="confirmPassword" className="mb-1.5 block text-caption font-medium text-text-secondary">
+            Confirm Password
+          </label>
+          <div className="relative">
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              value={userData.confirmPassword}
+              onChange={handleChange}
+              placeholder="••••••••••••••••"
+              className="ui-input py-2.5 pr-11 text-caption"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary"
+            >
+              {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+          {fieldErrors.confirmPassword && (
+            <p className="mt-1 text-caption text-state-danger">{fieldErrors.confirmPassword}</p>
+          )}
+        </div>
 
-        <Button
-          fullWidth
-          size="large"
-          type="submit"
-          variant="contained"
-          sx={{
-            mt: 2,
-            py: 1.3,
-            textTransform: "none",
-            fontSize: "1.35rem",
-            bgcolor: "#0f5c6d",
-            borderRadius: 1,
-            boxShadow: "none",
-            "&:hover": { bgcolor: "#0c5160", boxShadow: "none" },
-          }}
-          disabled={loading}
-        >
+        <button type="submit" disabled={loading} className="ui-btn-primary mt-1 w-full py-2 text-body">
           {loading ? "Creating account..." : "Sign Up"}
-        </Button>
+        </button>
 
-        <Stack direction="row" alignItems="center" spacing={1.5} my={3}>
-          <Divider sx={{ flex: 1 }} />
-          <Box sx={{ color: "#6b7280", whiteSpace: "nowrap" }}>or continue with</Box>
-          <Divider sx={{ flex: 1 }} />
-        </Stack>
+        <div className="flex items-center gap-3 py-1">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-caption text-text-muted">or continue with</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
 
-        <Stack spacing={1.5}>
-          <Button
-            fullWidth
-            variant="outlined"
-            type="button"
-            sx={{
-              py: 1.15,
-              textTransform: "none",
-              borderColor: "#d2d9df",
-              color: "#111827",
-              borderRadius: 1,
-              fontSize: "1.15rem",
-            }}
-          >
+        <div className="space-y-2.5">
+          <button type="button" className="ui-btn-secondary w-full py-2 text-caption text-text-primary">
             Continue with Google
-          </Button>
-          <Button
-            fullWidth
-            variant="outlined"
+          </button>
+          <button
             type="button"
-            startIcon={<Github size={18} />}
-            sx={{
-              py: 1.15,
-              textTransform: "none",
-              borderColor: "#d2d9df",
-              color: "#111827",
-              borderRadius: 1,
-              fontSize: "1.15rem",
-            }}
+            className="ui-btn-secondary flex w-full items-center justify-center gap-2 py-2 text-caption text-text-primary"
           >
+            <Github size={16} />
             Continue with GitHub
-          </Button>
-        </Stack>
-      </Box>
+          </button>
+        </div>
+      </form>
     </AuthLayout>
   );
 }

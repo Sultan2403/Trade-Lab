@@ -1,75 +1,60 @@
 import { ArrowUpRight } from "lucide-react";
-import { Box, Paper, Tab, Tabs, Typography } from "@mui/material";
 import { NavLink } from "react-router-dom";
 
 export default function AuthLayout({ children, footer, tab = "login" }) {
+  const isLogin = tab === "login";
+
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: "#f5f6f8",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        px: 2,
-        py: 3,
-      }}
-    >
-      <Paper
-        elevation={0}
-        sx={{
-          width: "100%",
-          maxWidth: 680,
-          p: { xs: 3, sm: 4 },
-          borderRadius: 2,
-          border: "1px solid #d5dce3",
-          backgroundColor: "#f8f9fb",
-        }}
-      >
-        <Box display="flex" flexDirection="column" alignItems="center" mb={3.5}>
-          <Box
-            sx={{
-              width: 74,
-              height: 74,
-              borderRadius: 2,
-              bgcolor: "#0f5c6d",
-              display: "grid",
-              placeItems: "center",
-            }}
-          >
-            <ArrowUpRight size={32} color="#ffffff" />
-          </Box>
-          <Typography variant="h4" fontWeight={700} sx={{ mt: 2, fontSize: { xs: "2rem", sm: "2.6rem" } }}>
-            TradeLog
-          </Typography>
-          <Typography color="text.secondary" sx={{ mt: 1, fontSize: { xs: "1rem", sm: "1.08rem" } }}>
-            Your professional trading journal
-          </Typography>
-        </Box>
+    <div className="min-h-screen bg-surface-base px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-5xl items-center justify-center">
+        <section className="ui-card grid w-full max-w-4xl overflow-hidden lg:grid-cols-[1.05fr_1fr]">
+          <aside className="hidden border-r border-border bg-surface-muted p-8 lg:flex lg:flex-col lg:justify-between">
+            <div>
+              <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-panel bg-brand-800 text-text-inverse">
+                <ArrowUpRight size={20} />
+              </div>
+              <h1 className="text-page-title text-text-primary">TradeLog</h1>
+              <p className="mt-2 max-w-sm text-body text-text-secondary">
+                Track, review, and improve your trading performance with clean analytics built for serious traders.
+              </p>
+            </div>
+            <p className="text-caption text-text-muted">Built for disciplined, data-driven trading decisions.</p>
+          </aside>
 
-        <Tabs value={tab === "login" ? 0 : 1} variant="fullWidth" sx={{ mb: 2.5 }}>
-          <Tab
-            component={NavLink}
-            to="/login"
-            label="Log In"
-            sx={{ textTransform: "none", fontSize: "1.1rem", minHeight: 56 }}
-          />
-          <Tab
-            component={NavLink}
-            to="/register"
-            label="Sign Up"
-            sx={{ textTransform: "none", fontSize: "1.1rem", minHeight: 56 }}
-          />
-        </Tabs>
+          <main className="bg-surface-card p-5 sm:p-7 lg:p-8">
+            <div className="mb-6 lg:hidden">
+              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-panel bg-brand-800 text-text-inverse">
+                <ArrowUpRight size={18} />
+              </div>
+              <h1 className="text-card-title">TradeLog</h1>
+              <p className="mt-1 text-caption text-text-secondary">Your professional trading journal.</p>
+            </div>
 
-        <Box>{children}</Box>
+            <div className="mb-5 grid grid-cols-2 rounded-pill border border-border bg-surface-muted p-1">
+              <NavLink
+                to="/login"
+                className={`rounded-pill px-3 py-2 text-center text-caption transition-colors ${
+                  isLogin ? "bg-surface-card text-text-primary" : "text-text-secondary hover:text-text-primary"
+                }`}
+              >
+                Log In
+              </NavLink>
+              <NavLink
+                to="/register"
+                className={`rounded-pill px-3 py-2 text-center text-caption transition-colors ${
+                  isLogin ? "text-text-secondary hover:text-text-primary" : "bg-surface-card text-text-primary"
+                }`}
+              >
+                Sign Up
+              </NavLink>
+            </div>
 
-        {footer && (
-          <Typography align="center" color="text.secondary" mt={3.5} sx={{ fontSize: "1rem" }}>
-            {footer}
-          </Typography>
-        )}
-      </Paper>
-    </Box>
+            {children}
+
+            {footer && <p className="mt-5 text-center text-caption text-text-secondary">{footer}</p>}
+          </main>
+        </section>
+      </div>
+    </div>
   );
 }
