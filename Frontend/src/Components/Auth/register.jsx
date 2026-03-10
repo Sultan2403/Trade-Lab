@@ -64,7 +64,7 @@ export default function Register() {
           </Alert>
         )}
         {data?.success && (
-          <div>Registration successful, redirecting to login....</div>
+          <div className="bg-green-600">Registration successful, redirecting to login....</div>
         )}
 
         <TextField
