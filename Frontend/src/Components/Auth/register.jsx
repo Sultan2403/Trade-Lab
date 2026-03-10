@@ -21,7 +21,7 @@ export default function Register() {
   const { data, error, loading, register } = useAuth();
 
   const backendError = useMemo(
-    () => error?.response?.data?.message || error?.response?.data?.validation?.body?.message,
+    () => error?.response?.data?.validation?.body?.message || error?.response?.data?.message ,
     [error],
   );
 
@@ -37,10 +37,10 @@ export default function Register() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const errors = validateUserRegister(userData);
-    setFieldErrors(errors);
+    // const errors = validateUserRegister(userData);
+    // setFieldErrors(errors);
 
-    if (Object.keys(errors).length > 0) return;
+    // if (Object.keys(errors).length > 0) return;
 
     register(userData);
   };
