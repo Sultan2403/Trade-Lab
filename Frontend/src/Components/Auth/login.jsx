@@ -75,7 +75,7 @@ export default function Login() {
       setAccessToken(accessToken);
       navigate("/dashboard");
     }
-  }, [data, navigate]);
+  }, [data]);
 
   return (
     <AuthLayout
