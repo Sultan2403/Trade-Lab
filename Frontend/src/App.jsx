@@ -3,7 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Main from "./Components/Main/main";
 import Login from "./Components/Auth/login";
 import Register from "./Components/Auth/register";
-import AddTrade from "./Components/Main/addTrade";
+import AddTrade from "./Components/Others/Trades/addTrade";
 
 const PlaceholderPage = ({ title }) => (
   <div className="rounded-panel border border-border bg-surface-card p-8 text-body text-text-secondary">
