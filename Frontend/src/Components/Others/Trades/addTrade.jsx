@@ -35,6 +35,7 @@ export default function AddTrade() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const errors = validateTradeCreate(formData);
+    console.log(formData)
     if (Object.keys(errors).length > 0) return setFieldErrors(errors);
     setFieldErrors({});
     console.log("createTrade payload", formData);
