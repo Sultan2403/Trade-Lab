@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Box, Paper } from "@mui/material";
+import { Box, Paper, Switch } from "@mui/material";
 import {
   Calendar,
   ChevronDown,
@@ -8,15 +8,14 @@ import {
   MoveDown,
   MoveUp,
   Save,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { validateTradeCreate } from "../../Validators/trade.validator";
 import { createInitialTradeUIState } from "../../Helpers/Trades/trades.helpers";
 
-const initialFormState = createInitialTradeUIState();
-
 export default function AddTrade() {
-  const [formData, setFormData] = useState(initialFormState);
-
+  const [formData, setFormData] = useState(createInitialTradeUIState());
   const [fieldErrors, setFieldErrors] = useState({});
 
   const handleTagsChange = (e) => {
@@ -24,38 +23,31 @@ export default function AddTrade() {
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean);
-
-    setFormData((prev) => ({
-      ...prev,
-      tags,
-    }));
+    setFormData((prev) => ({ ...prev, tags }));
   };
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: type === "number" ? Number(value) : value,
     }));
-
-    if (fieldErrors[name]) {
+    if (fieldErrors[name])
       setFieldErrors((prev) => ({ ...prev, [name]: null }));
-    }
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleStatusToggle = () => {
+    setFormData((prev) => ({
+      ...prev,
+      status: prev.status === "Open" ? "Closed" : "Open",
+    }));
+  };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
     const errors = validateTradeCreate(formData);
-
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors);
-      return;
-    }
-
+    if (Object.keys(errors).length > 0) return setFieldErrors(errors);
     setFieldErrors({});
-    // API integration hook-up point.
     console.log("createTrade payload", formData);
   };
 
@@ -63,11 +55,8 @@ export default function AddTrade() {
     const entry = Number(formData.entryPrice);
     const exit = Number(formData.closedPrice);
     const size = Number(formData.positionSize);
-
-    if (Number.isNaN(entry) || Number.isNaN(exit) || Number.isNaN(size)) {
+    if (Number.isNaN(entry) || Number.isNaN(exit) || Number.isNaN(size))
       return "--";
-    }
-
     const pnl =
       (exit - entry) * size * (formData.direction === "Long" ? 1 : -1);
     return pnl.toFixed(2);
@@ -78,17 +67,20 @@ export default function AddTrade() {
     formData.positionSize,
   ]);
 
+  const isClosed = formData.status === "Closed";
+
   return (
     <form
       onSubmit={handleSubmit}
       className="mx-auto w-full max-w-[1120px] space-y-6 pb-10"
     >
-      <Paper elevation={0} className="ui-card rounded-panel p-6">
+      {/* --- Basic Info --- */}
+      <Paper className="ui-card rounded-panel p-6">
         <h2 className="mb-5 text-card-title font-semibold">
           Basic Information
         </h2>
-
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-3">
+          {/* Instrument / Pair */}
           <div>
             <label className="mb-2 block text-body font-medium text-text-secondary">
               Instrument/Pair
@@ -107,6 +99,7 @@ export default function AddTrade() {
             )}
           </div>
 
+          {/* Direction */}
           <div>
             <label className="mb-2 block text-body font-medium text-text-secondary">
               Direction
@@ -117,7 +110,7 @@ export default function AddTrade() {
                 onClick={() =>
                   setFormData((prev) => ({ ...prev, direction: "Long" }))
                 }
-                className={`flex items-center justify-center gap-2 rounded-pill border px-3 py-3 text-body font-medium ${
+                className={`flex items-center justify-center gap-2 rounded-pill border px-3 py-3 font-medium ${
                   formData.direction === "Long"
                     ? "border-state-success bg-state-success text-white"
                     : "border-border bg-white text-text-secondary"
@@ -130,7 +123,7 @@ export default function AddTrade() {
                 onClick={() =>
                   setFormData((prev) => ({ ...prev, direction: "Short" }))
                 }
-                className={`flex items-center justify-center gap-2 rounded-pill border px-3 py-3 text-body font-medium ${
+                className={`flex items-center justify-center gap-2 rounded-pill border px-3 py-3 font-medium ${
                   formData.direction === "Short"
                     ? "border-state-danger bg-state-danger text-white"
                     : "border-state-danger bg-white text-state-danger"
@@ -141,47 +134,82 @@ export default function AddTrade() {
             </div>
           </div>
 
-          <div>
+          {/* Status Toggle */}
+          <div className="flex flex-col justify-start">
             <label className="mb-2 block text-body font-medium text-text-secondary">
-              Opened at
+              Trade Status
             </label>
-            <div className="relative">
-              <input
-                type="date"
-                name="openedAt"
-                value={formData.openedAt}
-                onChange={handleChange}
-                className="ui-input text-caption"
+            <div className="flex items-center gap-2">
+              {formData.status === "Closed" ? (
+                <CheckCircle size={20} className="text-green-600" />
+              ) : (
+                <XCircle size={20} className="text-red-600" />
+              )}
+              <Switch
+                checked={formData.status === "Closed"}
+                onChange={handleStatusToggle}
+                color="success"
               />
-              <Calendar
-                size={16}
-                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="mb-2 block text-body font-medium text-text-secondary">
-              Trade Time
-            </label>
-            <div className="relative">
-              <input
-                type="time"
-                name="tradeTime"
-                value={formData.timeOpened}
-                onChange={handleChange}
-                className="ui-input text-caption"
-              />
-              <Clock3
-                size={16}
-                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted"
-              />
+              <span className="font-medium">{formData.status}</span>
             </div>
           </div>
         </div>
       </Paper>
 
-      <Paper elevation={0} className="ui-card rounded-panel p-6">
+      {/* --- Timing --- */}
+      <Paper className="ui-card rounded-panel p-6">
+        <h2 className="mb-5 text-card-title font-semibold flex items-center gap-2">
+          <Calendar size={18} /> Trade Timing
+        </h2>
+        <div className="grid gap-5 md:grid-cols-2">
+          {/* Opened At */}
+          <div>
+            <label className="mb-2 block text-body font-medium text-text-secondary">
+              Opened At
+            </label>
+            <input
+              type="date"
+              name="openedAt"
+              value={formData.openedAt}
+              onChange={handleChange}
+              className="ui-input text-caption"
+            />
+            <input
+              type="time"
+              name="timeOpened"
+              value={formData.timeOpened}
+              onChange={handleChange}
+              className="ui-input text-caption mt-2"
+            />
+          </div>
+
+          {/* Closed At (disabled if trade is Open) */}
+          <div>
+            <label className="mb-2 block text-body font-medium text-text-secondary">
+              Closed At
+            </label>
+            <input
+              type="date"
+              name="closedAt"
+              value={formData.closedAt || ""}
+              onChange={handleChange}
+              className="ui-input text-caption"
+              disabled={!isClosed}
+            />
+            <input
+              type="time"
+              name="timeClosed"
+              value={formData.timeClosed || ""}
+              onChange={handleChange}
+              className="ui-input text-caption mt-2"
+              disabled={!isClosed}
+            />
+          </div>
+        </div>
+      </Paper>
+
+      {/* --- Price Info --- */}
+      <Paper className="ui-card rounded-panel p-6">
         <h2 className="mb-5 text-card-title font-semibold">
           Price Information
         </h2>
@@ -208,13 +236,9 @@ export default function AddTrade() {
                   onChange={handleChange}
                   placeholder="0.00"
                   className="ui-input pl-9 text-caption"
+                  disabled={name === "closedPrice" && !isClosed} // exit price only editable if Closed
                 />
               </div>
-              {fieldErrors[name] && (
-                <p className="mt-1 text-caption text-state-danger">
-                  {fieldErrors[name]}
-                </p>
-              )}
             </div>
           ))}
 
@@ -239,11 +263,6 @@ export default function AddTrade() {
                 {formData.positionUnit} <ChevronDown size={15} />
               </button>
             </div>
-            {fieldErrors.positionSize && (
-              <p className="mt-1 text-caption text-state-danger">
-                {fieldErrors.positionSize}
-              </p>
-            )}
           </div>
 
           <div className="md:col-span-2">
@@ -264,19 +283,12 @@ export default function AddTrade() {
                 %
               </span>
             </div>
-            {fieldErrors.riskPercent && (
-              <p className="mt-1 text-caption text-state-danger">
-                {fieldErrors.riskPercent}
-              </p>
-            )}
           </div>
         </div>
       </Paper>
 
-      <Paper
-        elevation={0}
-        className="rounded-panel border border-border bg-surface-muted px-6 py-5"
-      >
+      {/* --- Trade Preview --- */}
+      <Paper className="rounded-panel border border-border bg-surface-muted px-6 py-5">
         <h2 className="mb-3 text-card-title font-semibold">Trade Preview</h2>
         <Box className="grid grid-cols-4 gap-6 text-center">
           <div>
@@ -302,9 +314,9 @@ export default function AddTrade() {
         </Box>
       </Paper>
 
-      <Paper elevation={0} className="ui-card rounded-panel p-6">
+      {/* --- Notes & Tags --- */}
+      <Paper className="ui-card rounded-panel p-6">
         <h2 className="mb-5 text-card-title font-semibold">Notes & Tags</h2>
-
         <div className="space-y-4">
           <div>
             <label className="mb-2 block text-body font-medium text-text-secondary">
@@ -334,10 +346,7 @@ export default function AddTrade() {
               value={formData.tagsInput}
               onChange={(e) => {
                 handleTagsChange(e);
-                setFormData((prev) => ({
-                  ...prev,
-                  tagsInput: e.target.value,
-                }));
+                setFormData((prev) => ({ ...prev, tagsInput: e.target.value }));
               }}
               placeholder="e.g. breakout, swing-trade, scalping..."
               className="ui-input text-caption"
@@ -361,6 +370,7 @@ export default function AddTrade() {
         </div>
       </Paper>
 
+      {/* --- Footer --- */}
       <div className="flex items-center justify-between border-t border-border pt-6">
         <button
           type="button"
@@ -368,7 +378,6 @@ export default function AddTrade() {
         >
           Cancel
         </button>
-
         <div className="flex items-center gap-3">
           <button type="button" className="ui-btn-secondary py-2 text-body">
             Save & Add Another
