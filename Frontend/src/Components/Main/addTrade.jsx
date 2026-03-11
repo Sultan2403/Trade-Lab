@@ -76,6 +76,8 @@ export default function AddTrade() {
 
   const isClosed = formData.status === "Closed";
 
+  
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <form
@@ -89,10 +91,11 @@ export default function AddTrade() {
           </h2>
           <div className="grid gap-5 md:grid-cols-3">
             {/* Instrument / Pair */}
-            <div>
-              <label className="mb-2 block text-body font-medium text-text-secondary">
-                Instrument/Pair
+            <div className="space-y-2">
+              <label className="text-body font-medium text-text-secondary">
+                Instrument / Pair
               </label>
+
               <input
                 name="pair"
                 value={formData.pair}
@@ -100,11 +103,6 @@ export default function AddTrade() {
                 placeholder="EUR/USD, GBP/USD, AAPL..."
                 className="ui-input text-caption"
               />
-              {fieldErrors.pair && (
-                <p className="mt-1 text-caption text-state-danger">
-                  {fieldErrors.pair}
-                </p>
-              )}
             </div>
 
             {/* Direction */}
