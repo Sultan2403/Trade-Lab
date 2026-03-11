@@ -1,6 +1,11 @@
 export function splitISOToDateTime(iso) {
-  const date = iso?.split("T")[0] || "";
-  const time = iso?.split("T")[1]?.slice(0, 5) || ""; // "HH:MM"
+  if (!iso) return { date: "", time: "" };
+
+  const d = new Date(iso);
+
+  const date = d.toISOString().slice(0, 10);
+  const time = d.toISOString().slice(11, 16);
+
   return { date, time };
 }
 
