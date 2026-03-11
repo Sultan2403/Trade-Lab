@@ -15,7 +15,6 @@ import { createInitialTradeUIState } from "../../Helpers/Trades/trades.helpers";
 const initialFormState = createInitialTradeUIState();
 
 export default function AddTrade() {
-
   const [formData, setFormData] = useState(initialFormState);
 
   const [fieldErrors, setFieldErrors] = useState({});

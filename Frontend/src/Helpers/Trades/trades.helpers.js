@@ -6,11 +6,11 @@ export function createInitialTradeUIState() {
     pair: "",
     direction: "Long",
 
-    entryPrice: 0,
-    stopLoss: 0,
-    takeProfit: 0,
-    positionSize: 0,
-    riskPercent: 0,
+    entryPrice: "",
+    stopLoss: "",
+    takeProfit: "",
+    positionSize: "",
+    riskPercent: 1,
 
     status: "Open",
 
