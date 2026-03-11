@@ -1,19 +1,83 @@
+import { createElement } from "react";
+import { ArrowUpRight, BarChart3, History, LayoutGrid, LogOut, Plus, Settings, UserRound } from "lucide-react";
 import { NavLink } from "react-router-dom";
+
+const primaryLinks = [
+  { label: "Dashboard", to: "/dashboard", icon: LayoutGrid },
+  { label: "Trade History", to: "/trades", icon: History },
+  { label: "Analytics", to: "/analytics", icon: BarChart3 },
+];
+
+const accountLinks = [
+  { label: "Settings", to: "/settings", icon: Settings },
+  { label: "Profile", to: "/profile", icon: UserRound },
+];
+
+const navLinkClass = ({ isActive }) =>
+  `flex items-center gap-3 rounded-md px-3 py-2 text-[15px] transition-colors ${
+    isActive
+      ? "bg-surface-muted text-text-primary"
+      : "text-text-secondary hover:bg-surface-muted hover:text-text-primary"
+  }`;
 
 export default function Nav() {
   return (
-    <nav className="h-full border-r border-slate-200 bg-white p-4">
-      <h2 className="mb-6 text-lg font-semibold text-slate-800">Trade Lab</h2>
-      <ul className="space-y-2 text-slate-600">
-        <li>
-          <NavLink
-            to="/dashboard"
-            className="block rounded-md px-3 py-2 hover:bg-slate-100"
-          >
-            Dashboard
-          </NavLink>
-        </li>
+    <nav className="flex h-full flex-col border-r border-border bg-surface-card">
+      <div className="flex items-center gap-3 border-b border-border px-6 py-7">
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-brand-900 text-text-inverse">
+          <ArrowUpRight size={18} />
+        </span>
+        <h2 className="text-xl font-semibold">TradeLog</h2>
+      </div>
+
+      <ul className="space-y-1 px-3 py-5">
+        {primaryLinks.map(({ label, to, icon }) => (
+          <li key={label}>
+            <NavLink to={to} className={navLinkClass}>
+              {createElement(icon, { size: 17 })}
+              <span>{label}</span>
+            </NavLink>
+          </li>
+        ))}
       </ul>
+
+      <div className="px-3">
+        <NavLink
+          to="/add-trade"
+          className={({ isActive }) =>
+            `flex w-full items-center justify-center gap-2 rounded-md px-3 py-3 text-[24px] font-medium transition-colors ${
+              isActive
+                ? "bg-brand-700 text-text-inverse"
+                : "bg-brand-700/65 text-text-inverse hover:bg-brand-700"
+            }`
+          }
+        >
+          <Plus size={18} />
+          Add Trade
+        </NavLink>
+      </div>
+
+      <div className="mt-auto border-t border-border px-3 py-5">
+        <ul className="space-y-1">
+          {accountLinks.map(({ label, to, icon }) => (
+            <li key={label}>
+              <NavLink to={to} className={navLinkClass}>
+                {createElement(icon, { size: 17 })}
+                <span>{label}</span>
+              </NavLink>
+            </li>
+          ))}
+          <li>
+            <button
+              type="button"
+              className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-[15px] text-text-secondary transition-colors hover:bg-surface-muted hover:text-text-primary"
+            >
+              <LogOut size={17} />
+              Sign Out
+            </button>
+          </li>
+        </ul>
+      </div>
     </nav>
   );
 }

@@ -1,19 +1,61 @@
-import { Outlet } from "react-router-dom";
+import { Avatar, IconButton } from "@mui/material";
+import { ChevronDown } from "lucide-react";
+import { Outlet, useLocation } from "react-router-dom";
 import Nav from "../Navigation/nav";
 
+const pageConfig = {
+  "/add-trade": {
+    breadcrumbs: ["Trade History", "Add Trade"],
+    title: "Log New Trade",
+    subtitle: "Capture trade details while they're fresh",
+  },
+  "/dashboard": {
+    breadcrumbs: ["Overview"],
+    title: "Dashboard",
+    subtitle: "Track your latest trading performance",
+  },
+};
+
 export default function Main() {
+  const { pathname } = useLocation();
+  const pageMeta = pageConfig[pathname] ?? pageConfig["/add-trade"];
+
   return (
-    <div className="flex h-screen w-full bg-slate-50">
-      <aside className="w-[20%] min-w-56 h-full overflow-y-auto">
+    <div className="flex h-screen w-full bg-surface-base">
+      <aside className="h-full w-[300px] shrink-0 overflow-y-auto">
         <Nav />
       </aside>
 
       <div className="flex flex-1 flex-col">
-        <header className="border-b border-slate-200 bg-white p-4 shadow-sm">
-          <h1 className="ml-2 text-2xl font-semibold text-slate-800">Trading Journal</h1>
+        <header className="border-b border-border bg-surface-card px-8 py-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="mb-1 flex items-center gap-3 text-caption text-text-muted">
+                {pageMeta.breadcrumbs.map((item, index) => (
+                  <span key={item} className="inline-flex items-center gap-3">
+                    {index > 0 && <span>›</span>}
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <h1 className="text-4xl font-semibold">{pageMeta.title}</h1>
+              <p className="mt-1 text-body text-text-secondary">{pageMeta.subtitle}</p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Avatar
+                alt="Trader"
+                src="https://i.pravatar.cc/80?img=12"
+                sx={{ width: 42, height: 42 }}
+              />
+              <IconButton size="small" sx={{ color: "#6C737C" }}>
+                <ChevronDown size={16} />
+              </IconButton>
+            </div>
+          </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4">
+        <main className="flex-1 overflow-y-auto p-8">
           <Outlet />
         </main>
       </div>

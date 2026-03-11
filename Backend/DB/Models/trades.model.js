@@ -7,9 +7,11 @@ const tradeSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
     pair: {
       type: String,
       required: true,
+      set: (v) => v.toUpperCase(),
     },
 
     direction: {
@@ -48,22 +50,36 @@ const tradeSchema = new mongoose.Schema(
       type: Number,
     },
 
+    openedAt: {
+      type: Date,
+      required: function () {
+        return this.status === "Open";
+      },
+    },
+    
     closedAt: {
       type: Date,
+      required: function () {
+        return this.status === "Closed";
+      },
     },
 
     notes: {
       type: String,
+      maxlength: 500,
     },
 
     chartUrl: {
       type: String,
+      maxlength: 500,
     },
 
     tags: [String],
 
     riskPercent: {
       type: Number,
+      required: true,
+      min: 0.01,
     },
   },
   { timestamps: true, strict: true },
