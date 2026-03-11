@@ -1,4 +1,5 @@
 import { Box, Paper, Switch } from "@mui/material";
+import UIInput from "../../UI/Common/input";
 import {
   Calendar,
   ChevronDown,
@@ -26,7 +27,8 @@ export default function TradeForm({
   handleTagsChange,
   previewPnL,
   isClosed,
-  setFormData
+  setFormData,
+  fieldErrors,
 }) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -45,13 +47,13 @@ export default function TradeForm({
               <label className="text-body font-medium text-text-secondary">
                 Instrument / Pair
               </label>
-
-              <input
+              <UIInput
                 name="pair"
                 value={formData.pair}
                 onChange={handleChange}
                 placeholder="EUR/USD, GBP/USD, AAPL..."
-                className="ui-input text-caption"
+                error={fieldErrors?.pair}
+                helperText={fieldErrors?.pair}
               />
             </div>
 
@@ -220,21 +222,20 @@ export default function TradeForm({
                 <label className="mb-2 block text-body font-medium text-text-secondary">
                   {label}
                 </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-caption text-text-muted">
-                    $
-                  </span>
-                  <input
-                    type="number"
-                    step="0.00001"
-                    name={name}
-                    value={formData[name]}
-                    onChange={handleChange}
-                    placeholder="0.00"
-                    className="ui-input pl-9 text-caption"
-                    disabled={name === "closedPrice" && !isClosed} // exit price only editable if Closed
-                  />
-                </div>
+
+                <UIInput
+                  type="number"
+                  name={name}
+                  step="0.00001"
+                  value={formData[name] ?? ""}
+                  onChange={handleChange}
+                  placeholder="0.00000"
+                  startIcon="$"
+                  disabled={name === "closedPrice" && !isClosed}
+                  error={Boolean(fieldErrors?.[name])}
+                  helperText={fieldErrors?.[name] || ""}
+                  inputProps={{ inputMode: "decimal" }}
+                />
               </div>
             ))}
 
@@ -266,18 +267,15 @@ export default function TradeForm({
                 Risk Percent
               </label>
               <div className="relative max-w-sm">
-                <input
+                <UIInput
                   type="number"
-                  step="0.01"
                   name="riskPercent"
+                  step="0.01"
                   value={formData.riskPercent}
                   onChange={handleChange}
                   placeholder="1.00"
-                  className="ui-input pr-8 text-caption"
+                  endIcon="%"
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-caption text-text-muted">
-                  %
-                </span>
               </div>
             </div>
           </div>
@@ -316,19 +314,15 @@ export default function TradeForm({
               <label className="mb-2 block text-body font-medium text-text-secondary">
                 Trade Notes
               </label>
-              <textarea
+              <UIInput
                 name="notes"
                 value={formData.notes}
                 onChange={handleChange}
-                maxLength={500}
+                multiline
                 rows={5}
-                placeholder="Describe your setup, execution, or lessons learned..."
-                className="ui-input resize-none text-caption"
+                inputProps={{ maxLength: 500 }}
+                helperText={`${formData.notes.length}/500 characters`}
               />
-              <div className="mt-2 flex items-center justify-between text-caption text-text-muted">
-                <span>{formData.notes.length} / 500 characters</span>
-                <span>Ctrl+Enter to save</span>
-              </div>
             </div>
 
             <div>

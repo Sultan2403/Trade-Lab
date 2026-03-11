@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-
 import { validateTradeCreate } from "../../../Validators/trade.validator";
 import { createInitialTradeUIState } from "../../../Helpers/Trades/trades.helpers";
 import TradeForm from "./tradeForm";
@@ -69,6 +68,7 @@ export default function AddTrade() {
       formData={formData}
       isClosed={isClosed}
       setFormData={setFormData}
+      fieldErrors={fieldErrors}
     />
   );
 }
