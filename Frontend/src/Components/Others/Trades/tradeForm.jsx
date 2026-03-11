@@ -319,6 +319,7 @@ export default function TradeForm({
                 value={formData.notes}
                 onChange={handleChange}
                 multiline
+                placeholder="Write a note about your trade..."
                 rows={5}
                 inputProps={{ maxLength: 500 }}
                 helperText={`${formData.notes.length}/500 characters`}
