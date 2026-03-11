@@ -30,6 +30,10 @@ app.use("/auth", authLimiter, authRouter);
 app.use("/trades", tradesRouter);
 
 
+app.get("/", (req, res) => {
+  res.json({ success: true, message: "Looking for something? 👀" });
+});
+
 app.get("/health", (req, res) => {
   res.json({ success: true, message: "Server says Heyyyy! :)" });
 });
