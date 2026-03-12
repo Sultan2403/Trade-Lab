@@ -41,7 +41,47 @@ const tradeSchema = Joi.object({
 
   notes: Joi.string().max(500).allow(""),
 
+  tags: Joi.array().items(Joi.string()).optional(),
+
   // chartUrl: Joi.string().uri().max(500),
-});
+})
+  .custom((value, helpers) => {
+    if (value.closedAt && value.closedAt < value.openedAt) {
+      return helpers.error("any.invalid", {
+        message: "Close time cannot be before open time",
+      });
+    }
+
+    if (value.direction === "Long") {
+      if (value.stopLoss >= value.entryPrice) {
+        return helpers.error("any.invalid", {
+          message: "Stop loss must be below entry for long trades",
+        });
+      }
+
+      if (value.takeProfit <= value.entryPrice) {
+        return helpers.error("any.invalid", {
+          message: "Take profit must be above entry for long trades",
+        });
+      }
+    }
+
+    if (value.direction === "Short") {
+      if (value.stopLoss <= value.entryPrice) {
+        return helpers.error("any.invalid", {
+          message: "Stop loss must be above entry for short trades",
+        });
+      }
+
+      if (value.takeProfit >= value.entryPrice) {
+        return helpers.error("any.invalid", {
+          message: "Take profit must be below entry for short trades",
+        });
+      }
+    }
+
+    return value;
+  })
+  .options({ stripUnknown: true });
 
 module.exports = { tradeSchema };

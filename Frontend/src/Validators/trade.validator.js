@@ -1,64 +1,66 @@
-const toNumber = (value) => {
-  if (value === "" || value === null || value === undefined) {
-    return Number.NaN;
-  }
-
-  return Number(value);
-};
-
-const hasPrecision = (value, maxDecimalPlaces) => {
-  const [, decimals = ""] = String(value).split(".");
-  return decimals.length <= maxDecimalPlaces;
-};
-
 export function validateTradeCreate(trade) {
   const errors = {};
 
-  if (!trade?.pair?.trim()) {
+  if (!trade.pair) {
     errors.pair = "Instrument/Pair is required";
   }
 
-  const entryPrice = toNumber(trade?.entryPrice);
-  if (Number.isNaN(entryPrice)) {
+  if (!Number.isFinite(trade.entryPrice)) {
     errors.entryPrice = "Entry price is required";
-  } else if (!hasPrecision(trade.entryPrice, 5)) {
-    errors.entryPrice = "Entry price supports up to 5 decimal places";
   }
 
-  const stopLoss = toNumber(trade?.stopLoss);
-  if (Number.isNaN(stopLoss)) {
+  if (!Number.isFinite(trade.stopLoss)) {
     errors.stopLoss = "Stop loss is required";
-  } else if (!hasPrecision(trade.stopLoss, 5)) {
-    errors.stopLoss = "Stop loss supports up to 5 decimal places";
   }
 
-  const takeProfit = toNumber(trade?.takeProfit);
-  if (Number.isNaN(takeProfit)) {
+  if (!Number.isFinite(trade.takeProfit)) {
     errors.takeProfit = "Take profit is required";
-  } else if (!hasPrecision(trade.takeProfit, 5)) {
-    errors.takeProfit = "Take profit supports up to 5 decimal places";
   }
 
-  const positionSize = toNumber(trade?.positionSize);
-  if (Number.isNaN(positionSize)) {
+  if (!Number.isFinite(trade.positionSize)) {
     errors.positionSize = "Position size is required";
-  } else if (!hasPrecision(trade.positionSize, 2)) {
-    errors.positionSize = "Position size supports up to 2 decimal places";
   }
 
-  const riskPercent = toNumber(trade?.riskPercent);
-  if (Number.isNaN(riskPercent)) {
+  if (!Number.isFinite(trade.riskPercent)) {
     errors.riskPercent = "Risk percent is required";
-  } else if (riskPercent < 0.01) {
+  } else if (trade.riskPercent < 0.01) {
     errors.riskPercent = "Risk percent must be at least 0.01";
   }
 
-  if (trade?.status && !["Open", "Closed"].includes(trade.status)) {
-    errors.status = "Status must be either open or closed";
+  if (!trade.openedAt) {
+    errors.openedAt = "Open time is required";
   }
 
-  if (trade?.tags && !Array.isArray(trade.tags)) {
-    errors.tags = "Tags must be an array of strings";
+  if (trade.status === "Closed") {
+    if (!trade.closedAt) {
+      errors.closedAt = "Close time is required";
+    }
+  }
+
+  if (trade.closedAt && trade.openedAt) {
+    if (new Date(trade.closedAt) < new Date(trade.openedAt)) {
+      errors.closedAt = "Close time cannot be before open time";
+    }
+  }
+
+  if (trade.direction === "Long") {
+    if (trade.stopLoss >= trade.entryPrice) {
+      errors.stopLoss = "Stop loss must be below entry for long trades";
+    }
+
+    if (trade.takeProfit <= trade.entryPrice) {
+      errors.takeProfit = "Take profit must be above entry for long trades";
+    }
+  }
+
+  if (trade.direction === "Short") {
+    if (trade.stopLoss <= trade.entryPrice) {
+      errors.stopLoss = "Stop loss must be above entry for short trades";
+    }
+
+    if (trade.takeProfit >= trade.entryPrice) {
+      errors.takeProfit = "Take profit must be below entry for short trades";
+    }
   }
 
   return errors;

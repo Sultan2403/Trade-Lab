@@ -72,7 +72,8 @@ export default function TradeForm({
 
             {error && (
               <p className="mt-3 text-sm text-red-600">
-                {error?.response?.data?.message}
+                {error?.response?.data?.validation?.body?.message ||
+                  error?.response?.data?.message}
               </p>
             )}
           </div>

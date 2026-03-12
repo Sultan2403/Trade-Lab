@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { combineDateAndTime } from "../Utils/timestamps.utils";
 
 export function createInitialTradeUIState() {
   const now = dayjs();
@@ -27,5 +28,20 @@ export function createInitialTradeUIState() {
     chartUrl: "",
     tags: [],
     tagsInput: "",
+  };
+}
+
+export function normalizeTrade(trade) {
+  return {
+    ...trade,
+    
+    openedAt: combineDateAndTime({
+      date: trade.openedAt,
+      time: trade.timeOpened,
+    }),
+    closedAt: combineDateAndTime({
+      date: trade.closedAt,
+      time: trade.timeClosed,
+    }),
   };
 }

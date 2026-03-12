@@ -32,7 +32,9 @@ const tradeSchema = new mongoose.Schema(
 
     takeProfit: {
       type: Number,
-      required: false,
+      required: function () {
+        return this.status === "Closed";
+      },
     },
 
     positionSize: {
@@ -70,7 +72,7 @@ const tradeSchema = new mongoose.Schema(
     notes: {
       type: String,
       maxlength: 500,
-      required: false
+      required: false,
     },
 
     chartUrl: {
