@@ -19,7 +19,7 @@ connectDB();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin:[ "http://localhost:5173", "https://trade-lab-pro.vercel.app"],
   }),
 );
 app.use(express.json());
