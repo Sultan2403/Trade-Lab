@@ -4,6 +4,11 @@ import { Outlet, useLocation } from "react-router-dom";
 import Nav from "../Navigation/nav";
 
 const pageConfig = {
+  "/trades": {
+    breadcrumbs: ["Trade History"],
+    title: "Trade History",
+    subtitle: "Review, search, and sort your trades",
+  },
   "/add-trade": {
     breadcrumbs: ["Trade History", "Add Trade"],
     title: "Log New Trade",
@@ -18,7 +23,13 @@ const pageConfig = {
 
 export default function Main() {
   const { pathname } = useLocation();
-  const pageMeta = pageConfig[pathname] ?? pageConfig["/add-trade"];
+  const pageMeta = pathname.startsWith("/trades/")
+    ? {
+        breadcrumbs: ["Trade History", "Trade Detail"],
+        title: "Trade Detail",
+        subtitle: "Detailed trade breakdown is in progress",
+      }
+    : (pageConfig[pathname] ?? pageConfig["/dashboard"]);
 
   return (
     <div className="flex h-screen w-full bg-surface-base">
