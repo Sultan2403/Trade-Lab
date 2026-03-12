@@ -27,12 +27,12 @@ const tradeSchema = new mongoose.Schema(
 
     stopLoss: {
       type: Number,
-      required: true,
+      required: false,
     },
 
     takeProfit: {
       type: Number,
-      required: true,
+      required: false,
     },
 
     positionSize: {
@@ -48,6 +48,9 @@ const tradeSchema = new mongoose.Schema(
 
     closedPrice: {
       type: Number,
+      required: function () {
+        return this.status === "Closed";
+      },
     },
 
     openedAt: {
@@ -56,7 +59,7 @@ const tradeSchema = new mongoose.Schema(
         return this.status === "Open";
       },
     },
-    
+
     closedAt: {
       type: Date,
       required: function () {
@@ -67,6 +70,7 @@ const tradeSchema = new mongoose.Schema(
     notes: {
       type: String,
       maxlength: 500,
+      required: false
     },
 
     chartUrl: {

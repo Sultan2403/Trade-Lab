@@ -5,13 +5,13 @@ const tradeSchema = Joi.object({
 
   entryPrice: Joi.number().precision(5).required(),
 
-  stopLoss: Joi.number().precision(5).required(),
+  stopLoss: Joi.number().precision(5).optional(),
 
-  takeProfit: Joi.number().precision(5).required(),
+  takeProfit: Joi.number().precision(5).optional(),
 
   positionSize: Joi.number().precision(2).required(),
 
-  riskPercent: Joi.number().min(0.01).required(),
+  riskPercent: Joi.number().min(0.01).max(100).required(),
 
   tags: Joi.array().items(Joi.string().max(20)).max(10),
 

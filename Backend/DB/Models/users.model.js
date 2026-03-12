@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema(
       required: [true, "Name is required"],
       trim: true,
     },
+    
     email: {
       type: String,
       required: true,
@@ -14,23 +15,19 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       unique: true,
     },
+
     password: {
       type: String,
       required: true,
       trim: true,
       select: false,
     },
-    phoneNumber: {
-      type: String,
-      required: false,
-      trim: true,
-      default: null
-    },
-    balance: {
+
+    accountBalance: {
       type: Number,
-      required: true,
-      default: 0,
+      default: 0
     },
+
     refreshTokenHash: { type: String, select: false },
   },
   {
