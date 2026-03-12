@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { validateTradeCreate } from "../../../Validators/trade.validator";
-import { createInitialTradeUIState } from "../../../Helpers/Trades/trades.helpers";
+import { createInitialTradeUIState, normalizeTrade } from "../../../Helpers/Trades/trades.helpers";
 import TradeForm from "./tradeForm";
 import useTrades from "../../../Hooks/useTrades";
 
@@ -37,17 +37,19 @@ export default function AddTrade() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const errors = validateTradeCreate(formData);
-    console.log(formData);
+
+    const normalizedData = normalizeTrade(formData)
+    const errors = validateTradeCreate(normalizedData);
+
 
     if (Object.keys(errors).length > 0) return setFieldErrors(errors);
 
     setFieldErrors({});
 
-    console.log("createTrade payload", formData);
+    console.log("Sending to server...", normalizedData);
 
     // Normalize formdata first!
-    createTrade(formData);
+    createTrade(normalizedData);
   };
 
   const previewPnL = useMemo(() => {

@@ -63,5 +63,13 @@ export function validateTradeCreate(trade) {
     }
   }
 
+  if(trade.tags && trade.tags.length > 10){
+    errors.tags = "Maximum number of tags is 10"
+  }
+
+  if(trade.notes.length > 500){
+    errors.notes = "Maximum of 500 characters exceeded"
+  }
+
   return errors;
 }

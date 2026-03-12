@@ -220,6 +220,7 @@ export default function TradeForm({
                 >
                   <DatePicker
                     value={formData.closedAt ? dayjs(formData.closedAt) : null}
+                    minDate={formData.openedAt}
                     onChange={(newDate) =>
                       setFormData((prev) => ({
                         ...prev,
@@ -384,7 +385,10 @@ export default function TradeForm({
                 placeholder="Write a note about your trade..."
                 rows={5}
                 inputProps={{ maxLength: 500 }}
-                helperText={`${formData.notes.length}/500 characters`}
+                error={fieldErrors.notes}
+                helperText={
+                  fieldErrors.notes || `${formData.notes.length}/500 characters`
+                }
               />
             </div>
 
@@ -392,7 +396,7 @@ export default function TradeForm({
               <label className="mb-2 block text-body font-medium text-text-secondary">
                 Strategy Tags (Optional)
               </label>
-              <input
+              <UIInput
                 name="tags"
                 value={formData.tagsInput}
                 onChange={(e) => {
@@ -402,6 +406,8 @@ export default function TradeForm({
                     tagsInput: e.target.value,
                   }));
                 }}
+                error={fieldErrors.tags}
+                helperText={fieldErrors.tags}
                 placeholder="e.g. breakout, swing-trade, scalping..."
                 className="ui-input text-caption"
               />
