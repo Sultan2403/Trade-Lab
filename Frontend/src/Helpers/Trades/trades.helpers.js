@@ -1,6 +1,7 @@
-// UI state ready for AddTrade
+import dayjs from "dayjs";
+
 export function createInitialTradeUIState() {
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const now = dayjs();
 
   return {
     pair: "",
@@ -15,10 +16,12 @@ export function createInitialTradeUIState() {
     status: "Open",
 
     closedPrice: null,
-    closedAt: "",
-    openedAt: today,
-    timeOpened: new Date().toTimeString().slice(0, 5), // HH:MM
-    timeClosed: "",
+
+    openedAt: now,
+    closedAt: null,
+
+    timeOpened: now,
+    timeClosed: null,
 
     notes: "",
     chartUrl: "",

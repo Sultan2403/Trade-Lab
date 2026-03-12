@@ -15,7 +15,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/add-trade" replace />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

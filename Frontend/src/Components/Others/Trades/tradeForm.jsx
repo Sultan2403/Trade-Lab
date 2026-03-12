@@ -10,7 +10,7 @@ import {
   CheckCircle,
   XCircle,
   DollarSign,
-  FileText
+  FileText,
 } from "lucide-react";
 import dayjs from "dayjs";
 
@@ -31,12 +31,15 @@ export default function TradeForm({
   isClosed,
   setFormData,
   fieldErrors,
+  loading,
+  error,
 }) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <form
         onSubmit={handleSubmit}
         className="mx-auto w-full max-w-[1120px] space-y-6 pb-10"
+        style={{ pointerEvents: loading ? "none" : "auto" }}
       >
         {" "}
         <div className="sticky top-0 z-10 mb-6 flex items-center justify-between border-b border-border bg-white py-4">
@@ -51,18 +54,27 @@ export default function TradeForm({
             </button>
 
             <button
-              type="button"
-              className="ui-btn-secondary inline-flex items-center gap-2"
+              type="submit"
+              disabled={loading}
+              className="ui-btn-primary inline-flex items-center gap-2 py-2 text-body disabled:opacity-60"
             >
-              Save & Add Another
+              {loading ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save size={16} /> Save Trade
+                </>
+              )}
             </button>
 
-            <button
-              type="submit"
-              className="ui-btn-primary inline-flex items-center gap-2"
-            >
-              <Save size={16} /> Save Trade
-            </button>
+            {error && (
+              <p className="mt-3 text-sm text-red-600">
+                {error?.response?.data?.message}
+              </p>
+            )}
           </div>
         </div>
         {/* --- Basic Info --- */}
@@ -175,12 +187,12 @@ export default function TradeForm({
                   value={
                     formData.timeOpened ? dayjs(formData.timeOpened) : null
                   }
-                  onChange={(newTime) =>
+                  onChange={(newTime) => {
                     setFormData((prev) => ({
                       ...prev,
                       timeOpened: newTime,
-                    }))
-                  }
+                    }));
+                  }}
                   slotProps={{
                     textField: {
                       size: "small",

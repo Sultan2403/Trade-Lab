@@ -2,13 +2,13 @@ import { useMemo, useState } from "react";
 import { validateTradeCreate } from "../../../Validators/trade.validator";
 import { createInitialTradeUIState } from "../../../Helpers/Trades/trades.helpers";
 import TradeForm from "./tradeForm";
-import useTrades from "../../../Hooks/useTrades"
+import useTrades from "../../../Hooks/useTrades";
 
 export default function AddTrade() {
   const [formData, setFormData] = useState(createInitialTradeUIState());
   const [fieldErrors, setFieldErrors] = useState({});
 
-  const {data, loading, error, createTrade} = useTrades()
+  const { data, loading, error, createTrade } = useTrades();
 
   const handleTagsChange = (e) => {
     const tags = e.target.value
@@ -38,18 +38,16 @@ export default function AddTrade() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const errors = validateTradeCreate(formData);
-    console.log(formData)
-    
+    console.log(formData);
+
     if (Object.keys(errors).length > 0) return setFieldErrors(errors);
-    
+
     setFieldErrors({});
-   
+
     console.log("createTrade payload", formData);
 
     // Normalize formdata first!
-
-   // createTrade(formData)
-
+    createTrade(formData);
   };
 
   const previewPnL = useMemo(() => {
@@ -81,6 +79,8 @@ export default function AddTrade() {
       isClosed={isClosed}
       setFormData={setFormData}
       fieldErrors={fieldErrors}
+      loading={loading}
+      error={error}
     />
   );
 }

@@ -15,6 +15,19 @@ export function splitISOToDateTime(iso) {
   return { date, time };
 }
 
+export function combineDateAndTime({ date, time }) {
+  if (!date || !time) return null;
+
+  return date
+    .hour(time.hour())
+    .minute(time.minute())
+    .second(0)
+    .millisecond(0)
+    .toISOString();
+}
+
+// This guy is prob redundant now
+
 export function mergeDateAndTimeISO(dateStr, timeStr) {
   if (!dateStr || !timeStr) return null;
 
