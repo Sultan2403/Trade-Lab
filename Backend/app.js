@@ -27,7 +27,7 @@ app.use(express.json());
 // Routes
 
 app.use("/auth", authLimiter, authRouter);
-app.use("/trades", tradesRouter);
+app.use("/trades", authMiddleware, tradesRouter);
 
 
 app.get("/", (req, res) => {

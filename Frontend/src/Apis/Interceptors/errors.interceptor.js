@@ -48,11 +48,11 @@ export default async function handleErrors({ error, apiInstance }) {
   }
 
   try {
-    const { data } = await apiInstance.post("/auth/refresh", {
+    const { tokens } = await apiInstance.post("/auth/refresh", {
       refreshToken,
     });
 
-    const { accessToken, refreshToken: newRefreshToken } = data.tokens;
+    const { accessToken, refreshToken: newRefreshToken } = tokens;
 
     setAccessToken(accessToken);
     setRefreshToken(newRefreshToken);
