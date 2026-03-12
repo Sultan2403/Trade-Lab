@@ -1,7 +1,7 @@
 import { useState } from "react";
-import authApi from "../Apis/Auth/api.auth";
+import tradesApi from "../Apis/Others/trades.api"
 
-export default function useAuth() {
+export default function useTrades() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
