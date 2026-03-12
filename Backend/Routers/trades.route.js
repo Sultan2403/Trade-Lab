@@ -7,6 +7,7 @@ const {
   getTrade,
   updateTrade,
   deleteTrade,
+  uploadTrades
 } = require("../Controllers/trades.controller");
 
 const authMiddleware = require("../Middleware/auth.middleware");
