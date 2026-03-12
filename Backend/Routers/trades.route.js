@@ -13,6 +13,7 @@ const authMiddleware = require("../Middleware/auth.middleware");
 router.use(authMiddleware);
 
 router.post("/", createTrade);
+router.post("/import", uploadTrades);
 router.get("/", getTrades);
 router.get("/:id", getTrade);
 router.patch("/:id", updateTrade);

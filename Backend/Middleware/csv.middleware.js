@@ -1,6 +1,8 @@
 const multer = require("multer");
 
-// Store file in memory instead of disk
+const csv = require("csv-parser");
+const { PassThrough } = require("stream");
+
 const storage = multer.memoryStorage();
 
 const upload = multer({
@@ -17,12 +19,6 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024, // optional: 5 MB max
   },
 });
-
-
-
-
-const csv = require("csv-parser");
-const { PassThrough } = require("stream");
 
 function parseTrades(req, res, next) {
   if (!req.file) return res.status(400).send("No file uploaded");

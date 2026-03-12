@@ -77,10 +77,22 @@ const deleteTrade = async (req, res) => {
   }
 };
 
+const uploadTrades = async (req, res) => {
+  try {
+    const trades = req.trades;
+
+    res.status(201).json({ success: true, trades });
+  } catch (error) {
+    console.error(error);
+    res.stat;
+  }
+};
+
 module.exports = {
   createTrade,
   getTrades,
   getTrade,
   updateTrade,
   deleteTrade,
+  uploadTrades,
 };
