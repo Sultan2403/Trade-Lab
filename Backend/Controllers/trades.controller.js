@@ -68,6 +68,7 @@ const deleteTrade = async (req, res) => {
   try {
     const userId = req.user.id;
     const tradeId = req.params.id;
+
     await tradeService.deleteTrade({ userId, tradeId });
 
     res.json({ success: true, message: "Trade deleted" });
@@ -84,7 +85,7 @@ const uploadTrades = async (req, res) => {
     res.status(201).json({ success: true, trades });
   } catch (error) {
     console.error(error);
-    res.stat;
+    res.status(500).json({success: false, message: error.message});
   }
 };
 
