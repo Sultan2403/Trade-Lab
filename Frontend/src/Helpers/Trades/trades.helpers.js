@@ -8,7 +8,7 @@ export function createInitialTradeUIState() {
     pair: "",
     direction: "Long",
 
-    entryPrice: "",
+    entry_price: "",
     stopLoss: "",
     takeProfit: "",
     positionSize: "",
@@ -16,7 +16,7 @@ export function createInitialTradeUIState() {
 
     status: "Open",
 
-    closedPrice: null,
+    exit_price: null,
 
     openedAt: now,
     closedAt: null,

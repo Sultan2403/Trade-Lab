@@ -55,15 +55,15 @@ const formatDate = (value) => {
 };
 
 const calcPnl = (trade) => {
-  if (trade.closedPrice === null || trade.closedPrice === undefined) return null;
+  if (trade.exit_price === null || trade.exit_price === undefined) return null;
   const directionSign = trade.direction === "Short" ? -1 : 1;
-  return (Number(trade.closedPrice) - Number(trade.entryPrice)) * Number(trade.positionSize) * directionSign;
+  return (Number(trade.exit_price) - Number(trade.entry_price)) * Number(trade.positionSize) * directionSign;
 };
 
 const calcRMultiple = (trade, pnl) => {
   if (trade.rMultiple !== undefined && trade.rMultiple !== null) return Number(trade.rMultiple);
 
-  const riskPerUnit = Math.abs(Number(trade.entryPrice) - Number(trade.stopLoss));
+  const riskPerUnit = Math.abs(Number(trade.entry_price) - Number(trade.stopLoss));
   const riskAmount = riskPerUnit * Number(trade.positionSize);
 
   if (!riskAmount || Number.isNaN(riskAmount) || pnl === null || Number.isNaN(pnl)) return null;
@@ -250,8 +250,8 @@ export default function TradesHistory() {
                         {trade.direction}
                       </span>
                     </TableCell>
-                    <TableCell>{formatPrice(trade.entryPrice)}</TableCell>
-                    <TableCell>{formatPrice(trade.closedPrice)}</TableCell>
+                    <TableCell>{formatPrice(trade.entry_price)}</TableCell>
+                    <TableCell>{formatPrice(trade.exit_price)}</TableCell>
                     <TableCell>{trade.positionSize ?? "--"}</TableCell>
                     <TableCell
                       sx={{

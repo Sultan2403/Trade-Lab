@@ -5,8 +5,8 @@ export function validateTradeCreate(trade) {
     errors.pair = "Instrument/Pair is required";
   }
 
-  if (!Number.isFinite(trade.entryPrice)) {
-    errors.entryPrice = "Entry price is required";
+  if (!Number.isFinite(trade.entry_price)) {
+    errors.entry_price = "Entry price is required";
   }
 
   if (!Number.isFinite(trade.stopLoss)) {
@@ -36,8 +36,8 @@ export function validateTradeCreate(trade) {
       errors.closedAt = "Close time is required";
     }
 
-    if (!Number.isFinite(trade.closedPrice)) {
-      errors.closedPrice = "Exit Price is required";
+    if (!Number.isFinite(trade.exit_price)) {
+      errors.exit_price = "Exit Price is required";
     }
   }
 
@@ -48,21 +48,21 @@ export function validateTradeCreate(trade) {
   }
 
   if (trade.direction === "Long") {
-    if (trade.stopLoss >= trade.entryPrice) {
+    if (trade.stopLoss >= trade.entry_price) {
       errors.stopLoss = "Stop loss must be below entry for long trades";
     }
 
-    if (trade.takeProfit <= trade.entryPrice) {
+    if (trade.takeProfit <= trade.entry_price) {
       errors.takeProfit = "Take profit must be above entry for long trades";
     }
   }
 
   if (trade.direction === "Short") {
-    if (trade.stopLoss <= trade.entryPrice) {
+    if (trade.stopLoss <= trade.entry_price) {
       errors.stopLoss = "Stop loss must be above entry for short trades";
     }
 
-    if (trade.takeProfit >= trade.entryPrice) {
+    if (trade.takeProfit >= trade.entry_price) {
       errors.takeProfit = "Take profit must be below entry for short trades";
     }
   }

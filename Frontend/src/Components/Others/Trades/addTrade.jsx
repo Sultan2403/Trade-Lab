@@ -53,8 +53,8 @@ export default function AddTrade() {
   };
 
   const previewPnL = useMemo(() => {
-    const entry = Number(formData.entryPrice);
-    const exit = Number(formData.closedPrice);
+    const entry = Number(formData.entry_price);
+    const exit = Number(formData.exit_price);
     const size = Number(formData.positionSize);
     if (Number.isNaN(entry) || Number.isNaN(exit) || Number.isNaN(size))
       return "--";
@@ -62,9 +62,9 @@ export default function AddTrade() {
       (exit - entry) * size * (formData.direction === "Long" ? 1 : -1);
     return pnl.toFixed(2);
   }, [
-    formData.closedPrice,
+    formData.exit_price,
     formData.direction,
-    formData.entryPrice,
+    formData.entry_price,
     formData.positionSize,
   ]);
 

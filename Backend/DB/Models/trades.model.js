@@ -20,7 +20,7 @@ const tradeSchema = new mongoose.Schema(
       required: true,
     },
 
-    entryPrice: {
+    entry_price: {
       type: Number,
       required: true,
     },
@@ -48,7 +48,7 @@ const tradeSchema = new mongoose.Schema(
       default: "Open",
     },
 
-    closedPrice: {
+    exit_price: {
       type: Number,
       required: function () {
         return this.status === "Closed";

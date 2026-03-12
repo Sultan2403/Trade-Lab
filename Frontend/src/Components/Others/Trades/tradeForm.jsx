@@ -266,8 +266,8 @@ export default function TradeForm({
           </h2>
           <div className="grid gap-5 md:grid-cols-2">
             {[
-              ["entryPrice", "Entry Price"],
-              ["closedPrice", "Exit Price"],
+              ["entry_price", "Entry Price"],
+              ["exit_price", "Exit Price"],
               ["stopLoss", "Stop Loss"],
               ["takeProfit", "Take Profit"],
             ].map(([name, label]) => (
@@ -284,7 +284,7 @@ export default function TradeForm({
                   onChange={handleChange}
                   placeholder="0.00000"
                   startIcon="$"
-                  disabled={name === "closedPrice" && !isClosed}
+                  disabled={name === "exit_price" && !isClosed}
                   error={Boolean(fieldErrors?.[name])}
                   helperText={fieldErrors?.[name] || ""}
                   inputProps={{ inputMode: "decimal" }}

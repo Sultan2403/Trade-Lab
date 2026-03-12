@@ -5,7 +5,7 @@ const tradeSchema = Joi.object({
 
   direction: Joi.string().valid("Long", "Short").required(),
 
-  entryPrice: Joi.number().precision(5).required(),
+  entry_price: Joi.number().precision(5).required(),
 
   stopLoss: Joi.number().precision(5).optional(),
 
@@ -17,7 +17,7 @@ const tradeSchema = Joi.object({
 
   status: Joi.string().valid("Open", "Closed").default("Open"),
 
-  closedPrice: Joi.when("status", {
+  exit_price: Joi.when("status", {
     is: "Closed",
     then: Joi.number().precision(5).required(),
     otherwise: Joi.number().precision(5).optional(),
@@ -42,11 +42,11 @@ const tradeSchema = Joi.object({
 })
   .custom((value, helpers) => {
     if (value.direction === "Long") {
-      if (value.stopLoss >= value.entryPrice) {
+      if (value.stopLoss >= value.entry_price) {
         return helpers.message("Stop loss must be below entry for long trades");
       }
 
-      if (value.takeProfit <= value.entryPrice) {
+      if (value.takeProfit <= value.entry_price) {
         return helpers.message(
           "Take profit must be above entry for long trades",
         );
@@ -54,13 +54,13 @@ const tradeSchema = Joi.object({
     }
 
     if (value.direction === "Short") {
-      if (value.stopLoss <= value.entryPrice) {
+      if (value.stopLoss <= value.entry_price) {
         return helpers.message(
           "Stop loss must be above entry for short trades",
         );
       }
 
-      if (value.takeProfit >= value.entryPrice) {
+      if (value.takeProfit >= value.entry_price) {
         return helpers.message(
           "Take profit must be below entry for short trades",
         );
