@@ -55,4 +55,6 @@ function parseTrades(req, res, next) {
     .on("error", (err) => next(err));
 }
 
-module.exports = { upload, parseTrades };
+const uploadCSV = upload.single("csv-file")
+
+module.exports = { uploadCSV, parseTrades };

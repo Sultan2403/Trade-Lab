@@ -11,12 +11,12 @@ const {
 } = require("../Controllers/trades.controller");
 
 const authMiddleware = require("../Middleware/auth.middleware");
-const { upload, parseTrades } = require("../Middleware/csv.middleware");
+const { uploadCSV, parseTrades } = require("../Middleware/csv.middleware");
 
 router.use(authMiddleware);
 
 router.post("/", createTrade);
-router.post("/import", upload, parseTrades, uploadTrades);
+router.post("/import", uploadCSV, parseTrades, uploadTrades);
 router.get("/", getTrades);
 router.get("/:id", getTrade);
 router.patch("/:id", updateTrade);
