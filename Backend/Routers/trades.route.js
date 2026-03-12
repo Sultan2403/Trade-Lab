@@ -8,12 +8,14 @@ const {
   updateTrade,
   deleteTrade,
 } = require("../Controllers/trades.controller");
+
 const authMiddleware = require("../Middleware/auth.middleware");
+const { upload, parseTrades } = require("../Middleware/csv.middleware");
 
 router.use(authMiddleware);
 
 router.post("/", createTrade);
-router.post("/import", uploadTrades);
+router.post("/import", upload, parseTrades, uploadTrades);
 router.get("/", getTrades);
 router.get("/:id", getTrade);
 router.patch("/:id", updateTrade);

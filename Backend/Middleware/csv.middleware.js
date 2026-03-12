@@ -21,7 +21,10 @@ const upload = multer({
 });
 
 function parseTrades(req, res, next) {
-  if (!req.file) return res.status(400).send("No file uploaded");
+  if (!req.file)
+    return res
+      .status(400)
+      .json({ success: false, message: "No file uploaded" });
 
   const trades = [];
   const stream = new PassThrough();
