@@ -19,10 +19,7 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (res) => res.data,
-  async (error) => {
-    const err = await handleErrors({ error, apiInstance: api });
-    return err;
-  },
+  (error) => handleErrors({ error, apiInstance: api }),
 );
 
 export default api;

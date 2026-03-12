@@ -11,7 +11,7 @@ export function validateAccessToken() {
 
     const now = Date.now() / 1000; // JWT exp is in seconds
     return exp > now; // still valid
-  } catch (err) {
+  } catch {
     return false; // invalid token
   }
 }
