@@ -8,7 +8,7 @@ export default function AddTrade() {
   const [formData, setFormData] = useState(createInitialTradeUIState());
   const [fieldErrors, setFieldErrors] = useState({});
 
-  const { data, loading, error, createTrade } = useTrades();
+  const { loading, error, createTrade } = useTrades();
 
   const handleTagsChange = (e) => {
     const tags = e.target.value
