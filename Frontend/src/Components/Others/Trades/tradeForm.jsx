@@ -9,6 +9,8 @@ import {
   Save,
   CheckCircle,
   XCircle,
+  DollarSign,
+  FileText
 } from "lucide-react";
 import dayjs from "dayjs";
 
@@ -36,6 +38,33 @@ export default function TradeForm({
         onSubmit={handleSubmit}
         className="mx-auto w-full max-w-[1120px] space-y-6 pb-10"
       >
+        {" "}
+        <div className="sticky top-0 z-10 mb-6 flex items-center justify-between border-b border-border bg-white py-4">
+          <h1 className="text-xl font-semibold">Add Trade</h1>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className="text-body font-medium text-text-secondary hover:text-text-primary"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              className="ui-btn-secondary inline-flex items-center gap-2"
+            >
+              Save & Add Another
+            </button>
+
+            <button
+              type="submit"
+              className="ui-btn-primary inline-flex items-center gap-2"
+            >
+              <Save size={16} /> Save Trade
+            </button>
+          </div>
+        </div>
         {/* --- Basic Info --- */}
         <Paper className="ui-card rounded-panel p-6">
           <h2 className="mb-5 text-card-title font-semibold">
@@ -120,53 +149,61 @@ export default function TradeForm({
           </h2>
           <div className="grid gap-5 md:grid-cols-2">
             {/* Opened At */}
-            <div>
-              <label className="mb-2 block text-body font-medium text-text-secondary">
+            <div className="space-y-2">
+              <label className="block text-body font-medium text-text-secondary">
                 Opened At
               </label>
-              <DatePicker
-                label="Date"
-                value={formData.openedAt ? dayjs(formData.openedAt) : null}
-                onChange={(newDate) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    openedAt: newDate,
-                  }))
-                }
-                slotProps={{
-                  textField: { size: "small", fullWidth: true },
-                }}
-              />
 
-              <TimePicker
-                label="Time"
-                value={formData.timeOpened ? dayjs(formData.timeOpened) : null}
-                onChange={(newTime) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    timeOpened: newTime,
-                  }))
-                }
-                slotProps={{
-                  textField: {
-                    size: "small",
-                    fullWidth: true,
-                    className: "mt-2",
-                  },
-                }}
-              />
+              <div className="grid grid-cols-2 gap-2">
+                <DatePicker
+                  value={formData.openedAt ? dayjs(formData.openedAt) : null}
+                  onChange={(newDate) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      openedAt: newDate,
+                    }))
+                  }
+                  slotProps={{
+                    textField: {
+                      size: "small",
+                      fullWidth: true,
+                    },
+                  }}
+                />
+
+                <TimePicker
+                  value={
+                    formData.timeOpened ? dayjs(formData.timeOpened) : null
+                  }
+                  onChange={(newTime) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      timeOpened: newTime,
+                    }))
+                  }
+                  slotProps={{
+                    textField: {
+                      size: "small",
+                      fullWidth: true,
+                    },
+                  }}
+                />
+              </div>
             </div>
 
             {/* Closed At */}
-            <div>
-              <label className="mb-2 block text-body font-medium text-text-secondary">
+            <div className="space-y-2">
+              <label className="block text-body font-medium text-text-secondary">
                 Closed At
               </label>
+
               <Tooltip
                 title={!isClosed ? "Only editable if trade is Closed" : ""}
               >
                 <div
-                  className={`pointer-events-${isClosed ? "auto" : "none"} opacity-${isClosed ? "100" : "50"}`}
+                  className={`grid grid-cols-2 gap-2 ${
+                    !isClosed ? "pointer-events-none opacity-50" : ""
+                  }`}
                 >
                   <DatePicker
                     value={formData.closedAt ? dayjs(formData.closedAt) : null}
@@ -178,7 +215,10 @@ export default function TradeForm({
                     }
                     disabled={!isClosed}
                     slotProps={{
-                      textField: { size: "small", fullWidth: true },
+                      textField: {
+                        size: "small",
+                        fullWidth: true,
+                      },
                     }}
                   />
 
@@ -197,7 +237,6 @@ export default function TradeForm({
                       textField: {
                         size: "small",
                         fullWidth: true,
-                        className: "mt-2",
                       },
                     }}
                   />
@@ -208,8 +247,8 @@ export default function TradeForm({
         </Paper>
         {/* --- Price Info --- */}
         <Paper className="ui-card rounded-panel p-6">
-          <h2 className="mb-5 text-card-title font-semibold">
-            Price Information
+          <h2 className="mb-5 flex items-center gap-2 text-card-title font-semibold">
+            <DollarSign size={18} /> Price Information
           </h2>
           <div className="grid gap-5 md:grid-cols-2">
             {[
@@ -286,7 +325,15 @@ export default function TradeForm({
           <Box className="grid grid-cols-4 gap-6 text-center">
             <div>
               <p className="text-caption text-text-muted">P&L</p>
-              <p className="text-body-lg font-semibold">
+              <p
+                className={`text-body-lg font-semibold ${
+                  previewPnL > 0
+                    ? "text-green-600"
+                    : previewPnL < 0
+                      ? "text-red-600"
+                      : ""
+                }`}
+              >
                 {previewPnL === "--" ? "--" : `$${previewPnL}`}
               </p>
             </div>
@@ -308,7 +355,9 @@ export default function TradeForm({
         </Paper>
         {/* --- Notes & Tags --- */}
         <Paper className="ui-card rounded-panel p-6">
-          <h2 className="mb-5 text-card-title font-semibold">Notes & Tags</h2>
+          <h2 className="mb-5 flex items-center gap-2 text-card-title font-semibold">
+            <FileText size={18} /> Notes & Tags
+          </h2>
           <div className="space-y-4">
             <div>
               <label className="mb-2 block text-body font-medium text-text-secondary">
@@ -361,26 +410,6 @@ export default function TradeForm({
             </div>
           </div>
         </Paper>
-        {/* --- Footer --- */}
-        <div className="flex items-center justify-between border-t border-border pt-6">
-          <button
-            type="button"
-            className="text-body font-medium text-brand-800 hover:text-brand-900"
-          >
-            Cancel
-          </button>
-          <div className="flex items-center gap-3">
-            <button type="button" className="ui-btn-secondary py-2 text-body">
-              Save & Add Another
-            </button>
-            <button
-              type="submit"
-              className="ui-btn-primary inline-flex items-center gap-2 py-2 text-body"
-            >
-              <Save size={16} /> Save Trade
-            </button>
-          </div>
-        </div>
       </form>
     </LocalizationProvider>
   );
