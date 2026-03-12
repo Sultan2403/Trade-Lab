@@ -35,6 +35,10 @@ export function validateTradeCreate(trade) {
     if (!trade.closedAt) {
       errors.closedAt = "Close time is required";
     }
+
+    if (!Number.isFinite(trade.closedPrice)) {
+      errors.closedPrice = "Exit Price is required";
+    }
   }
 
   if (trade.closedAt && trade.openedAt) {
@@ -63,12 +67,12 @@ export function validateTradeCreate(trade) {
     }
   }
 
-  if(trade.tags && trade.tags.length > 10){
-    errors.tags = "Maximum number of tags is 10"
+  if (trade.tags && trade.tags.length > 10) {
+    errors.tags = "Maximum number of tags is 10";
   }
 
-  if(trade.notes.length > 500){
-    errors.notes = "Maximum of 500 characters exceeded"
+  if (trade.notes.length > 500) {
+    errors.notes = "Maximum of 500 characters exceeded";
   }
 
   return errors;
