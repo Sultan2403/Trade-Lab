@@ -30,6 +30,18 @@ const accountSchema = new mongoose.Schema(
     strict: true,
   },
 );
+
+accountSchema.set("toJSON", {
+  transform: (doc, obj) => {
+    obj.id = obj._id.toString(); // convert ObjectId to string
+    delete obj._id; // remove internal _id
+    delete obj.__v; // remove version key
+    delete obj.createdAt; // optional
+    delete obj.updatedAt; // optional
+    return obj;
+  },
+});
+
 const Account = mongoose.model("Account", accountSchema, "accounts");
 
 module.exports = Account;

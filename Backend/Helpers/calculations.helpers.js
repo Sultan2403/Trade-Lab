@@ -1,8 +1,8 @@
-function calculateRiskPercent(trade, accountBalance) {
-  if (!trade.stopLoss || !accountBalance) return 0;
+function calculateRiskPercent({ stopLoss, entry_price, size, accountBalance }) {
+  if (!stopLoss || !accountBalance) return 0;
 
-  const riskPerUnit = Math.abs(trade.entry_price - trade.stopLoss);
-  const riskAmount = riskPerUnit * trade.size; // in quote currency
+  const riskPerUnit = Math.abs(entry_price - stopLoss);
+  const riskAmount = riskPerUnit * size;
   const riskPercent = (riskAmount / accountBalance) * 100;
 
   return Math.max(riskPercent, 0);
