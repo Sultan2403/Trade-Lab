@@ -5,8 +5,13 @@ const FIELD_ALIASES = {
   size: ["lots", "volume", "size"],
   entry_price: ["opening_price", "open_price", "price_open"],
   exit_price: ["closing_price", "close_price", "price_close"],
+
+  stop_loss: ["stop_loss", "sl", "stoploss"],
+  take_profit: ["take_profit", "tp", "takeprofit"],
+
   entry_time: ["opening_time_utc", "open_time", "entry_time"],
   exit_time: ["closing_time_utc", "close_time", "exit_time"],
+
   pnl: ["profit_usd", "profit", "pnl"],
   commission: ["commission_usd", "commission"],
   swap: ["swap_usd", "swap"],
@@ -37,8 +42,8 @@ function normalizeSide(side) {
 
   const s = side.toLowerCase();
 
-  if (["buy", "long", "0"].includes(s)) return "buy";
-  if (["sell", "short", "1"].includes(s)) return "sell";
+  if (["buy", "long", "0"].includes(s)) return "Long";
+  if (["sell", "short", "1"].includes(s)) return "Short";
 
   return s;
 }
@@ -67,25 +72,54 @@ function parseDateToISO(value) {
 function normalizeTrade(row) {
   const normalizedRow = normalizeKeys(row);
 
+  const side = normalizeSide(resolveField(normalizedRow, FIELD_ALIASES.side));
+
+  const entryTime = parseDateToISO(
+    resolveField(normalizedRow, FIELD_ALIASES.entry_time),
+  );
+
+  const exitTime = parseDateToISO(
+    resolveField(normalizedRow, FIELD_ALIASES.exit_time),
+  );
+
+  const stopLoss =
+    Number(resolveField(normalizedRow, FIELD_ALIASES.stop_loss)) || null;
+
+  const takeProfit =
+    Number(resolveField(normalizedRow, FIELD_ALIASES.take_profit)) || null;
+
+  const status = exitTime ? "Closed" : "Open";
+
   return {
-    external_id: resolveField(normalizedRow, FIELD_ALIASES.external_id),
-    symbol: resolveField(normalizedRow, FIELD_ALIASES.symbol),
-    side: normalizeSide(resolveField(normalizedRow, FIELD_ALIASES.side)),
+    pair: resolveField(normalizedRow, FIELD_ALIASES.symbol)?.toUpperCase(),
+
+    direction: side,
 
     size: Number(resolveField(normalizedRow, FIELD_ALIASES.size)) || 0,
 
-    entry_price: Number(resolveField(normalizedRow, FIELD_ALIASES.entry_price)) || 0,
-    exit_price: Number(resolveField(normalizedRow, FIELD_ALIASES.exit_price)) || 0,
+    entry_price:
+      Number(resolveField(normalizedRow, FIELD_ALIASES.entry_price)) || 0,
 
-    pnl: Number(resolveField(normalizedRow, FIELD_ALIASES.pnl)) || 0,
-    commission: Number(resolveField(normalizedRow, FIELD_ALIASES.commission)) || 0,
-    swap: Number(resolveField(normalizedRow, FIELD_ALIASES.swap)) || 0,
+    exit_price:
+      Number(resolveField(normalizedRow, FIELD_ALIASES.exit_price)) || null,
 
-    entry_time: parseDateToISO(resolveField(normalizedRow, FIELD_ALIASES.entry_time)),
-    exit_time: parseDateToISO(resolveField(normalizedRow, FIELD_ALIASES.exit_time)),
+    openedAt: entryTime,
+    closedAt: exitTime,
 
-    source: "csv",
+    stopLoss,
+    takeProfit,
+
+    status,
+
+    metadata: {
+      external_id: resolveField(normalizedRow, FIELD_ALIASES.external_id),
+      pnl: Number(resolveField(normalizedRow, FIELD_ALIASES.pnl)) || 0,
+      commission:
+        Number(resolveField(normalizedRow, FIELD_ALIASES.commission)) || 0,
+      swap: Number(resolveField(normalizedRow, FIELD_ALIASES.swap)) || 0,
+      source: "csv",
+    },
   };
 }
 
-module.exports = {normalizeTrade}
+module.exports = { normalizeTrade };

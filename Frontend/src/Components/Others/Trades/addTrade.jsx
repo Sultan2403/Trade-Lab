@@ -55,7 +55,7 @@ export default function AddTrade() {
   const previewPnL = useMemo(() => {
     const entry = Number(formData.entry_price);
     const exit = Number(formData.exit_price);
-    const size = Number(formData.positionSize);
+    const size = Number(formData.size);
     if (Number.isNaN(entry) || Number.isNaN(exit) || Number.isNaN(size))
       return "--";
     const pnl =
@@ -65,7 +65,7 @@ export default function AddTrade() {
     formData.exit_price,
     formData.direction,
     formData.entry_price,
-    formData.positionSize,
+    formData.size,
   ]);
 
   const isClosed = formData.status === "Closed";

@@ -78,9 +78,11 @@ const deleteTrade = async (req, res) => {
   }
 };
 
-const uploadTrades = async (req, res) => {
+const trade_Upload_Controller = async (req, res) => {
   try {
     const trades = req.trades;
+
+    console.log(trades)
 
     res.status(201).json({ success: true, imported: trades.length });
   } catch (error) {
@@ -95,5 +97,5 @@ module.exports = {
   getTrade,
   updateTrade,
   deleteTrade,
-  uploadTrades,
+  trade_Upload_Controller,
 };

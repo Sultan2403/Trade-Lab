@@ -8,6 +8,11 @@ const tradeSchema = new mongoose.Schema(
       required: true,
     },
 
+    external_id: {
+      type: String,
+
+    },
+
     pair: {
       type: String,
       required: true,
@@ -37,7 +42,7 @@ const tradeSchema = new mongoose.Schema(
       },
     },
 
-    positionSize: {
+    size: {
       type: Number,
       required: true,
     },
@@ -64,6 +69,13 @@ const tradeSchema = new mongoose.Schema(
 
     closedAt: {
       type: Date,
+      required: function () {
+        return this.status === "Closed";
+      },
+    },
+
+    pnl: {
+      type: Number,
       required: function () {
         return this.status === "Closed";
       },

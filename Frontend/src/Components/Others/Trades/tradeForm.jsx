@@ -300,8 +300,8 @@ export default function TradeForm({
                 <input
                   type="number"
                   step="0.01"
-                  name="positionSize"
-                  value={formData.positionSize}
+                  name="size"
+                  value={formData.size}
                   onChange={handleChange}
                   placeholder="0.00"
                   className="ui-input text-caption"

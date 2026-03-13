@@ -11,7 +11,7 @@ export function createInitialTradeUIState() {
     entry_price: "",
     stopLoss: "",
     takeProfit: "",
-    positionSize: "",
+    size: "",
     riskPercent: 1,
 
     status: "Open",

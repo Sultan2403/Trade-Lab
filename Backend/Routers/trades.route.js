@@ -7,7 +7,7 @@ const {
   getTrade,
   updateTrade,
   deleteTrade,
-  uploadTrades,
+  trade_Upload_Controller,
 } = require("../Controllers/trades.controller");
 
 const authMiddleware = require("../Middleware/auth.middleware");
@@ -17,7 +17,7 @@ router.use(authMiddleware);
 
 router.post("/", createTrade);
 router.get("/", getTrades);
-router.post("/import-csv", uploadCSV, parseTrades, uploadTrades);
+router.post("/import-csv", uploadCSV, parseTrades, trade_Upload_Controller);
 
 router.get("/:id", getTrade);
 router.patch("/:id", updateTrade);

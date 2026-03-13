@@ -11,7 +11,7 @@ const tradeSchema = Joi.object({
 
   takeProfit: Joi.number().precision(5).optional(),
 
-  positionSize: Joi.number().precision(2).required(),
+  size: Joi.number().precision(2).required(),
 
   riskPercent: Joi.number().min(0.01).max(100).required(),
 

@@ -17,8 +17,8 @@ export function validateTradeCreate(trade) {
     errors.takeProfit = "Take profit is required";
   }
 
-  if (!Number.isFinite(trade.positionSize)) {
-    errors.positionSize = "Position size is required";
+  if (!Number.isFinite(trade.size)) {
+    errors.size = "Position size is required";
   }
 
   if (!Number.isFinite(trade.riskPercent)) {
