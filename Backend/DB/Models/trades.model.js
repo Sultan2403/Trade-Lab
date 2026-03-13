@@ -32,13 +32,13 @@ const tradeSchema = new mongoose.Schema(
     stopLoss: {
       type: Number,
       required: false,
+      default: null
     },
 
     takeProfit: {
       type: Number,
-      required: function () {
-        return this.status === "Closed";
-      },
+      required: false,
+      default: null
     },
 
     size: {
