@@ -30,7 +30,6 @@ const userSchema = new mongoose.Schema(
     strict: true,
   },
 );
-exports.userSchema = userSchema;
 
 userSchema.set("toJSON", {
   transform: (doc, obj) => {
