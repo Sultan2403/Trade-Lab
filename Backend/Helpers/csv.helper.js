@@ -91,6 +91,7 @@ function normalizeTrade(row) {
   const status = exitTime ? "Closed" : "Open";
 
   return {
+    external_id: resolveField(normalizedRow, FIELD_ALIASES.external_id),
     pair: resolveField(normalizedRow, FIELD_ALIASES.symbol)?.toUpperCase(),
 
     direction: side,
@@ -110,10 +111,9 @@ function normalizeTrade(row) {
     takeProfit,
 
     status,
+    pnl: Number(resolveField(normalizedRow, FIELD_ALIASES.pnl)) || 0,
 
     metadata: {
-      external_id: resolveField(normalizedRow, FIELD_ALIASES.external_id),
-      pnl: Number(resolveField(normalizedRow, FIELD_ALIASES.pnl)) || 0,
       commission:
         Number(resolveField(normalizedRow, FIELD_ALIASES.commission)) || 0,
       swap: Number(resolveField(normalizedRow, FIELD_ALIASES.swap)) || 0,
