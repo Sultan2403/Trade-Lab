@@ -16,7 +16,7 @@ const { uploadCSV, parseTrades } = require("../Middleware/csv.middleware");
 router.use(authMiddleware);
 
 router.post("/", createTrade);
-router.post("/import", uploadCSV, parseTrades, uploadTrades);
+router.post("/import-csv", uploadCSV, parseTrades, uploadTrades);
 router.get("/", getTrades);
 router.get("/:id", getTrade);
 router.patch("/:id", updateTrade);
