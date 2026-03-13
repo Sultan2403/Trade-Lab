@@ -4,10 +4,10 @@ const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      required: [true, "Name is required"],
+      required: [true, "Username is required"],
       trim: true,
     },
-    
+
     email: {
       type: String,
       required: true,
@@ -23,11 +23,6 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
 
-    accountBalance: {
-      type: Number,
-      default: 0
-    },
-
     refreshTokenHash: { type: String, select: false },
   },
   {
@@ -35,6 +30,7 @@ const userSchema = new mongoose.Schema(
     strict: true,
   },
 );
+exports.userSchema = userSchema;
 
 userSchema.set("toJSON", {
   transform: (doc, obj) => {

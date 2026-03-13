@@ -8,6 +8,12 @@ const tradeSchema = new mongoose.Schema(
       required: true,
     },
 
+    accountId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Account",
+      required: true,
+    },
+
     external_id: {
       type: String,
     },
@@ -32,13 +38,13 @@ const tradeSchema = new mongoose.Schema(
     stopLoss: {
       type: Number,
       required: false,
-      default: null
+      default: null,
     },
 
     takeProfit: {
       type: Number,
       required: false,
-      default: null
+      default: null,
     },
 
     size: {
