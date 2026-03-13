@@ -7,3 +7,5 @@ function calculateRiskPercent(trade, accountBalance) {
 
   return Math.max(riskPercent, 0);
 }
+
+module.exports = { calculateRiskPercent };

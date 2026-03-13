@@ -22,7 +22,7 @@ const upload = multer({
   },
 });
 
-function parseTrades(req, res, next) {
+async function parseTrades(req, res, next) {
   if (!req.file) {
     return res.status(400).json({
       success: false,
@@ -31,7 +31,8 @@ function parseTrades(req, res, next) {
   }
 
   const trades = [];
-  const userId = req.user.id;
+  const { accountId } = req.body;
+
   const stream = new PassThrough();
 
   stream.end(req.file.buffer);
@@ -40,7 +41,7 @@ function parseTrades(req, res, next) {
     .pipe(csv())
     .on("data", (row) => {
       try {
-        trades.push(normalizeTrade({ row, userId }));
+        trades.push(normalizeTrade({ row, accountId }));
       } catch (err) {
         console.error(err);
         console.log("csv parsing err, bad row");

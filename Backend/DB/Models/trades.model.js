@@ -2,12 +2,6 @@ const mongoose = require("mongoose");
 
 const tradeSchema = new mongoose.Schema(
   {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-
     accountId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Account",
@@ -16,6 +10,7 @@ const tradeSchema = new mongoose.Schema(
 
     external_id: {
       type: String,
+      required: this.metadata?.source === "csv-import",
     },
 
     pair: {
@@ -119,7 +114,7 @@ const tradeSchema = new mongoose.Schema(
 );
 
 tradeSchema.index(
-  { userId: 1, external_id: 1 },
+  { accountId: 1, external_id: 1 },
   { unique: true, sparse: true },
 );
 

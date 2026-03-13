@@ -1,3 +1,5 @@
+const { calculateRiskPercent } = require("./calculations.helpers");
+
 const FIELD_ALIASES = {
   external_id: ["ticket", "order", "id"],
   symbol: ["symbol", "instrument", "pair"],
@@ -69,7 +71,7 @@ function parseDateToISO(value) {
   return date.toISOString();
 }
 
-function normalizeTrade({ row, userId }) {
+function normalizeTrade({ row, accountId }) {
   const normalizedRow = normalizeKeys(row);
 
   const side = normalizeSide(resolveField(normalizedRow, FIELD_ALIASES.side));
@@ -91,7 +93,8 @@ function normalizeTrade({ row, userId }) {
   const status = exitTime ? "Closed" : "Open";
 
   return {
-    userId,
+    accountId,
+
     external_id: resolveField(normalizedRow, FIELD_ALIASES.external_id),
     pair: resolveField(normalizedRow, FIELD_ALIASES.symbol)?.toUpperCase(),
 

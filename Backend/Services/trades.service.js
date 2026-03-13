@@ -1,27 +1,27 @@
 const Trades = require("../DB/Models/trades.model");
 
-const createTrade = async ({ userId, tradeData }) => {
+const createTrade = async ({ accountId, tradeData }) => {
   const metadata = {
     source: "manual-entry",
   };
   const trade = await Trades.create({
     ...tradeData,
-    userId,
+    accountId,
     metadata,
   });
 
   return trade;
 };
 
-const getTrades = async ({ userId, page = 1, limit = 20 }) => {
+const getTrades = async ({ accountId, page = 1, limit = 20 }) => {
   const skip = (page - 1) * limit;
 
-  const trades = await Trades.find({ userId })
+  const trades = await Trades.find({ accountId })
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
 
-  const total = await Trades.countDocuments({ userId });
+  const total = await Trades.countDocuments({ accountId });
 
   return {
     trades,
@@ -33,10 +33,10 @@ const getTrades = async ({ userId, page = 1, limit = 20 }) => {
   };
 };
 
-const getTradeById = async ({ userId, tradeId }) => {
+const getTradeById = async ({ accountId, tradeId }) => {
   const trade = await Trades.findOne({
     _id: tradeId,
-    userId,
+    accountId,
   });
 
   if (!trade) {
@@ -46,9 +46,9 @@ const getTradeById = async ({ userId, tradeId }) => {
   return trade;
 };
 
-const updateTrade = async ({ userId, tradeId, update }) => {
+const updateTrade = async ({ accountId, tradeId, update }) => {
   const trade = await Trades.findOneAndUpdate(
-    { _id: tradeId, userId },
+    { _id: tradeId, accountId },
     update,
     {
       new: true,
@@ -62,10 +62,10 @@ const updateTrade = async ({ userId, tradeId, update }) => {
   return trade;
 };
 
-const deleteTrade = async ({ userId, tradeId }) => {
+const deleteTrade = async ({ accountId, tradeId }) => {
   const trade = await Trades.findOneAndDelete({
     _id: tradeId,
-    userId,
+    accountId,
   });
 
   if (!trade) {

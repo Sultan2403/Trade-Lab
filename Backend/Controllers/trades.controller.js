@@ -2,9 +2,8 @@ const tradeService = require("../Services/trades.service");
 
 const createTrade = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const tradeData = req.body;
-    const trade = await tradeService.createTrade({ userId, tradeData });
+    const { tradeData, accountId } = req.body;
+    const trade = await tradeService.createTrade({ accountId, tradeData });
 
     res.status(201).json({ succes: true, trade });
   } catch (error) {
@@ -15,13 +14,13 @@ const createTrade = async (req, res) => {
 
 const getTrades = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const {accountId} = req.body
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
 
     const trades = await tradeService.getTrades({
-      userId,
+      accountId,
       page,
       limit,
     });
@@ -35,11 +34,11 @@ const getTrades = async (req, res) => {
 
 const getTrade = async (req, res) => {
   try {
-    const { userId } = req.user;
+    const { accountId } = req.body  
     const tradeId = req.params.id;
 
     const trade = await tradeService.getTradeById({
-      userId,
+      accountId,
       tradeId,
     });
 
@@ -52,10 +51,14 @@ const getTrade = async (req, res) => {
 
 const updateTrade = async (req, res) => {
   try {
-    const { userId } = req.user;
-    const tradeId = req.params.id;
+    const { accountId } = req.body 
+     const tradeId = req.params.id;
     const update = req.body;
-    const trade = await tradeService.updateTrade({ userId, tradeId, update });
+    const trade = await tradeService.updateTrade({
+      accountId,
+      tradeId,
+      update,
+    });
 
     res.json({ success: true, trade });
   } catch (error) {
@@ -66,10 +69,10 @@ const updateTrade = async (req, res) => {
 
 const deleteTrade = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const accountId = req.body
     const tradeId = req.params.id;
 
-    await tradeService.deleteTrade({ userId, tradeId });
+    await tradeService.deleteTrade({ accountId, tradeId });
 
     res.json({ success: true, message: "Trade deleted" });
   } catch (error) {
@@ -82,7 +85,7 @@ const trade_Upload_Controller = async (req, res) => {
   try {
     const trades = req.trades;
 
-    console.log(trades)
+    console.log(trades);
 
     const data = await tradeService.uploadTrades(trades);
 
