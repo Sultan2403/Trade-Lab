@@ -81,11 +81,12 @@ const deleteTrade = async (req, res) => {
 const uploadTrades = async (req, res) => {
   try {
     const trades = req.trades;
+    console.log("controller hit!", trades);
 
-    res.status(201).json({ success: true, trades });
+    res.status(201).json({ success: true, imported: trades.length });
   } catch (error) {
     console.error(error);
-    res.status(500).json({success: false, message: error.message});
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
