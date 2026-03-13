@@ -98,6 +98,16 @@ const tradeSchema = new mongoose.Schema(
       required: true,
       min: 0.01,
     },
+
+    metadata: {
+      swap: { type: Number, default: 0 },
+      commission: { type: Number, default: 0 },
+      source: {
+        type: String,
+        enum: ["csv-import", "manual-entry"],
+        required: true,
+      },
+    },
   },
   { timestamps: true, strict: true },
 );

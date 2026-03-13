@@ -82,9 +82,9 @@ const trade_Upload_Controller = async (req, res) => {
   try {
     const trades = req.trades;
 
-    console.log(trades)
+    const data = await tradeService.uploadTrades(trades);
 
-    res.status(201).json({ success: true, imported: trades.length });
+    res.status(201).json({ success: true, data });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });
