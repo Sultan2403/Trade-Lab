@@ -10,7 +10,6 @@ const tradeSchema = new mongoose.Schema(
 
     external_id: {
       type: String,
-
     },
 
     pair: {
@@ -101,6 +100,11 @@ const tradeSchema = new mongoose.Schema(
     },
   },
   { timestamps: true, strict: true },
+);
+
+tradeSchema.index(
+  { userId: 1, external_id: 1 },
+  { unique: true, sparse: true },
 );
 
 module.exports = mongoose.model("Trade", tradeSchema, "trades");
