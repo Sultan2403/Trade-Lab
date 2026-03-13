@@ -4,7 +4,6 @@ const csv = require("csv-parser");
 const { PassThrough } = require("stream");
 const { normalizeTrade } = require("../Helpers/csv.helper");
 
-
 const storage = multer.memoryStorage();
 
 const upload = multer({
@@ -32,6 +31,7 @@ function parseTrades(req, res, next) {
   }
 
   const trades = [];
+  const userId = req.user.id;
   const stream = new PassThrough();
 
   stream.end(req.file.buffer);
@@ -40,9 +40,9 @@ function parseTrades(req, res, next) {
     .pipe(csv())
     .on("data", (row) => {
       try {
-        trades.push(normalizeTrade(row));
+        trades.push(normalizeTrade({ row, userId }));
       } catch (err) {
-        console.error(err)
+        console.error(err);
         console.log("csv parsing err, bad row");
       }
     })

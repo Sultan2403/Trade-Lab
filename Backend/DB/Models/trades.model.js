@@ -100,8 +100,8 @@ const tradeSchema = new mongoose.Schema(
     },
 
     metadata: {
-      swap: { type: Number, default: 0 },
-      commission: { type: Number, default: 0 },
+      swap: { type: Number, default: null },
+      commission: { type: Number, default: null },
       source: {
         type: String,
         enum: ["csv-import", "manual-entry"],

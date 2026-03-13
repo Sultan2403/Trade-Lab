@@ -77,11 +77,14 @@ const deleteTrade = async ({ userId, tradeId }) => {
 
 const uploadTrades = async (trades) => {
   const BATCH_SIZE = 1000;
+  let data
 
   for (let i = 0; i < trades.length; i += BATCH_SIZE) {
     const batch = trades.slice(i, i + BATCH_SIZE);
-    await Trades.insertMany(batch, { ordered: false });
+     data = await Trades.insertMany(batch, { ordered: true });
+    console.log(data);
   }
+  return data;
 };
 
 module.exports = {

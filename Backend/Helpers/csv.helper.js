@@ -69,7 +69,7 @@ function parseDateToISO(value) {
   return date.toISOString();
 }
 
-function normalizeTrade(row) {
+function normalizeTrade({ row, userId }) {
   const normalizedRow = normalizeKeys(row);
 
   const side = normalizeSide(resolveField(normalizedRow, FIELD_ALIASES.side));
@@ -91,6 +91,7 @@ function normalizeTrade(row) {
   const status = exitTime ? "Closed" : "Open";
 
   return {
+    userId,
     external_id: resolveField(normalizedRow, FIELD_ALIASES.external_id),
     pair: resolveField(normalizedRow, FIELD_ALIASES.symbol)?.toUpperCase(),
 
@@ -117,7 +118,7 @@ function normalizeTrade(row) {
       commission:
         Number(resolveField(normalizedRow, FIELD_ALIASES.commission)) || 0,
       swap: Number(resolveField(normalizedRow, FIELD_ALIASES.swap)) || 0,
-      source: "csv",
+      source: "csv-import",
     },
   };
 }
