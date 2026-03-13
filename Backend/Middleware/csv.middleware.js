@@ -41,7 +41,7 @@ async function parseTrades(req, res, next) {
     .pipe(csv())
     .on("data", (row) => {
       try {
-        trades.push(normalizeTrade({ row, accountId }));
+        trades.push(normalizeTrade(row));
       } catch (err) {
         console.error(err);
         console.log("csv parsing err, bad row");

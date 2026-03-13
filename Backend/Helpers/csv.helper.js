@@ -71,7 +71,7 @@ function parseDateToISO(value) {
   return date.toISOString();
 }
 
-function normalizeTrade({ row, accountId }) {
+function normalizeTrade(row) {
   const normalizedRow = normalizeKeys(row);
 
   const side = normalizeSide(resolveField(normalizedRow, FIELD_ALIASES.side));
@@ -93,7 +93,6 @@ function normalizeTrade({ row, accountId }) {
   const status = exitTime ? "Closed" : "Open";
 
   return {
-    accountId,
 
     external_id: resolveField(normalizedRow, FIELD_ALIASES.external_id),
     pair: resolveField(normalizedRow, FIELD_ALIASES.symbol)?.toUpperCase(),
