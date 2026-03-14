@@ -14,6 +14,11 @@ const pageConfig = {
     title: "Log New Trade",
     subtitle: "Capture trade details while they're fresh",
   },
+  "/import-trades": {
+    breadcrumbs: ["Trade History", "Import Trades"],
+    title: "Import Trades from CSV",
+    subtitle: "Upload your trading history and we'll handle the rest",
+  },
   "/dashboard": {
     breadcrumbs: ["Overview"],
     title: "Dashboard",
