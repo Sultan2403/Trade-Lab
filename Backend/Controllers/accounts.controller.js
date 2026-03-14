@@ -1,6 +1,7 @@
 const {
   createAccount,
   getAccountProfile,
+  getAllUserAccounts
 } = require("../Services/accounts.service");
 
 const createAccountController = async (req, res) => {
