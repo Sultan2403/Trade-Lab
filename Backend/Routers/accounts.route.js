@@ -31,4 +31,5 @@ router.get(
 );
 
 router.get("/", getAllUserAccountsController);
+
 module.exports = router;
