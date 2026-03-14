@@ -3,17 +3,6 @@ import { CheckCircle2, Download, FileText, Trash2, Upload, XCircle } from "lucid
 import { useNavigate } from "react-router-dom";
 import useTrades from "../../../Hooks/useTrades";
 
-const REQUIRED_COLUMNS = [
-  "pair",
-  "direction",
-  "status",
-  "entry_price",
-  "exit_price",
-  "size",
-  "openedAt",
-  "closedAt",
-];
-
 const PREVIEW_COLUMNS = ["pair", "direction", "status", "entry_price", "exit_price", "size"];
 
 const isCsvFile = (file) => {
@@ -109,11 +98,6 @@ export default function ImportTrades() {
   });
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  const instructions = useMemo(
-    () => `Upload your trades CSV. Required columns: ${REQUIRED_COLUMNS.join(", ")}.`,
-    [],
-  );
-
   const resetFileSelection = () => {
     setSelectedFile(null);
     setValidationError("");
@@ -193,7 +177,7 @@ export default function ImportTrades() {
       <form onSubmit={handleSubmit} className="mx-auto w-full max-w-[980px] space-y-6 pb-10">
         <section className="rounded-panel border border-border bg-surface-card p-6">
           <h2 className="text-body font-semibold text-text-primary">File Requirements</h2>
-          <ul className="mt-3 space-y-2 text-caption text-text-secondary">
+          <ul className="mt-3 space-y-2 flex flex-col text-caption text-text-secondary">
             <li className="inline-flex items-center gap-2">
               <FileText size={14} /> CSV files only
             </li>
@@ -204,7 +188,7 @@ export default function ImportTrades() {
         </section>
 
         <section className="rounded-panel border border-border bg-surface-card p-6">
-          <p className="text-caption text-text-secondary">{instructions}</p>
+          <p className="text-caption text-text-secondary">Upload your CSV file for processing. A preview will be displayed on successful processing</p>
 
           <div
             className={`mt-4 rounded-panel border-2 border-dashed p-10 text-center transition-colors ${
