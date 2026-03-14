@@ -106,7 +106,7 @@ async function processAndUploadTrades({ accountId, trades }) {
 
   // only closed trades
 
-  let virtualBalance = account.current_balance || account.starting_balance;
+  let virtualBalance = account.current_balance;
 
   // attach accountId and compute riskPercent
   const processedTrades = trades.map((trade) => {

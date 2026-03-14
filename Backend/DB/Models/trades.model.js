@@ -6,11 +6,14 @@ const tradeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Account",
       required: true,
+      index: true
     },
 
     external_id: {
       type: String,
-      required: this.metadata?.source === "csv-import",
+      required: function () {
+        return this.metadata?.source === "csv-import";
+      },
     },
 
     pair: {
