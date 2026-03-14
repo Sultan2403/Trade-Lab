@@ -1,6 +1,6 @@
 const { Joi } = require("celebrate");
 
-const tradeSchema = Joi.object({
+const createTradeSchema = Joi.object({
   pair: Joi.string().required().uppercase(),
 
   direction: Joi.string().valid("Long", "Short").required(),
@@ -69,6 +69,11 @@ const tradeSchema = Joi.object({
 
     return value;
   })
-  .options({ stripUnknown: true });
+  .options({ stripUnknown: true })
+  .required();
 
-module.exports = { tradeSchema };
+const tradeIdParamsSchema = Joi.object({
+  id: Joi.string().hex().length(24).required(),
+}).required();
+
+module.exports = {  tradeIdParamsSchema, createTradeSchema };
