@@ -1,34 +1,6 @@
 import { createElement, useEffect, useRef } from "react";
-import { FileText, Link2, Upload, X } from "lucide-react";
 
-const METHOD_CARDS = [
-  {
-    value: "manual",
-    label: "Manual Entry",
-    description: "Add a single trade with all details.",
-    icon: FileText,
-    cta: "Continue",
-    disabled: false,
-  },
-  {
-    value: "broker",
-    label: "Broker Integration",
-    description: "Select your broker and we'll automatically sync your trades.",
-    icon: Link2,
-    cta: "Coming Soon",
-    disabled: true,
-  },
-  {
-    value: "csv",
-    label: "CSV Import",
-    description: "Upload multiple trades from a CSV file.",
-    icon: Upload,
-    cta: "Continue",
-    disabled: false,
-  },
-];
-
-export default function AddTradeMethodModal({ isOpen, onClose, onSelectMethod }) {
+export default function AddTradeMethodModal({ isOpen, onClose, onSelectMethod, options = [] }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -60,56 +32,45 @@ export default function AddTradeMethodModal({ isOpen, onClose, onSelectMethod })
         aria-modal="true"
         aria-labelledby="add-trade-method-title"
         tabIndex={-1}
-        className="w-full max-w-3xl rounded-panel border border-border bg-surface-card shadow-lg outline-none"
+        className="w-full max-w-xl rounded-panel border border-border bg-surface-card p-6 shadow-lg outline-none"
       >
-        <div className="flex items-center justify-between border-b border-border px-6 py-5">
-          <h2 id="add-trade-method-title" className="text-xl font-semibold text-text-primary">
-            How would you like to add trades?
+        <div className="mb-5">
+          <h2 id="add-trade-method-title" className="text-2xl font-semibold text-text-primary">
+            How would you like to add your trades?
           </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md p-1.5 text-text-secondary transition-colors hover:bg-surface-muted hover:text-text-primary"
-            aria-label="Close add trade method dialog"
-          >
-            <X size={18} />
-          </button>
+          <p className="mt-2 text-body text-text-secondary">
+            Choose a method to continue.
+          </p>
         </div>
 
-        <div className="grid gap-4 p-6 md:grid-cols-3">
-          {METHOD_CARDS.map(({ value, label, description, icon, cta, disabled }) => (
-            <div key={value} className="rounded-panel border border-border bg-surface-card p-4 text-center">
-              <span className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-md bg-brand-900/15 text-brand-900">
+        <div className="space-y-3">
+          {options.map(({ value, label, description, icon }) => (
+            <button
+              key={value}
+              type="button"
+              className="flex w-full items-center gap-3 rounded-md border border-border bg-surface-card px-4 py-4 text-left transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700"
+              onClick={() => onSelectMethod(value)}
+              aria-label={label}
+            >
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-brand-900/10 text-brand-900">
                 {createElement(icon, { size: 18 })}
               </span>
 
-              <h3 className="mt-4 text-xl font-semibold text-text-primary">{label}</h3>
-              <p className="mt-2 min-h-20 text-body text-text-secondary">{description}</p>
-
-              <button
-                type="button"
-                disabled={disabled}
-                onClick={() => onSelectMethod(value)}
-                className={`mt-3 w-full rounded-md px-4 py-2.5 text-body font-medium transition-colors ${
-                  disabled
-                    ? "cursor-not-allowed border border-border bg-surface-muted text-text-muted"
-                    : "bg-brand-700 text-text-inverse hover:bg-brand-700/90"
-                }`}
-                aria-label={`${label} ${disabled ? "coming soon" : "continue"}`}
-              >
-                {cta}
-              </button>
-            </div>
+              <span className="space-y-0.5">
+                <span className="block text-body-lg font-semibold text-text-primary">{label}</span>
+                <span className="block text-body text-text-secondary">{description}</span>
+              </span>
+            </button>
           ))}
         </div>
 
-        <div className="border-t border-border px-6 py-4 text-center">
+        <div className="mt-6 flex justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="text-body font-medium text-brand-900 hover:text-brand-700"
+            className="rounded-pill border border-border px-4 py-2 text-body font-medium text-text-secondary transition-colors hover:bg-surface-muted"
           >
-            Cancel
+            Close
           </button>
         </div>
       </div>

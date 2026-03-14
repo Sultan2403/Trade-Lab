@@ -1,5 +1,5 @@
 import { createElement, useMemo, useState } from "react";
-import { ArrowUpRight, BarChart3, History, LayoutGrid, LogOut, Plus, Settings, UserRound } from "lucide-react";
+import { ArrowUpRight, BarChart3, History, LayoutGrid, LogOut, Plus, Settings, Upload, UserRound } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import AddTradeMethodModal from "../UI/Trades/addTradeMethodModal";
 
@@ -37,8 +37,6 @@ export default function Nav() {
   }, [pathname]);
 
   const handleMethodSelect = (method) => {
-    if (method === "broker") return;
-
     setIsMethodModalOpen(false);
 
     if (method === "manual") {
@@ -110,6 +108,20 @@ export default function Nav() {
         isOpen={isMethodModalOpen}
         onClose={() => setIsMethodModalOpen(false)}
         onSelectMethod={handleMethodSelect}
+        options={[
+          {
+            value: "manual",
+            label: "Manual Entry",
+            description: "Fill out your trade details one-by-one.",
+            icon: Plus,
+          },
+          {
+            value: "csv",
+            label: "CSV Import",
+            description: "Bulk import many trades from a CSV file.",
+            icon: Upload,
+          },
+        ]}
       />
     </>
   );
