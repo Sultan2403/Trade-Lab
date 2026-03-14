@@ -83,7 +83,7 @@ export default function AddTrade() {
       fieldErrors={fieldErrors}
       loading={loading}
       error={error}
-      onCancel={() => navigate("/trades")}
+      onCancel={() => navigate(-1)}
     />
   );
 }
