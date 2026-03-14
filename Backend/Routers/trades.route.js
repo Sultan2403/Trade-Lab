@@ -15,17 +15,17 @@ const authMiddleware = require("../Middleware/auth.middleware");
 const { uploadCSV, parseTrades } = require("../Middleware/csv.middleware");
 
 const { tradeIdParamsSchema } = require("../Schemas/trades.schema");
-const { accountIdQuerySchema } = require("../Schemas/accounts.schema");
+const { accountIdSchema } = require("../Schemas/accounts.schema");
 
 router.use(authMiddleware);
 
 router.post("/", createTrade);
 
-router.get("/", celebrate({ query: accountIdQuerySchema }), getTrades);
+router.get("/", celebrate({ query: accountIdSchema }), getTrades);
 
 router.post(
   "/csv-import",
-  celebrate({ query: accountIdQuerySchema }),
+  celebrate({ query: accountIdSchema }),
   uploadCSV,
   parseTrades,
   trade_Upload_Controller,
@@ -34,7 +34,7 @@ router.post(
 router.get(
   "/:id",
   celebrate({
-    query: accountIdQuerySchema,
+    query: accountIdSchema,
     params: tradeIdParamsSchema,
   }),
   getTrade,
@@ -43,7 +43,7 @@ router.get(
 router.patch(
   "/:id",
   celebrate({
-    query: accountIdQuerySchema,
+    query: accountIdSchema,
     params: tradeIdParamsSchema,
   }),
   updateTrade,
@@ -52,7 +52,7 @@ router.patch(
 router.delete(
   "/:id",
   celebrate({
-    query: accountIdQuerySchema,
+    query: accountIdSchema,
     params: tradeIdParamsSchema,
   }),
   deleteTrade,

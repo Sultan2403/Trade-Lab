@@ -15,4 +15,21 @@ const createAccount = async ({ accountData, userId }) => {
   }
 };
 
-module.exports = { createAccount };
+const getAccountProfile = async ({ accountId, userId }) => {
+  // find account by id and user
+  const account = await Account.findOne({ _id: accountId, userId });
+
+  if (!account) {
+    throw new Error("Account not found");
+  }
+
+  return account;
+};
+
+const getAllUserAccounts = async ({ userId }) => {
+  const accounts = await Account.find({ userId });
+
+  return accounts;
+};
+
+module.exports = { createAccount, getAccountProfile, getAllUserAccounts };

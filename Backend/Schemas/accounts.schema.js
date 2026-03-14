@@ -7,9 +7,9 @@ const accountCreateSchema = Joi.object({
   .required()
   .options({ stripUnknown: true });
 
-const accountIdQuerySchema = Joi.object({
+const accountIdSchema = Joi.object({
   accountId: Joi.string().hex().length(24).required(),
 }).required();
 
 
-module.exports = { accountCreateSchema, accountIdQuerySchema };
+module.exports = { accountCreateSchema, accountIdSchema };

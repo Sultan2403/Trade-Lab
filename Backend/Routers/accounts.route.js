@@ -3,11 +3,32 @@ const express = require("express");
 
 const {
   createAccountController,
+  getAccountProfileController,
+  getAllUserAccountsController,
 } = require("../Controllers/accounts.controller");
-const { accountCreateSchema } = require("../Schemas/accounts.schema");
+
+const {
+  accountCreateSchema,
+  accountIdSchema,
+} = require("../Schemas/accounts.schema");
+
+const authMiddleware = require("../Middleware/auth.middleware");
 
 const router = express.Router();
 
-router.post("/", celebrate({ body: accountCreateSchema }), createAccountController);
+router.use(authMiddleware);
 
+router.post(
+  "/",
+  celebrate({ body: accountCreateSchema }),
+  createAccountController,
+);
+
+router.get(
+  "/:accountId",
+  celebrate({ params: accountIdSchema }),
+  getAccountProfileController,
+);
+
+router.get("/", getAllUserAccountsController);
 module.exports = router;
