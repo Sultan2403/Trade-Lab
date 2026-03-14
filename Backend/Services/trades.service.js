@@ -2,17 +2,39 @@ const Trades = require("../DB/Models/trades.model");
 const Account = require("../DB/Models/trades.model");
 
 const createTrade = async ({ accountId, tradeData }) => {
-  const metadata = {
-    source: "manual-entry",
-  };
+  const session = await mongoose.startSession();
 
-  const trade = await Trades.create({
-    ...tradeData,
-    accountId,
-    metadata,
-  });
+  try {
+    session.startTransaction();
 
-  return trade;
+    const metadata = { source: "manual-entry" };
+
+    const trade = await Trades.create(
+      {
+        ...tradeData,
+        accountId,
+        metadata,
+      },
+      { session }
+    );
+
+    await Account.updateOne(
+      { _id: accountId },
+      { $inc: { current_balance: tradeData.pnl || 0 } },
+      { session }
+    );
+
+    await session.commitTransaction();
+
+    return trade;
+
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+
+  } finally {
+    session.endSession();
+  }
 };
 
 const getTrades = async ({ accountId, page = 1, limit = 20 }) => {
