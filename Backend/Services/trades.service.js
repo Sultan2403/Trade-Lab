@@ -1,5 +1,6 @@
 const Trades = require("../DB/Models/trades.model");
-const Account = require("../DB/Models/trades.model");
+const Account = require("../DB/Models/accounts.model");
+const { calculateRiskPercent } = require("../Helpers/calculations.helpers");
 
 const createTrade = async ({ accountId, tradeData }) => {
   const session = await mongoose.startSession();
@@ -15,23 +16,21 @@ const createTrade = async ({ accountId, tradeData }) => {
         accountId,
         metadata,
       },
-      { session }
+      { session },
     );
 
     await Account.updateOne(
       { _id: accountId },
       { $inc: { current_balance: tradeData.pnl || 0 } },
-      { session }
+      { session },
     );
 
     await session.commitTransaction();
 
     return trade;
-
   } catch (err) {
     await session.abortTransaction();
     throw err;
-
   } finally {
     session.endSession();
   }
