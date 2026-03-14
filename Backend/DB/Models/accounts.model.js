@@ -32,6 +32,8 @@ const accountSchema = new mongoose.Schema(
   },
 );
 
+accountSchema.index({ userId: 1, name: 1 }, { unique: true });
+
 accountSchema.set("toJSON", {
   transform: (doc, obj) => {
     obj.id = obj._id.toString(); // convert ObjectId to string
