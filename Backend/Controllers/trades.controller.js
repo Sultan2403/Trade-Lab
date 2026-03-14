@@ -14,7 +14,7 @@ const createTrade = async (req, res) => {
 
 const getTrades = async (req, res) => {
   try {
-    const {accountId} = req.body
+    const { accountId } = req.body;
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -34,7 +34,7 @@ const getTrades = async (req, res) => {
 
 const getTrade = async (req, res) => {
   try {
-    const { accountId } = req.body  
+    const { accountId } = req.body;
     const tradeId = req.params.id;
 
     const trade = await tradeService.getTradeById({
@@ -51,8 +51,8 @@ const getTrade = async (req, res) => {
 
 const updateTrade = async (req, res) => {
   try {
-    const { accountId } = req.body 
-     const tradeId = req.params.id;
+    const { accountId } = req.body;
+    const tradeId = req.params.id;
     const update = req.body;
     const trade = await tradeService.updateTrade({
       accountId,
@@ -69,7 +69,7 @@ const updateTrade = async (req, res) => {
 
 const deleteTrade = async (req, res) => {
   try {
-    const accountId = req.body
+    const accountId = req.body;
     const tradeId = req.params.id;
 
     await tradeService.deleteTrade({ accountId, tradeId });
@@ -84,10 +84,12 @@ const deleteTrade = async (req, res) => {
 const trade_Upload_Controller = async (req, res) => {
   try {
     const trades = req.trades;
+    const { accountId } = req.body;
 
-    console.log(trades);
-
-    const data = await tradeService.uploadTrades(trades);
+    const data = await tradeService.processAndUploadTrades({
+      accountId,
+      trades,
+    });
 
     res.status(201).json({ success: true, data });
   } catch (error) {
