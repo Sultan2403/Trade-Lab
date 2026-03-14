@@ -6,6 +6,7 @@ import Register from "./Components/Auth/register";
 import AddTrade from "./Components/Others/Trades/addTrade";
 import TradesHistory from "./Components/Others/Trades/tradesHistory";
 import TradeDetailPlaceholder from "./Components/Others/Trades/tradeDetailPlaceholder";
+import ImportTrades from "./Components/Others/Trades/importTrades";
 
 const PlaceholderPage = ({ title }) => (
   <div className="rounded-panel border border-border bg-surface-card p-8 text-body text-text-secondary">
@@ -24,6 +25,7 @@ function App() {
 
         <Route element={<Main />}>
           <Route path="/add-trade" element={<AddTrade />} />
+          <Route path="/import-trades" element={<ImportTrades />} />
           <Route path="/dashboard" element={<PlaceholderPage title="Dashboard" />} />
           <Route path="/trades" element={<TradesHistory />} />
           <Route path="/trades/:tradeId" element={<TradeDetailPlaceholder />} />
