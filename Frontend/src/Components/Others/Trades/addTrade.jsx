@@ -1,10 +1,12 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { validateTradeCreate } from "../../../Validators/trade.validator";
 import { createInitialTradeUIState, normalizeTrade } from "../../../Helpers/Trades/trades.helpers";
 import TradeForm from "./tradeForm";
 import useTrades from "../../../Hooks/useTrades";
 
 export default function AddTrade() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState(createInitialTradeUIState());
   const [fieldErrors, setFieldErrors] = useState({});
 
@@ -38,9 +40,8 @@ export default function AddTrade() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const normalizedData = normalizeTrade(formData)
+    const normalizedData = normalizeTrade(formData);
     const errors = validateTradeCreate(normalizedData);
-
 
     if (Object.keys(errors).length > 0) return setFieldErrors(errors);
 
@@ -48,7 +49,6 @@ export default function AddTrade() {
 
     console.log("Sending to server...", normalizedData);
 
-    // Normalize formdata first!
     createTrade(normalizedData);
   };
 
@@ -83,6 +83,7 @@ export default function AddTrade() {
       fieldErrors={fieldErrors}
       loading={loading}
       error={error}
+      onCancel={() => navigate("/trades")}
     />
   );
 }
