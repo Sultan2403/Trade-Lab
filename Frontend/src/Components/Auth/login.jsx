@@ -19,7 +19,8 @@ export default function Login() {
   const formError = useMemo(
     () =>
       error?.response?.data?.validation?.body?.message ||
-      error?.response?.data?.message,
+      error?.response?.data?.message ||
+      "An error occured, please check youur internet connection and try again",
     [error],
   );
 
