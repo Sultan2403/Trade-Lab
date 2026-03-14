@@ -13,9 +13,11 @@ export default function useTrades() {
     try {
       const response = await apiCall();
       setData(response);
+      return response;
     } catch (err) {
       setError(err);
       console.error(err, err?.response, err?.data);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -32,6 +34,8 @@ export default function useTrades() {
       execute(() => tradesApi.updateTrade({ id, payload })),
 
     deleteTrade: (id) => execute(() => tradesApi.deleteTrade(id)),
+
+    uploadCsvTrades: (csvFile) => execute(() => tradesApi.uploadTradesCsv(csvFile)),
   };
 
   return { data, loading, error, ...methods };
