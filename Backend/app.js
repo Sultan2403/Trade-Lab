@@ -10,6 +10,7 @@ const { errors } = require("celebrate");
 //  Routers
 const authRouter = require("./Routers/auth.route");
 const tradesRouter = require("./Routers/trades.route");
+const accountsRouter = require("./Routers/accounts.route");
 
 // Middlewares
 const { authLimiter } = require("./Middleware/rate-limiter.middleware");
@@ -28,6 +29,7 @@ app.use(express.json());
 
 app.use("/auth", authLimiter, authRouter);
 app.use("/trades", authMiddleware, tradesRouter);
+app.use("/accounts", authMiddleware, accountsRouter);
 
 
 app.get("/", (req, res) => {

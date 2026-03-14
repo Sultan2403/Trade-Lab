@@ -18,6 +18,7 @@ const accountSchema = new mongoose.Schema(
     starting_balance: {
       type: Number,
       required: true,
+      min: 0
     },
 
     current_balance: {

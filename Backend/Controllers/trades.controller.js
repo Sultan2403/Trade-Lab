@@ -85,6 +85,7 @@ const trade_Upload_Controller = async (req, res) => {
   try {
     const trades = req.trades;
     const { accountId } = req.body;
+    console.log(accountId)
 
     const result = await tradeService.processAndUploadTrades({
       accountId,
