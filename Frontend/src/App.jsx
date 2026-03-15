@@ -7,6 +7,8 @@ import AddTrade from "./Components/Others/Trades/addTrade";
 import TradesHistory from "./Components/Others/Trades/tradesHistory";
 import TradeDetailPlaceholder from "./Components/Others/Trades/tradeDetailPlaceholder";
 import ImportTrades from "./Components/Others/Trades/importTrades";
+import Onboarding from "./Components/Onboarding/onboarding";
+import { getAccountId } from "./Helpers/Accounts/accounts.helper";
 
 const PlaceholderPage = ({ title }) => (
   <div className="rounded-panel border border-border bg-surface-card p-8 text-body text-text-secondary">
@@ -15,6 +17,8 @@ const PlaceholderPage = ({ title }) => (
 );
 
 function App() {
+  const accountId = getAccountId();
+
   return (
     <BrowserRouter>
       <Routes>
@@ -23,7 +27,14 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        <Route element={<Main />}>
+        <Route
+          path="/onboarding"
+          element={accountId ? <Navigate to="/dashboard" replace /> : <Onboarding />}
+        />
+
+        <Route
+          element={accountId ? <Main /> : <Navigate to="/onboarding" replace />}
+        >
           <Route path="/add-trade" element={<AddTrade />} />
           <Route path="/import-trades" element={<ImportTrades />} />
           <Route path="/dashboard" element={<PlaceholderPage title="Dashboard" />} />
