@@ -1,7 +1,8 @@
 import { Avatar, IconButton } from "@mui/material";
 import { ChevronDown } from "lucide-react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import Nav from "../Navigation/nav";
+import { getAccessToken, getRefreshToken } from "../../Helpers/Auth/tokens";
 
 const pageConfig = {
   "/trades": {
@@ -36,6 +37,12 @@ export default function Main() {
       }
     : (pageConfig[pathname] ?? pageConfig["/dashboard"]);
 
+  const accessToken = getAccessToken();
+  const refreshToken = getRefreshToken();
+
+  if (!accessToken || refreshToken)
+    return <Navigate to={"/login"} replace={true} />;
+
   return (
     <div className="flex h-screen w-full bg-surface-base">
       <aside className="h-full w-[300px] shrink-0 overflow-y-auto">
@@ -55,7 +62,9 @@ export default function Main() {
                 ))}
               </div>
               <h1 className="text-4xl font-semibold">{pageMeta.title}</h1>
-              <p className="mt-1 text-body text-text-secondary">{pageMeta.subtitle}</p>
+              <p className="mt-1 text-body text-text-secondary">
+                {pageMeta.subtitle}
+              </p>
             </div>
 
             <div className="flex items-center gap-2">
