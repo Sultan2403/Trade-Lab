@@ -37,11 +37,11 @@ export default function Main() {
       }
     : (pageConfig[pathname] ?? pageConfig["/dashboard"]);
 
-  const accessToken = getAccessToken();
-  const refreshToken = getRefreshToken();
+  // const accessToken = getAccessToken();
+  // const refreshToken = getRefreshToken();
 
-  if (!accessToken || refreshToken)
-    return <Navigate to={"/login"} replace={true} />;
+  // if (!accessToken || refreshToken)
+  //   return <Navigate to={"/login"} replace={true} />;
 
   return (
     <div className="flex h-screen w-full bg-surface-base">
