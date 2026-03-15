@@ -1,17 +1,51 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, BarChart3 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 import useAccounts from "../../Hooks/useAccounts";
 import { setAccountId } from "../../Helpers/Accounts/accounts.helper";
 
 const ACCOUNT_TYPES = ["Live", "Demo"];
 
+const TYPE_BADGE_STYLES = {
+  Live: "bg-[#D8EDF1] text-[#115E6B]",
+  Demo: "bg-[#F2E4C8] text-[#6E5A28]",
+};
+
+const formatCurrency = (amount) =>
+  Number(amount ?? 0).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+const getPerformanceData = (account) => {
+  const starting = Number(account?.starting_balance ?? 0);
+  const current = Number(account?.current_balance ?? 0);
+
+  if (!starting) {
+    return { text: "0.00%", tone: "text-text-muted", trendSymbol: "" };
+  }
+
+  const value = ((current - starting) / starting) * 100;
+  const tone =
+    value > 0
+      ? "text-state-success"
+      : value < 0
+        ? "text-state-danger"
+        : "text-text-muted";
+  const trendSymbol = value > 0 ? "↑" : value < 0 ? "↓" : "";
+
+  return {
+    text: `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`,
+    tone,
+    trendSymbol,
+  };
+};
+
 export default function Onboarding() {
-  const navigate = useNavigate();
   const { data, error, loading, getAllAccounts, createAccount } = useAccounts();
 
   const [selectedAccountId, setSelectedAccountId] = useState("");
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [createForm, setCreateForm] = useState({
     name: "",
     starting_balance: "",
@@ -28,13 +62,13 @@ export default function Onboarding() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const backendError = useMemo(() => {
-    return (
+  const backendError = useMemo(
+    () =>
       error?.response?.data?.validation?.body?.message ||
       error?.response?.data?.message ||
-      ""
-    );
-  }, [error]);
+      "",
+    [error],
+  );
 
   const handleSelectAndContinue = () => {
     if (!activeAccountId) return;
@@ -85,16 +119,16 @@ export default function Onboarding() {
   const showSelector = hasAccounts && !showCreateForm;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface-base p-6 lg:p-10">
-      <div className="w-full max-w-[760px] rounded-panel border border-border bg-surface-card p-6 sm:p-8">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <span className="mb-5 inline-flex h-16 w-16 items-center justify-center rounded-xl bg-brand-900 text-text-inverse">
-            <ArrowUpRight size={28} />
+    <div className="flex min-h-screen items-center justify-center bg-surface-base px-4 py-6 sm:px-6 sm:py-8">
+      <div className="w-full max-w-md rounded-panel border border-border bg-surface-card p-4 sm:p-5">
+        <div className="mb-4 flex flex-col items-center text-center">
+          <span className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-900 text-text-inverse">
+            <ArrowUpRight size={18} />
           </span>
-          <h1 className="text-4xl font-semibold">
+          <h1 className="text-2xl font-semibold">
             {showSelector ? "Select a Trading Account" : "Welcome to TradeLog"}
           </h1>
-          <p className="mt-3 text-body text-text-secondary">
+          <p className="mt-1 text-body text-text-secondary">
             {showSelector
               ? "Choose an account to continue to your dashboard"
               : "Let's set up your first trading account to get started"}
@@ -102,58 +136,75 @@ export default function Onboarding() {
         </div>
 
         {(backendError || formError) && (
-          <p className="mb-6 rounded-panel border border-state-danger-soft bg-state-danger-soft px-3 py-2 text-caption text-state-danger">
+          <p className="mb-3 rounded-panel border border-state-danger-soft bg-state-danger-soft px-2 py-1 text-caption text-state-danger">
             {formError || backendError}
           </p>
         )}
 
         {loading && !data ? (
-          <div className="py-10 text-center text-body text-text-secondary">Loading your accounts...</div>
+          <div className="py-6 text-center text-body text-text-secondary">
+            Loading your accounts...
+          </div>
         ) : showSelector ? (
-          <div>
-            <div className="space-y-4">
-              {accounts.map((account) => {
-                const isSelected = activeAccountId === account.id;
-                const typeStyle = TYPE_BADGE_STYLES[account.type] || "bg-surface-muted text-text-secondary";
+          <div className="space-y-3">
+            {accounts.map((account) => {
+              const isSelected = activeAccountId === account.id;
+              const typeStyle =
+                TYPE_BADGE_STYLES[account.type] ||
+                "bg-surface-muted text-text-secondary";
+              const performance = getPerformanceData(account);
 
-                return (
-                  <button
-                    key={account.id}
-                    type="button"
-                    onClick={() => setSelectedAccountId(account.id)}
-                    className={`w-full rounded-panel border p-4 text-left transition-colors sm:p-5 ${
-                      isSelected ? "border-brand-700 bg-brand-700/5" : "border-border hover:border-brand-700/40"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-3">
-                        <span
-                          className={`mt-1 h-6 w-6 rounded-full border ${
-                            isSelected ? "border-brand-700 bg-brand-700" : "border-border bg-surface-card"
-                          }`}
-                        />
-                        <div>
-                          <p className="text-2xl font-semibold">{account.name}</p>
-                          <p className="mt-3 text-4xl font-semibold">
-                            ${Number(account.current_balance ?? 0).toLocaleString()}
-                          </p>
-                        </div>
+              return (
+                <button
+                  key={account.id}
+                  type="button"
+                  onClick={() => setSelectedAccountId(account.id)}
+                  className={`w-full rounded-panel border p-3 text-left transition-colors ${
+                    isSelected
+                      ? "border-brand-700 bg-brand-700/5"
+                      : "border-border hover:border-brand-700/40"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-2">
+                      <span
+                        className={`mt-1 h-4 w-4 rounded-full border ${
+                          isSelected
+                            ? "border-brand-700 bg-brand-700"
+                            : "border-border bg-surface-card"
+                        }`}
+                      />
+                      <div>
+                        <p className="text-lg font-semibold leading-tight">
+                          {account.name}
+                        </p>
+                        <p className="text-xl font-semibold leading-none">
+                          ${formatCurrency(account.current_balance)}
+                        </p>
+                        <span className={`text-sm ${performance.tone}`}>
+                          {performance.text} {performance.trendSymbol} •{" "}
+                          {account.trades_count || 0} trades
+                        </span>
                       </div>
-
-                      {account.type && (
-                        <span className={`rounded-md px-3 py-1 text-caption ${typeStyle}`}>{account.type}</span>
-                      )}
                     </div>
-                  </button>
-                );
-              })}
-            </div>
+
+                    {account.type && (
+                      <span
+                        className={`rounded-md px-2 py-0.5 text-xs ${typeStyle}`}
+                      >
+                        {account.type}
+                      </span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
 
             <button
               type="button"
               onClick={handleSelectAndContinue}
               disabled={!activeAccountId}
-              className="ui-btn-primary mt-6 w-full py-3 text-body"
+              className="ui-btn-primary mt-3 w-full py-2 text-body"
             >
               Continue to Dashboard
             </button>
@@ -161,22 +212,25 @@ export default function Onboarding() {
             <button
               type="button"
               onClick={() => setShowCreateForm(true)}
-              className="mt-4 w-full text-center text-body font-medium text-brand-800 transition-colors hover:text-brand-900"
+              className="mt-2 w-full text-center text-body font-medium text-brand-800 transition-colors hover:text-brand-900"
             >
               Create New Account
             </button>
           </div>
         ) : (
-          <form onSubmit={handleCreateAccount} className="space-y-5">
+          <form onSubmit={handleCreateAccount} className="space-y-3">
             <p className="text-center text-body text-text-muted">
               Step 1 of 1 - Getting Started
             </p>
-            <div className="h-3 rounded-full bg-surface-muted">
+            <div className="h-2 rounded-full bg-surface-muted">
               <div className="h-full w-full rounded-full bg-brand-800" />
             </div>
 
             <div>
-              <label htmlFor="name" className="mb-1.5 block text-caption font-medium text-text-secondary">
+              <label
+                htmlFor="name"
+                className="mb-1 block text-caption font-medium text-text-secondary"
+              >
                 Account Name <span className="text-state-danger">*</span>
               </label>
               <input
@@ -185,14 +239,17 @@ export default function Onboarding() {
                 value={createForm.name}
                 onChange={handleCreateFormChange}
                 placeholder="e.g., Main Trading Account, Demo Account"
-                className="ui-input py-2.5 text-caption"
+                className="ui-input py-2 text-caption"
               />
+              <p className="mt-1 text-caption text-text-muted">
+                Choose a name that helps you quickly identify this account.
+              </p>
             </div>
 
             <div>
               <label
                 htmlFor="starting_balance"
-                className="mb-1.5 block text-caption font-medium text-text-secondary"
+                className="mb-1 block text-caption font-medium text-text-secondary"
               >
                 Starting Balance <span className="text-state-danger">*</span>
               </label>
@@ -205,15 +262,24 @@ export default function Onboarding() {
                 value={createForm.starting_balance}
                 onChange={handleCreateFormChange}
                 placeholder="0.00"
-                className="ui-input py-2.5 text-caption"
+                className="ui-input py-2 text-caption"
               />
+              <p className="mt-1 text-caption text-text-muted">
+                We use this as your baseline, so your account growth reflects
+                performance over time.
+              </p>
             </div>
 
             <div>
-              <p className="mb-2 block text-caption font-medium text-text-secondary">Account Type (Optional)</p>
-              <div className="space-y-2">
+              <p className="mb-1 block text-caption font-medium text-text-secondary">
+                Account Type (Optional)
+              </p>
+              <div className="space-y-1">
                 {ACCOUNT_TYPES.map((type) => (
-                  <label key={type} className="flex cursor-pointer items-center gap-2 text-body text-text-primary">
+                  <label
+                    key={type}
+                    className="flex cursor-pointer items-center gap-2 text-body text-text-primary"
+                  >
                     <input
                       type="radio"
                       name="type"
@@ -226,9 +292,16 @@ export default function Onboarding() {
                   </label>
                 ))}
               </div>
+              <p className="mt-1 text-caption text-text-muted">
+                You can change this later.
+              </p>
             </div>
 
-            <button type="submit" disabled={loading} className="ui-btn-primary w-full py-3 text-body">
+            <button
+              type="submit"
+              disabled={loading}
+              className="ui-btn-primary w-full py-2 text-body"
+            >
               {loading ? "Creating Account..." : "Create Account & Continue"}
             </button>
 
@@ -244,12 +317,14 @@ export default function Onboarding() {
           </form>
         )}
 
-        <div className="mt-10 flex flex-col items-center text-center text-text-muted">
-          <span className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-brand-200/30 text-brand-900">
-            <BarChart3 size={24} />
+        <div className="mt-6 flex flex-col items-center text-center text-text-muted">
+          <span className="mb-1 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-200/30 text-brand-900">
+            <BarChart3 size={18} />
           </span>
           <p className="text-body">
-            {showSelector ? "Your trading dashboard awaits" : "Your trading journey starts here"}
+            {showSelector
+              ? "Your trading dashboard awaits"
+              : "Your trading journey starts here"}
           </p>
         </div>
       </div>
