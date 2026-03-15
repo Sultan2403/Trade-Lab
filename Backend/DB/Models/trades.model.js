@@ -100,7 +100,6 @@ const tradeSchema = new mongoose.Schema(
     riskPercent: {
       type: Number,
       required: false,
-      min: 0.01,
       default: null
     },
 
