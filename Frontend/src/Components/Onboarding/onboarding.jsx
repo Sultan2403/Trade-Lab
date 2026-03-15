@@ -4,12 +4,11 @@ import { ArrowUpRight, BarChart3 } from "lucide-react";
 import useAccounts from "../../Hooks/useAccounts";
 import { setAccountId } from "../../Helpers/Accounts/accounts.helper";
 
-const ACCOUNT_TYPES = ["Live", "Demo", "Paper"];
+const ACCOUNT_TYPES = ["Live", "Demo"]; // removed Paper
 
 const TYPE_BADGE_STYLES = {
-  Live: "bg-[#D8EDF1] text-[#115E6B]",
+  Live: "bg-[#D0F1D6] text-[#0B6623]", // stronger green background + darker green text
   Demo: "bg-[#F2E4C8] text-[#6E5A28]",
-  Paper: "bg-[#DDEEE7] text-[#257A55]",
 };
 
 const formatCurrency = (amount) =>
@@ -305,7 +304,7 @@ export default function Onboarding() {
                       onChange={handleCreateFormChange}
                       className="h-5 w-5"
                     />
-                    {type === "Paper" ? "Paper Trading" : type}
+                    {type} {/* just Live or Demo now */}
                   </label>
                 ))}
               </div>
