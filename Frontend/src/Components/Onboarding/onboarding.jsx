@@ -122,14 +122,16 @@ export default function Onboarding() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-base px-4 py-5 sm:px-6 sm:py-8">
       <div className="w-full max-w-[520px] rounded-2xl border border-border bg-surface-card px-6 py-7 sm:px-8 sm:py-8">
-        <div className="mb-7 flex flex-col items-center text-center">
-          <span className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-brand-900 text-text-inverse">
+        <div className="mb-5 flex flex-col items-center text-center">
+          <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-900 text-text-inverse">
             <ArrowUpRight size={24} />
           </span>
-          <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-[44px]">
+
+          <h1 className="text-3xl font-semibold leading-snug sm:text-4xl">
             {showSelector ? "Select a Trading Account" : "Welcome to TradeLog"}
           </h1>
-          <p className="mt-2 text-lg text-text-secondary sm:text-[30px]">
+
+          <p className="mt-2 text-base font-medium text-text-secondary sm:text-lg">
             {showSelector
               ? "Choose an account to continue to your dashboard"
               : "Let's set up your first trading account to get started"}
@@ -160,51 +162,57 @@ export default function Onboarding() {
                   key={account.id}
                   type="button"
                   onClick={() => setSelectedAccountId(account.id)}
-                  className={`w-full rounded-xl border px-4 py-4 text-left transition-colors ${
+                  className={`w-full rounded-xl border px-4 py-3 text-left transition-colors ${
                     isSelected
                       ? "border-brand-700 bg-brand-700/5"
                       : "border-border hover:border-brand-700/40"
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
+                  {/* Top Row */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {/* Selection Circle */}
                       <span
-                        className={`mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full border ${
+                        className={`inline-flex h-5 w-5 items-center justify-center rounded-full border ${
                           isSelected
                             ? "border-brand-700"
                             : "border-border bg-surface-card"
                         }`}
                       >
                         {isSelected && (
-                          <span className="h-2.5 w-2.5 rounded-full bg-brand-700" />
+                          <span className="h-2 w-2 rounded-full bg-brand-700" />
                         )}
                       </span>
-                      <div>
-                        <p className="text-[31px] font-semibold leading-tight sm:text-[33px]">
-                          {account.name}
-                        </p>
-                        <p className="mt-2.5 text-[44px] font-semibold leading-none sm:text-[46px]">
-                          ${formatCurrency(account.current_balance)}
-                        </p>
-                        <span className={`mt-2 block text-[24px] ${performance.tone}`}>
-                          {performance.text} {performance.trendSymbol} •{" "}
-                          {account.trades_count || 0} trades
-                        </span>
-                      </div>
+
+                      {/* Account Name */}
+                      <p className="text-lg font-semibold">{account.name}</p>
                     </div>
 
+                    {/* Account Type Badge */}
                     {account.type && (
                       <span
-                        className={`rounded-md px-3 py-1 text-[18px] ${typeStyle}`}
+                        className={`rounded-md px-2 py-1 text-sm font-medium ${typeStyle}`}
                       >
-                        {account.type}
+                        {account.type === "Paper"
+                          ? "Paper Trading"
+                          : account.type}
                       </span>
                     )}
                   </div>
+
+                  {/* Current Balance */}
+                  <p className="mt-2 text-2xl font-medium">
+                    ${formatCurrency(account.current_balance)}
+                  </p>
+
+                  {/* Performance & Trades */}
+                  <p className={`mt-1 text-base ${performance.tone}`}>
+                    {performance.text} {performance.trendSymbol}{" "}
+                    {/* • {account.trades_count || 0} trades */}
+                  </p>
                 </button>
               );
             })}
-
             <button
               type="button"
               onClick={handleSelectAndContinue}
@@ -327,8 +335,8 @@ export default function Onboarding() {
         )}
 
         <div className="mt-8 flex flex-col items-center text-center text-text-muted">
-          <span className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-brand-200/30 text-brand-900">
-            <BarChart3 size={24} />
+          <span className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-brand-800 text-brand-900">
+            <BarChart3 size={24} color="white" />
           </span>
           <p className="text-body">
             {showSelector
