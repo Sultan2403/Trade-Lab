@@ -153,8 +153,21 @@ export default function ImportTrades() {
     if (fileRef.current) fileRef.current.value = "";
   };
 
+  const openFilePicker = () => {
+    setValidationError("");
+
+    if (!fileRef.current) return;
+
+    // Reset value so selecting the same file still triggers onChange.
+    fileRef.current.value = "";
+    fileRef.current.click();
+  };
+
   const handleFileSelect = (files) => {
-    if (!files?.length) return;
+    if (!files?.length) {
+      if (!selectedFile) setValidationError("");
+      return;
+    }
 
     if (selectedFile) {
       setValidationError(
@@ -299,7 +312,7 @@ export default function ImportTrades() {
             <div className="mt-4 flex items-center justify-center gap-2">
               <button
                 type="button"
-                onClick={() => fileRef.current?.click()}
+                onClick={openFilePicker}
                 className="ui-btn-primary py-2 text-caption disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={Boolean(selectedFile)}
               >
