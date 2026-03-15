@@ -141,6 +141,7 @@ async function processAndUploadTrades({ accountId, trades }) {
 
       successCount += result.length;
     } catch (err) {
+      console.error(err);
       const inserted = err.insertedDocs?.length || 0;
       const failed = err.writeErrors?.length || 0;
 
