@@ -13,7 +13,6 @@ export default function useTrades() {
     try {
       const response = await apiCall();
       setData(response);
-      return response;
     } catch (err) {
       setError(err);
       console.error(err, err?.response, err?.data);
