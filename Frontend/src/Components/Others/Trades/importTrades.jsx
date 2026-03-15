@@ -1,5 +1,12 @@
 import { useRef, useState } from "react";
-import { Check, Download, FileText, Trash2, Upload, XCircle } from "lucide-react";
+import {
+  Check,
+  Download,
+  FileText,
+  Trash2,
+  Upload,
+  XCircle,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useTrades from "../../../Hooks/useTrades";
 
@@ -9,7 +16,11 @@ const isCsvFile = (file) => {
   const fileType = file.type?.toLowerCase();
   const fileName = file.name?.toLowerCase() ?? "";
 
-  return fileType === "text/csv" || fileType === "application/vnd.ms-excel" || fileName.endsWith(".csv");
+  return (
+    fileType === "text/csv" ||
+    fileType === "application/vnd.ms-excel" ||
+    fileName.endsWith(".csv")
+  );
 };
 
 function ImportResultModal({ isOpen, onClose, summary }) {
@@ -29,33 +40,52 @@ function ImportResultModal({ isOpen, onClose, summary }) {
           <Check size={30} />
         </span>
 
-        <h2 id="import-summary-title" className="mt-5 text-2xl font-semibold text-text-primary">
+        <h2
+          id="import-summary-title"
+          className="mt-5 text-2xl font-semibold text-text-primary"
+        >
           Import Complete!
         </h2>
 
         <div className="mx-auto mt-6 grid max-w-xs grid-cols-2 gap-4">
           <div>
-            <p className="text-4xl font-semibold text-state-success">{summary.successCount}</p>
-            <p className="mt-1 text-body text-text-secondary">Trades Imported</p>
+            <p className="text-4xl font-semibold text-state-success">
+              {summary.successCount}
+            </p>
+            <p className="mt-1 text-body text-text-secondary">
+              Trades Imported
+            </p>
           </div>
           <div>
-            <p className="text-4xl font-semibold text-state-danger">{summary.failedCount}</p>
+            <p className="text-4xl font-semibold text-state-danger">
+              {summary.failedCount}
+            </p>
             <p className="mt-1 text-body text-text-secondary">Trades Failed</p>
           </div>
         </div>
 
         <p className="mt-6 text-caption text-text-secondary">
-          {hasFailures ? "Failed trades were skipped due to validation errors." : "All rows were imported successfully."}
+          {hasFailures
+            ? "Failed trades were skipped due to validation errors."
+            : "All rows were imported successfully."}
         </p>
 
         <div className="mt-6">
-          <button type="button" onClick={onClose} className="ui-btn-primary w-full py-2 text-caption">
+          <button
+            type="button"
+            onClick={onClose}
+            className="ui-btn-primary w-full py-2 text-caption"
+          >
             Done
           </button>
         </div>
 
         {hasFailures ? (
-          <button type="button" className="mt-3 text-body font-medium text-brand-900 hover:underline" onClick={onClose}>
+          <button
+            type="button"
+            className="mt-3 text-body font-medium text-brand-900 hover:underline"
+            onClick={onClose}
+          >
             View Details
           </button>
         ) : null}
@@ -67,7 +97,7 @@ function ImportResultModal({ isOpen, onClose, summary }) {
 export default function ImportTrades() {
   const navigate = useNavigate();
   const fileRef = useRef(null);
-  const { loading, error, uploadCsvTrades } = useTrades();
+  const { loading, error, data, uploadCsvTrades } = useTrades();
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [validationError, setValidationError] = useState("");
@@ -89,7 +119,9 @@ export default function ImportTrades() {
     if (!files?.length) return;
 
     if (selectedFile) {
-      setValidationError("Remove the current file before selecting another one.");
+      setValidationError(
+        "Remove the current file before selecting another one.",
+      );
       return;
     }
 
@@ -115,7 +147,9 @@ export default function ImportTrades() {
     setIsDragging(false);
 
     if (selectedFile) {
-      setValidationError("Remove the current file before dropping another one.");
+      setValidationError(
+        "Remove the current file before dropping another one.",
+      );
       return;
     }
 
@@ -136,25 +170,30 @@ export default function ImportTrades() {
     }
 
     setValidationError("");
-
-    const response = await uploadCsvTrades(selectedFile);
-    const payload = response?.data ?? response;
-
-    if (!payload?.success) return;
-
-    setImportSummary({
-      successCount: payload.imported ?? payload.successCount ?? payload.summary?.imported ?? 0,
-      failedCount: payload.skipped ?? payload.failedCount ?? payload.summary?.failed ?? 0,
-    });
-
-    setIsResultOpen(true);
   };
+
+  useEffect(() => {
+    if (data?.success) {
+      const { imported, skipped } = data;
+      setImportSummary({
+        successCount: imported,
+        failedCount: skipped,
+      });
+
+      setIsResultOpen(true);
+    }
+  }, [data]);
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="mx-auto w-full max-w-[980px] space-y-6 pb-10">
+      <form
+        onSubmit={handleSubmit}
+        className="mx-auto w-full max-w-[980px] space-y-6 pb-10"
+      >
         <section className="rounded-panel border border-border bg-surface-card p-6">
-          <h2 className="text-body font-semibold text-text-primary">File Requirements</h2>
+          <h2 className="text-body font-semibold text-text-primary">
+            File Requirements
+          </h2>
           <ul className="mt-3 space-y-2 flex flex-col text-caption text-text-secondary">
             <li className="inline-flex items-center gap-2">
               <FileText size={14} /> CSV files only
@@ -166,7 +205,9 @@ export default function ImportTrades() {
         </section>
 
         <section className="rounded-panel border border-border bg-surface-card p-6">
-          <p className="text-caption text-text-secondary">Upload your CSV file for processing.</p>
+          <p className="text-caption text-text-secondary">
+            Upload your CSV file for processing.
+          </p>
 
           <div
             className={`mt-4 rounded-panel border-2 border-dashed p-10 text-center transition-colors ${
@@ -179,14 +220,20 @@ export default function ImportTrades() {
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
           >
-            <span className={`mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full ${selectedFile ? "bg-state-success/15 text-state-success" : "bg-brand-900/10 text-brand-900"}`}>
+            <span
+              className={`mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full ${selectedFile ? "bg-state-success/15 text-state-success" : "bg-brand-900/10 text-brand-900"}`}
+            >
               {selectedFile ? <FileText size={22} /> : <Upload size={22} />}
             </span>
 
             <p className="mt-4 text-body font-semibold text-text-primary">
-              {selectedFile ? "CSV file selected" : "Drag and drop your CSV file here"}
+              {selectedFile
+                ? "CSV file selected"
+                : "Drag and drop your CSV file here"}
             </p>
-            <p className="mt-1 text-caption text-text-secondary">{selectedFile ? selectedFile.name : "or click to browse"}</p>
+            <p className="mt-1 text-caption text-text-secondary">
+              {selectedFile ? selectedFile.name : "or click to browse"}
+            </p>
 
             <input
               ref={fileRef}
@@ -229,7 +276,8 @@ export default function ImportTrades() {
 
             {!validationError && error ? (
               <p className="mt-4 text-caption text-state-danger">
-                {error?.response?.data?.message || "Unable to import CSV right now."}
+                {error?.response?.data?.message ||
+                  "Unable to import CSV right now."}
               </p>
             ) : null}
           </div>
@@ -237,13 +285,17 @@ export default function ImportTrades() {
           <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
             <button
               type="button"
-              onClick={() => navigate("/trades")}
+              onClick={() => navigate(-1)}
               className="text-caption font-medium text-text-secondary hover:text-text-primary"
             >
               Cancel
             </button>
 
-            <button type="submit" className="ui-btn-primary py-2 text-caption disabled:opacity-70" disabled={loading}>
+            <button
+              type="submit"
+              className="ui-btn-primary py-2 text-caption disabled:opacity-70"
+              disabled={loading}
+            >
               {loading ? "Importing..." : "Import"}
             </button>
           </div>
@@ -257,7 +309,9 @@ export default function ImportTrades() {
 
             <div>
               <h2 className="text-body font-semibold">Download CSV Template</h2>
-              <p className="text-caption text-text-secondary">Not sure about the format? Download our sample template.</p>
+              <p className="text-caption text-text-secondary">
+                Not sure about the format? Download our sample template.
+              </p>
             </div>
           </div>
 
