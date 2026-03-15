@@ -1,21 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, BarChart3 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import useAccounts from "../../Hooks/useAccounts";
 import { setAccountId } from "../../Helpers/Accounts/accounts.helper";
 
 const ACCOUNT_TYPES = ["Live", "Demo"];
 
-const TYPE_BADGE_STYLES = {
-  Live: "bg-[#D8EDF1] text-[#115E6B]",
-  Demo: "bg-[#F2E4C8] text-[#6E5A28]",
-};
-
 export default function Onboarding() {
+  const navigate = useNavigate();
   const { data, error, loading, getAllAccounts, createAccount } = useAccounts();
 
   const [selectedAccountId, setSelectedAccountId] = useState("");
-  const [showCreateForm, setShowCreateForm] = useState(false);
   const [createForm, setCreateForm] = useState({
     name: "",
     starting_balance: "",
@@ -32,10 +28,13 @@ export default function Onboarding() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const backendError = useMemo(
-    () => error?.response?.data?.validation?.body?.message || error?.response?.data?.message || "",
-    [error],
-  );
+  const backendError = useMemo(() => {
+    return (
+      error?.response?.data?.validation?.body?.message ||
+      error?.response?.data?.message ||
+      ""
+    );
+  }, [error]);
 
   const handleSelectAndContinue = () => {
     if (!activeAccountId) return;
