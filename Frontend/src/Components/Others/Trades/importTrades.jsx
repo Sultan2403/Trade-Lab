@@ -97,7 +97,7 @@ function ImportErrorModal({ isOpen, message, onClose }) {
 export default function ImportTrades() {
   const navigate = useNavigate();
   const fileRef = useRef(null);
-  const { loading, error, uploadCsvTrades } = useTrades();
+  const { loading, error, data, uploadCsvTrades } = useTrades();
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [validationError, setValidationError] = useState("");
@@ -121,7 +121,9 @@ export default function ImportTrades() {
     if (!files?.length) return;
 
     if (selectedFile) {
-      setValidationError("Remove the current file before selecting another one.");
+      setValidationError(
+        "Remove the current file before selecting another one.",
+      );
       return;
     }
 
@@ -147,7 +149,9 @@ export default function ImportTrades() {
     setIsDragging(false);
 
     if (selectedFile) {
-      setValidationError("Remove the current file before dropping another one.");
+      setValidationError(
+        "Remove the current file before dropping another one.",
+      );
       return;
     }
 
@@ -168,30 +172,34 @@ export default function ImportTrades() {
     }
 
     setValidationError("");
-    setIsErrorOpen(false);
+  };
 
-    const response = await uploadCsvTrades(selectedFile);
-    const payload = response?.data ?? response;
+  useEffect(() => {
+    if (data?.success) {
+      const { imported, skipped } = data;
+      setImportSummary({
+        successCount: imported,
+        failedCount: skipped,
+      });
 
-    if (!payload?.success) {
+      setIsResultOpen(true);
+    }else if (!payload?.success) {
       setImportErrorMessage(error?.response?.data?.message || "Unable to import CSV right now.");
       setIsErrorOpen(true);
       return;
     }
-
-    setImportSummary({
-      successCount: payload.imported ?? payload.successCount ?? payload.summary?.imported ?? 0,
-      failedCount: payload.skipped ?? payload.failedCount ?? payload.summary?.failed ?? 0,
-    });
-
-    setIsResultOpen(true);
-  };
+  }, [data]);
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="mx-auto w-full max-w-[980px] space-y-6 pb-10">
+      <form
+        onSubmit={handleSubmit}
+        className="mx-auto w-full max-w-[980px] space-y-6 pb-10"
+      >
         <section className="rounded-panel border border-border bg-surface-card p-6">
-          <h2 className="text-body font-semibold text-text-primary">File Requirements</h2>
+          <h2 className="text-body font-semibold text-text-primary">
+            File Requirements
+          </h2>
           <ul className="mt-3 space-y-2 flex flex-col text-caption text-text-secondary">
             <li className="inline-flex items-center gap-2">
               <FileText size={14} /> CSV files only
@@ -263,18 +271,24 @@ export default function ImportTrades() {
                 <XCircle size={14} /> {validationError}
               </p>
             ) : null}
+
+    
           </div>
 
           <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
             <button
               type="button"
-              onClick={() => navigate("/trades")}
+              onClick={() => navigate(-1)}
               className="text-caption font-medium text-text-secondary hover:text-text-primary"
             >
               Cancel
             </button>
 
-            <button type="submit" className="ui-btn-primary py-2 text-caption disabled:opacity-70" disabled={loading}>
+            <button
+              type="submit"
+              className="ui-btn-primary py-2 text-caption disabled:opacity-70"
+              disabled={loading}
+            >
               {loading ? "Importing..." : "Import"}
             </button>
           </div>
@@ -288,7 +302,9 @@ export default function ImportTrades() {
 
             <div>
               <h2 className="text-body font-semibold">Download CSV Template</h2>
-              <p className="text-caption text-text-secondary">Not sure about the format? Download our sample template.</p>
+              <p className="text-caption text-text-secondary">
+                Not sure about the format? Download our sample template.
+              </p>
             </div>
           </div>
 

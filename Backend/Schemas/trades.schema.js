@@ -36,7 +36,7 @@ const createTradeSchema = Joi.object({
       "date.min": "Closed date cannot be before opened date",
     }),
 
-  notes: Joi.string().max(500).allow(""),
+  notes: Joi.string().max(500).allow("").optional(),
 
   tags: Joi.array().items(Joi.string().max(20)).max(10).optional(),
 })
