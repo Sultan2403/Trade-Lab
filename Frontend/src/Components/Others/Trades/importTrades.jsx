@@ -42,7 +42,7 @@ function ImportResultModal({ isOpen, onClose, summary }) {
           id="import-summary-title"
           className="mt-5 text-2xl font-semibold text-text-primary"
         >
-          Import Complete!
+          File Processed!
         </h2>
 
         <div className="mx-auto mt-6 grid max-w-xs grid-cols-2 gap-4">
@@ -62,10 +62,12 @@ function ImportResultModal({ isOpen, onClose, summary }) {
           </div>
         </div>
 
-        <p className="mt-6 text-caption text-text-secondary">
+        {/* Dynamic helper text */}
+        <p className="mt-6 text-caption text-text-secondary inline-flex items-center gap-1">
+          <AlertTriangle size={14} />
           {hasFailures
-            ? "Failed trades were skipped due to validation errors."
-            : "All rows were imported successfully."}
+            ? "Some trades were skipped due to validation errors or duplicates."
+            : "Some trades may have been skipped because they were already imported."}
         </p>
 
         <div className="mt-6">
@@ -78,7 +80,7 @@ function ImportResultModal({ isOpen, onClose, summary }) {
           </button>
         </div>
 
-        {hasFailures ? (
+        {hasFailures && (
           <button
             type="button"
             className="mt-3 text-body font-medium text-brand-900 hover:underline"
@@ -86,7 +88,7 @@ function ImportResultModal({ isOpen, onClose, summary }) {
           >
             View Details
           </button>
-        ) : null}
+        )}
       </div>
     </div>
   );
@@ -229,6 +231,7 @@ export default function ImportTrades() {
   };
 
   useEffect(() => {
+    console.log(data);
     if (!data) return;
 
     if (data.success) {
@@ -256,14 +259,21 @@ export default function ImportTrades() {
       >
         <section className="rounded-panel border border-border bg-surface-card p-6">
           <h2 className="text-body font-semibold text-text-primary">
-            File Requirements
+            Import Guidelines
           </h2>
           <ul className="mt-3 space-y-2 flex flex-col text-caption text-text-secondary">
             <li className="inline-flex items-center gap-2">
-              <FileText size={14} /> CSV files only
+              <FileText size={14} /> Upload one file only
             </li>
             <li className="inline-flex items-center gap-2">
-              <FileText size={14} /> Upload one file only
+              <FileText size={14} /> Only CSV files will be accepted
+            </li>
+            <li className="inline-flex items-center gap-2">
+              <Check size={14} /> Only closed trades will be processed
+            </li>
+            <li className="inline-flex items-center gap-2">
+              <AlertTriangle size={14} /> Already existing trades won’t be
+              processed
             </li>
           </ul>
         </section>
