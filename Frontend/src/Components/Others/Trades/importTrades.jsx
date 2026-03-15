@@ -1,83 +1,95 @@
-import { useMemo, useRef, useState } from "react";
-import { CheckCircle2, Download, FileText, Trash2, Upload, XCircle } from "lucide-react";
+import { useRef, useState } from "react";
+import { AlertTriangle, Check, Download, FileText, Trash2, Upload, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useTrades from "../../../Hooks/useTrades";
 
-const PREVIEW_COLUMNS = ["pair", "direction", "status", "entry_price", "exit_price", "size"];
+const CSV_MIME_TYPES = new Set(["text/csv", "application/vnd.ms-excel"]);
+const CSV_MIME_ERROR = "Only CSV files with a valid CSV MIME type are allowed.";
 
 const isCsvFile = (file) => {
   if (!file) return false;
 
   const fileType = file.type?.toLowerCase();
-  const fileName = file.name?.toLowerCase() ?? "";
 
-  return fileType === "text/csv" || fileType === "application/vnd.ms-excel" || fileName.endsWith(".csv");
+  return CSV_MIME_TYPES.has(fileType);
 };
 
-function ImportPreviewModal({ isOpen, onClose, summary }) {
+function ImportResultModal({ isOpen, onClose, summary }) {
+  if (!isOpen) return null;
+
+  const hasFailures = summary.failedCount > 0;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/55 px-4">
+      <div
+        className="w-full max-w-xl rounded-panel border border-border bg-surface-card p-6 text-center shadow-xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="import-summary-title"
+      >
+        <span className="mx-auto inline-flex h-16 w-16 items-center justify-center rounded-full bg-state-success text-text-inverse">
+          <Check size={30} />
+        </span>
+
+        <h2 id="import-summary-title" className="mt-5 text-2xl font-semibold text-text-primary">
+          Import Complete!
+        </h2>
+
+        <div className="mx-auto mt-6 grid max-w-xs grid-cols-2 gap-4">
+          <div>
+            <p className="text-4xl font-semibold text-state-success">{summary.successCount}</p>
+            <p className="mt-1 text-body text-text-secondary">Trades Imported</p>
+          </div>
+          <div>
+            <p className="text-4xl font-semibold text-state-danger">{summary.failedCount}</p>
+            <p className="mt-1 text-body text-text-secondary">Trades Failed</p>
+          </div>
+        </div>
+
+        <p className="mt-6 text-caption text-text-secondary">
+          {hasFailures ? "Failed trades were skipped due to validation errors." : "All rows were imported successfully."}
+        </p>
+
+        <div className="mt-6">
+          <button type="button" onClick={onClose} className="ui-btn-primary w-full py-2 text-caption">
+            Done
+          </button>
+        </div>
+
+        {hasFailures ? (
+          <button type="button" className="mt-3 text-body font-medium text-brand-900 hover:underline" onClick={onClose}>
+            View Details
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function ImportErrorModal({ isOpen, message, onClose }) {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/55 px-4">
       <div
-        className="w-full max-w-3xl rounded-panel border border-border bg-surface-card p-6 shadow-xl"
-        role="dialog"
+        className="w-full max-w-md rounded-panel border border-border bg-surface-card p-6 text-center shadow-xl"
+        role="alertdialog"
         aria-modal="true"
-        aria-labelledby="import-summary-title"
+        aria-labelledby="import-error-title"
       >
-        <h2 id="import-summary-title" className="text-xl font-semibold text-text-primary">
-          Import Complete
+        <span className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-state-danger/10 text-state-danger">
+          <AlertTriangle size={24} />
+        </span>
+
+        <h2 id="import-error-title" className="mt-4 text-xl font-semibold text-text-primary">
+          Import Failed
         </h2>
 
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          <div className="rounded-panel border border-state-success/30 bg-state-success/10 p-4">
-            <p className="text-caption text-text-secondary">Successfully Imported</p>
-            <p className="mt-1 text-xl font-semibold text-state-success">{summary.successCount}</p>
-          </div>
-          <div className="rounded-panel border border-state-danger/30 bg-state-danger/10 p-4">
-            <p className="text-caption text-text-secondary">Failed</p>
-            <p className="mt-1 text-xl font-semibold text-state-danger">{summary.failedCount}</p>
-          </div>
-        </div>
+        <p className="mt-2 text-caption text-text-secondary">{message || "Unable to import CSV right now."}</p>
 
-        <div className="mt-5">
-          <h3 className="text-body font-semibold text-text-primary">Trade preview (up to 5)</h3>
-
-          {summary.previewTrades.length > 0 ? (
-            <div className="mt-3 overflow-hidden rounded-md border border-border">
-              <table className="min-w-full divide-y divide-border text-left">
-                <thead className="bg-surface-muted">
-                  <tr>
-                    {PREVIEW_COLUMNS.map((column) => (
-                      <th key={column} className="px-3 py-2 text-caption font-semibold uppercase tracking-wide text-text-secondary">
-                        {column}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border bg-white text-caption">
-                  {summary.previewTrades.map((trade, index) => (
-                    <tr key={`${trade.pair ?? "trade"}-${index}`}>
-                      {PREVIEW_COLUMNS.map((column) => (
-                        <td key={column} className="px-3 py-2 text-text-primary">
-                          {trade?.[column] ?? "--"}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="mt-2 text-caption text-text-secondary">No preview trades were returned by the API.</p>
-          )}
-        </div>
-
-        <div className="mt-6 flex justify-end">
-          <button type="button" onClick={onClose} className="ui-btn-primary py-2 text-caption">
-            OK
-          </button>
-        </div>
+        <button type="button" onClick={onClose} className="ui-btn-primary mt-6 w-full py-2 text-caption">
+          Close
+        </button>
       </div>
     </div>
   );
@@ -94,15 +106,25 @@ export default function ImportTrades() {
   const [importSummary, setImportSummary] = useState({
     successCount: 0,
     failedCount: 0,
-    previewTrades: [],
   });
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isResultOpen, setIsResultOpen] = useState(false);
+  const [isErrorOpen, setIsErrorOpen] = useState(false);
+  const [importErrorMessage, setImportErrorMessage] = useState("");
 
   const resetFileSelection = () => {
     setSelectedFile(null);
     setValidationError("");
 
     if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const handleChooseFile = () => {
+    setValidationError("");
+
+    if (!fileRef.current) return;
+
+    fileRef.current.value = "";
+    fileRef.current.click();
   };
 
   const handleFileSelect = (files) => {
@@ -121,8 +143,10 @@ export default function ImportTrades() {
     const [file] = files;
 
     if (!isCsvFile(file)) {
-      setValidationError("Only .csv files are allowed.");
+      setValidationError(CSV_MIME_ERROR);
       setSelectedFile(null);
+
+      if (fileRef.current) fileRef.current.value = "";
       return;
     }
 
@@ -151,25 +175,29 @@ export default function ImportTrades() {
     }
 
     if (!isCsvFile(selectedFile)) {
-      setValidationError("Only .csv files are allowed.");
+      setValidationError(CSV_MIME_ERROR);
+      if (fileRef.current) fileRef.current.value = "";
       return;
     }
 
     setValidationError("");
+    setIsErrorOpen(false);
 
     const response = await uploadCsvTrades(selectedFile);
+    const payload = response?.data ?? response;
 
-    if (!response?.data?.success) return;
-
-    const payload = response.data;
+    if (!payload?.success) {
+      setImportErrorMessage(error?.response?.data?.message || "Unable to import CSV right now.");
+      setIsErrorOpen(true);
+      return;
+    }
 
     setImportSummary({
       successCount: payload.imported ?? payload.successCount ?? payload.summary?.imported ?? 0,
       failedCount: payload.skipped ?? payload.failedCount ?? payload.summary?.failed ?? 0,
-      previewTrades: (payload.previewTrades ?? payload.trades ?? payload.data?.previewTrades ?? []).slice(0, 5),
     });
 
-    setIsPreviewOpen(true);
+    setIsResultOpen(true);
   };
 
   return (
@@ -188,7 +216,7 @@ export default function ImportTrades() {
         </section>
 
         <section className="rounded-panel border border-border bg-surface-card p-6">
-          <p className="text-caption text-text-secondary">Upload your CSV file for processing. A preview will be displayed on successful processing</p>
+          <p className="text-caption text-text-secondary">Upload your CSV file for processing.</p>
 
           <div
             className={`mt-4 rounded-panel border-2 border-dashed p-10 text-center transition-colors ${
@@ -201,12 +229,14 @@ export default function ImportTrades() {
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
           >
-            <span className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-900/10 text-brand-900">
-              <Upload size={22} />
+            <span className={`mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full ${selectedFile ? "bg-state-success/15 text-state-success" : "bg-brand-900/10 text-brand-900"}`}>
+              {selectedFile ? <FileText size={22} /> : <Upload size={22} />}
             </span>
 
-            <p className="mt-4 text-body font-semibold text-text-primary">Drag and drop your CSV file here</p>
-            <p className="mt-1 text-caption text-text-secondary">or click to browse</p>
+            <p className="mt-4 text-body font-semibold text-text-primary">
+              {selectedFile ? "CSV file selected" : "Drag and drop your CSV file here"}
+            </p>
+            <p className="mt-1 text-caption text-text-secondary">{selectedFile ? selectedFile.name : "or click to browse"}</p>
 
             <input
               ref={fileRef}
@@ -221,7 +251,7 @@ export default function ImportTrades() {
             <div className="mt-4 flex items-center justify-center gap-2">
               <button
                 type="button"
-                onClick={() => fileRef.current?.click()}
+                onClick={handleChooseFile}
                 className="ui-btn-primary py-2 text-caption disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={Boolean(selectedFile)}
               >
@@ -241,21 +271,9 @@ export default function ImportTrades() {
               ) : null}
             </div>
 
-            {selectedFile ? (
-              <p className="mt-4 inline-flex items-center gap-2 text-caption text-state-success">
-                <CheckCircle2 size={14} /> {selectedFile.name}
-              </p>
-            ) : null}
-
             {validationError ? (
               <p className="mt-4 inline-flex items-center gap-2 text-caption text-state-danger">
                 <XCircle size={14} /> {validationError}
-              </p>
-            ) : null}
-
-            {!validationError && error ? (
-              <p className="mt-4 text-caption text-state-danger">
-                {error?.response?.data?.message || "Unable to import CSV right now."}
               </p>
             ) : null}
           </div>
@@ -297,13 +315,19 @@ export default function ImportTrades() {
         </section>
       </form>
 
-      <ImportPreviewModal
-        isOpen={isPreviewOpen}
+      <ImportResultModal
+        isOpen={isResultOpen}
         summary={importSummary}
         onClose={() => {
-          setIsPreviewOpen(false);
+          setIsResultOpen(false);
           navigate("/trades");
         }}
+      />
+
+      <ImportErrorModal
+        isOpen={isErrorOpen}
+        message={importErrorMessage}
+        onClose={() => setIsErrorOpen(false)}
       />
     </>
   );
