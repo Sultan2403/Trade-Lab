@@ -18,12 +18,18 @@ const accountSchema = new mongoose.Schema(
     starting_balance: {
       type: Number,
       required: true,
-      min: 0
+      min: 0,
     },
 
     current_balance: {
       type: Number,
       required: true,
+    },
+
+    type: {
+      type: String,
+      required: false,
+      enum: ["Live", "Demo"]
     },
   },
   {
