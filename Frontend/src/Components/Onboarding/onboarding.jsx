@@ -4,10 +4,10 @@ import { ArrowUpRight, BarChart3 } from "lucide-react";
 import useAccounts from "../../Hooks/useAccounts";
 import { setAccountId } from "../../Helpers/Accounts/accounts.helper";
 
-const ACCOUNT_TYPES = ["Live", "Demo"];
+const ACCOUNT_TYPES = ["Live", "Demo"]; // removed Paper
 
 const TYPE_BADGE_STYLES = {
-  Live: "bg-[#D8EDF1] text-[#115E6B]",
+  Live: "bg-[#D0F1D6] text-[#0B6623]", // stronger green background + darker green text
   Demo: "bg-[#F2E4C8] text-[#6E5A28]",
 };
 
@@ -55,7 +55,7 @@ export default function Onboarding() {
 
   const accounts = data?.accounts ?? [];
   const hasAccounts = accounts.length > 0;
-  const activeAccountId = selectedAccountId || accounts[0]?.id || "";
+  const activeAccountId = selectedAccountId;
 
   useEffect(() => {
     getAllAccounts();
@@ -119,16 +119,18 @@ export default function Onboarding() {
   const showSelector = hasAccounts && !showCreateForm;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface-base px-4 py-6 sm:px-6 sm:py-8">
-      <div className="w-full max-w-md rounded-panel border border-border bg-surface-card p-4 sm:p-5">
-        <div className="mb-4 flex flex-col items-center text-center">
-          <span className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-900 text-text-inverse">
-            <ArrowUpRight size={18} />
+    <div className="flex min-h-screen items-center justify-center bg-surface-base px-4 py-5 sm:px-6 sm:py-8">
+      <div className="w-full max-w-[520px] rounded-2xl border border-border bg-surface-card px-6 py-7 sm:px-8 sm:py-8">
+        <div className="mb-5 flex flex-col items-center text-center">
+          <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-900 text-text-inverse">
+            <ArrowUpRight size={24} />
           </span>
-          <h1 className="text-2xl font-semibold">
+
+          <h1 className="text-3xl font-semibold leading-snug sm:text-4xl">
             {showSelector ? "Select a Trading Account" : "Welcome to TradeLog"}
           </h1>
-          <p className="mt-1 text-body text-text-secondary">
+
+          <p className="mt-2 text-base font-medium text-text-secondary sm:text-lg">
             {showSelector
               ? "Choose an account to continue to your dashboard"
               : "Let's set up your first trading account to get started"}
@@ -136,7 +138,7 @@ export default function Onboarding() {
         </div>
 
         {(backendError || formError) && (
-          <p className="mb-3 rounded-panel border border-state-danger-soft bg-state-danger-soft px-2 py-1 text-caption text-state-danger">
+          <p className="mb-4 rounded-panel border border-state-danger-soft bg-state-danger-soft px-3 py-2 text-caption text-state-danger">
             {formError || backendError}
           </p>
         )}
@@ -146,7 +148,7 @@ export default function Onboarding() {
             Loading your accounts...
           </div>
         ) : showSelector ? (
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {accounts.map((account) => {
               const isSelected = activeAccountId === account.id;
               const typeStyle =
@@ -159,52 +161,62 @@ export default function Onboarding() {
                   key={account.id}
                   type="button"
                   onClick={() => setSelectedAccountId(account.id)}
-                  className={`w-full rounded-panel border p-3 text-left transition-colors ${
+                  className={`w-full rounded-xl border px-4 py-3 text-left transition-colors ${
                     isSelected
                       ? "border-brand-700 bg-brand-700/5"
                       : "border-border hover:border-brand-700/40"
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-start gap-2">
+                  {/* Top Row */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {/* Selection Circle */}
                       <span
-                        className={`mt-1 h-4 w-4 rounded-full border ${
+                        className={`inline-flex h-5 w-5 items-center justify-center rounded-full border ${
                           isSelected
-                            ? "border-brand-700 bg-brand-700"
+                            ? "border-brand-700"
                             : "border-border bg-surface-card"
                         }`}
-                      />
-                      <div>
-                        <p className="text-lg font-semibold leading-tight">
-                          {account.name}
-                        </p>
-                        <p className="text-xl font-semibold leading-none">
-                          ${formatCurrency(account.current_balance)}
-                        </p>
-                        <span className={`text-sm ${performance.tone}`}>
-                          {performance.text} {performance.trendSymbol} •{" "}
-                          {account.trades_count || 0} trades
-                        </span>
-                      </div>
+                      >
+                        {isSelected && (
+                          <span className="h-2 w-2 rounded-full bg-brand-700" />
+                        )}
+                      </span>
+
+                      {/* Account Name */}
+                      <p className="text-lg font-semibold">{account.name}</p>
                     </div>
 
+                    {/* Account Type Badge */}
                     {account.type && (
                       <span
-                        className={`rounded-md px-2 py-0.5 text-xs ${typeStyle}`}
+                        className={`rounded-md px-2 py-1 text-sm font-medium ${typeStyle}`}
                       >
-                        {account.type}
+                        {account.type === "Paper"
+                          ? "Paper Trading"
+                          : account.type}
                       </span>
                     )}
                   </div>
+
+                  {/* Current Balance */}
+                  <p className="mt-2 text-2xl font-medium">
+                    ${formatCurrency(account.current_balance)}
+                  </p>
+
+                  {/* Performance & Trades */}
+                  <p className={`mt-1 text-base ${performance.tone}`}>
+                    {performance.text} {performance.trendSymbol}{" "}
+                    {/* • {account.trades_count || 0} trades */}
+                  </p>
                 </button>
               );
             })}
-
             <button
               type="button"
               onClick={handleSelectAndContinue}
               disabled={!activeAccountId}
-              className="ui-btn-primary mt-3 w-full py-2 text-body"
+              className="ui-btn-primary mt-4 w-full py-2.5 text-xl"
             >
               Continue to Dashboard
             </button>
@@ -212,24 +224,24 @@ export default function Onboarding() {
             <button
               type="button"
               onClick={() => setShowCreateForm(true)}
-              className="mt-2 w-full text-center text-body font-medium text-brand-800 transition-colors hover:text-brand-900"
+              className="mt-2.5 w-full text-center text-xl font-medium text-brand-800 transition-colors hover:text-brand-900"
             >
               Create New Account
             </button>
           </div>
         ) : (
-          <form onSubmit={handleCreateAccount} className="space-y-3">
-            <p className="text-center text-body text-text-muted">
+          <form onSubmit={handleCreateAccount} className="space-y-3.5">
+            <p className="text-center text-lg text-text-muted">
               Step 1 of 1 - Getting Started
             </p>
-            <div className="h-2 rounded-full bg-surface-muted">
+            <div className="h-2.5 rounded-full bg-surface-muted">
               <div className="h-full w-full rounded-full bg-brand-800" />
             </div>
 
             <div>
               <label
                 htmlFor="name"
-                className="mb-1 block text-caption font-medium text-text-secondary"
+                className="mb-1.5 block text-body font-medium text-text-secondary"
               >
                 Account Name <span className="text-state-danger">*</span>
               </label>
@@ -239,46 +251,50 @@ export default function Onboarding() {
                 value={createForm.name}
                 onChange={handleCreateFormChange}
                 placeholder="e.g., Main Trading Account, Demo Account"
-                className="ui-input py-2 text-caption"
+                className="ui-input py-2.5 text-body"
               />
-              <p className="mt-1 text-caption text-text-muted">
-                Choose a name that helps you quickly identify this account.
+              <p className="mt-1.5 text-caption text-text-muted">
+                Choose a name that helps you identify this account
               </p>
             </div>
 
             <div>
               <label
                 htmlFor="starting_balance"
-                className="mb-1 block text-caption font-medium text-text-secondary"
+                className="mb-1.5 block text-body font-medium text-text-secondary"
               >
                 Starting Balance <span className="text-state-danger">*</span>
               </label>
-              <input
-                id="starting_balance"
-                name="starting_balance"
-                type="number"
-                min="0"
-                step="0.01"
-                value={createForm.starting_balance}
-                onChange={handleCreateFormChange}
-                placeholder="0.00"
-                className="ui-input py-2 text-caption"
-              />
-              <p className="mt-1 text-caption text-text-muted">
-                We use this as your baseline, so your account growth reflects
-                performance over time.
+              <div className="relative">
+                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-body text-text-secondary">
+                  $
+                </span>
+                <input
+                  id="starting_balance"
+                  name="starting_balance"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={createForm.starting_balance}
+                  onChange={handleCreateFormChange}
+                  placeholder="0.00"
+                  className="ui-input py-2.5 pl-8 text-body"
+                />
+              </div>
+              <p className="mt-1.5 text-caption text-text-muted">
+                Enter your initial account balance
               </p>
             </div>
 
             <div>
-              <p className="mb-1 block text-caption font-medium text-text-secondary">
+              <p className="mb-1.5 block text-body font-medium text-text-secondary">
                 Account Type (Optional)
               </p>
-              <div className="space-y-1">
+              <div className="space-y-2.5">
                 {ACCOUNT_TYPES.map((type) => (
                   <label
                     key={type}
-                    className="flex cursor-pointer items-center gap-2 text-body text-text-primary"
+                    className="flex cursor-pointer items-center gap-3 text-lg text-text-primary"
                   >
                     <input
                       type="radio"
@@ -286,21 +302,21 @@ export default function Onboarding() {
                       value={type}
                       checked={createForm.type === type}
                       onChange={handleCreateFormChange}
-                      className="h-4 w-4"
+                      className="h-5 w-5"
                     />
-                    {type}
+                    {type} {/* just Live or Demo now */}
                   </label>
                 ))}
               </div>
-              <p className="mt-1 text-caption text-text-muted">
-                You can change this later.
+              <p className="mt-1.5 text-caption text-text-muted">
+                You can change this later
               </p>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="ui-btn-primary w-full py-2 text-body"
+              className="ui-btn-primary mt-1.5 w-full py-2.5 text-xl"
             >
               {loading ? "Creating Account..." : "Create Account & Continue"}
             </button>
@@ -317,9 +333,9 @@ export default function Onboarding() {
           </form>
         )}
 
-        <div className="mt-6 flex flex-col items-center text-center text-text-muted">
-          <span className="mb-1 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-200/30 text-brand-900">
-            <BarChart3 size={18} />
+        <div className="mt-8 flex flex-col items-center text-center text-text-muted">
+          <span className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-brand-800 text-brand-900">
+            <BarChart3 size={24} color="white" />
           </span>
           <p className="text-body">
             {showSelector

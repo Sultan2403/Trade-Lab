@@ -10,6 +10,8 @@ const accountCreateSchema = Joi.object({
 
 const accountIdSchema = Joi.object({
   accountId: Joi.string().hex().length(24).required(),
+  page: Joi.number().integer().min(1).optional(),
+  limit: Joi.number().integer().min(1).optional(),
 }).required();
 
 module.exports = { accountCreateSchema, accountIdSchema };
