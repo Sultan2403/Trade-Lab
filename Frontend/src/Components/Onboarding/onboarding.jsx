@@ -56,7 +56,7 @@ export default function Onboarding() {
 
   const accounts = data?.accounts ?? [];
   const hasAccounts = accounts.length > 0;
-  const activeAccountId = selectedAccountId || accounts[0]?.id || "";
+  const activeAccountId = selectedAccountId;
 
   useEffect(() => {
     getAllAccounts();
