@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, BarChart3 } from "lucide-react";
 
-import useAccounts from "../../Hooks/useAccounts";
-import { setAccountId } from "../../Helpers/Accounts/accounts.helper";
+import useAccounts from "../../../Hooks/useAccounts";
+import { setAccountId } from "../../../Helpers/Accounts/accounts.helper";
 import AccountCreateForm from "../Accounts/accountCreateForm";
 
 const TYPE_BADGE_STYLES = {

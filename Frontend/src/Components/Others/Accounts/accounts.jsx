@@ -8,7 +8,7 @@ import {
   getAccountId,
   setAccountId,
 } from "../../../Helpers/Accounts/accounts.helper";
-import AccountCreateForm from "../../Accounts/accountCreateForm";
+import AccountCreateForm from "./accountCreateForm";
 
 const TYPE_BADGE_STYLES = {
   Live: "bg-[#CFF2DE] text-[#0B8A4A]",
