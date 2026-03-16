@@ -178,7 +178,7 @@ function AccountCard({ account, isSelected, onSelect }) {
           <button
             type="button"
             onClick={onSelect}
-            className="w-full rounded-lg bg-brand-800 px-4 py-2.5 text-sm font-medium text-text-inverse transition-colors hover:bg-brand-900"
+            className="w-full rounded-lg border border-brand-700 px-4 py-2.5 text-sm font-medium text-brand-800 transition-colors hover:bg-brand-700/10"
           >
             Switch to Account
           </button>

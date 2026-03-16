@@ -8,7 +8,8 @@ import TradesHistory from "./Components/Others/Trades/tradesHistory";
 import TradeDetailPlaceholder from "./Components/Others/Trades/tradeDetailPlaceholder";
 import ImportTrades from "./Components/Others/Trades/importTrades";
 import Onboarding from "./Components/Onboarding/onboarding";
-import AccountsPage from "./Components/Others/Accounts/accounts"; 
+import AccountsPage from "./Components/Others/Accounts/accounts";
+import SettingsPage from "./Components/Others/Settings/settings";
 import { getAccountId } from "./Helpers/Accounts/accounts.helper";
 
 const PlaceholderPage = ({ title }) => (
@@ -30,21 +31,40 @@ function App() {
 
         <Route
           path="/onboarding"
-          element={accountId ? <Navigate to="/dashboard" replace /> : <Onboarding />}
+          element={
+            accountId ? <Navigate to="/dashboard" replace /> : <Onboarding />
+          }
         />
-
+        <Route
+          path="/settings"
+          element={
+            accountId ? <SettingsPage /> : <Navigate to="/onboarding" replace />
+          }
+        />
         <Route
           element={accountId ? <Main /> : <Navigate to="/onboarding" replace />}
         >
           <Route path="/add-trade" element={<AddTrade />} />
           <Route path="/import-trades" element={<ImportTrades />} />
-          <Route path="/dashboard" element={<PlaceholderPage title="Dashboard" />} />
+          <Route
+            path="/dashboard"
+            element={<PlaceholderPage title="Dashboard" />}
+          />
           <Route path="/trades" element={<TradesHistory />} />
           <Route path="/trades/:tradeId" element={<TradeDetailPlaceholder />} />
-          <Route path="/analytics" element={<PlaceholderPage title="Analytics" />} />
-          <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
-          <Route path="/profile" element={<PlaceholderPage title="Profile" />} />
-          <Route path="/profile/accounts" element={<AccountsPage title="Profile" />} />
+          <Route
+            path="/analytics"
+            element={<PlaceholderPage title="Analytics" />}
+          />
+
+          <Route
+            path="/profile"
+            element={<PlaceholderPage title="Profile" />}
+          />
+          <Route
+            path="/profile/accounts"
+            element={<AccountsPage title="Profile" />}
+          />
         </Route>
       </Routes>
     </BrowserRouter>
