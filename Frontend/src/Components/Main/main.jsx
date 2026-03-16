@@ -25,6 +25,11 @@ const pageConfig = {
     title: "Your Trading Accounts",
     subtitle: "Manage your accounts and view performance at a glance",
   },
+  "/settings": {
+    breadcrumbs: ["Settings"],
+    title: "Settings",
+    subtitle: "Manage your app configuration and preferences",
+  },
 };
 
 export default function Main() {
