@@ -25,6 +25,21 @@ const pageConfig = {
     title: "Your Trading Accounts",
     subtitle: "Manage your accounts and view performance at a glance",
   },
+  "/profile": {
+    breadcrumbs: ["Profile"],
+    title: "Profile",
+    subtitle: "Manage your personal information and account settings",
+  },
+  "/settings": {
+    breadcrumbs: ["Settings"],
+    title: "Settings",
+    subtitle: "Workspace settings are in progress",
+  },
+  "/analytics": {
+    breadcrumbs: ["Analytics"],
+    title: "Analytics",
+    subtitle: "Performance analytics are in progress",
+  },
   "/profile/accounts": {
     breadcrumbs: ["Trading Accounts"],
     title: "Your Trading Accounts",

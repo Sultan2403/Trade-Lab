@@ -8,7 +8,8 @@ import TradesHistory from "./Components/Others/Trades/tradesHistory";
 import TradeDetailPlaceholder from "./Components/Others/Trades/tradeDetailPlaceholder";
 import ImportTrades from "./Components/Others/Trades/importTrades";
 import Onboarding from "./Components/Onboarding/onboarding";
-import AccountsPage from "./Components/Others/Accounts/accounts"; 
+import AccountsPage from "./Components/Others/Accounts/accounts";
+import ProfilePage from "./Components/Others/Profile/profile";
 import { getAccountId } from "./Helpers/Accounts/accounts.helper";
 
 const PlaceholderPage = ({ title }) => (
@@ -43,7 +44,7 @@ function App() {
           <Route path="/trades/:tradeId" element={<TradeDetailPlaceholder />} />
           <Route path="/analytics" element={<PlaceholderPage title="Analytics" />} />
           <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
-          <Route path="/profile" element={<PlaceholderPage title="Profile" />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profile/accounts" element={<AccountsPage title="Profile" />} />
         </Route>
       </Routes>
