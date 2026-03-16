@@ -212,7 +212,9 @@ const TradeDetail = () => {
             <span className="text-text-muted text-base font-medium">
               Trade Duration
             </span>
-            <span className="font-semibold text-lg">{trade.duration || "--"}</span>
+            <span className="font-semibold text-lg">
+              {trade.duration || "--"}
+            </span>
           </div>
 
           {/* Slippage */}
@@ -240,38 +242,100 @@ const TradeDetail = () => {
       {/* Trade Details */}
       <section className="bg-white border border-border rounded-lg p-6">
         <h2 className="text-card-title mb-4">Trade Details</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-text-primary text-sm">
-          {[
-            ["Instrument/Pair", trade.pair],
-            ["Direction", trade.direction],
-            ["Entry Price", formatCurrency(trade.entry_price)],
-            ["Exit Price", formatCurrency(trade.exit_price)],
-            ["Position Size", `${trade.size} shares`],
-            ["Stop Loss", formatCurrency(trade.stopLoss)],
-            ["Take Profit", formatCurrency(trade.takeProfit)],
-            ["Trade Date", new Date(trade.openedAt).toLocaleDateString()],
-            [
-              "Entry Time",
-              new Date(trade.openedAt).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-                timeZoneName: "short",
-              }),
-            ],
-            [
-              "Exit Time",
-              new Date(trade.closedAt).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-                timeZoneName: "short",
-              }),
-            ],
-          ].map(([label, value]) => (
-            <div key={label} className="flex justify-between">
-              <span className="text-text-muted">{label}</span>
-              <span className="font-medium">{value ?? "--"}</span>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-sm text-text-primary">
+          {/* Pair & Direction */}
+          <div className="flex flex-col">
+            <span className="text-text-muted font-medium mb-1">
+              Instrument/Pair
+            </span>
+            <span className="font-semibold text-lg">{trade.pair}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-text-muted font-medium mb-1">Direction</span>
+            <div className="inline-flex items-center gap-1">
+              {trade.direction === "Long" ? (
+                <ArrowUp size={14} className="text-state-success" />
+              ) : (
+                <ArrowDown size={14} className="text-state-danger" />
+              )}
+              <span className="font-semibold">{trade.direction}</span>
             </div>
-          ))}
+          </div>
+
+          {/* Prices */}
+          <div className="flex flex-col">
+            <span className="text-text-muted font-medium mb-1">
+              Entry Price
+            </span>
+            <span className="font-medium">
+              {formatCurrency(trade.entry_price)}
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-text-muted font-medium mb-1">Exit Price</span>
+            <span className="font-medium">
+              {formatCurrency(trade.exit_price)}
+            </span>
+          </div>
+
+          {/* Position & Stops */}
+          <div className="flex flex-col">
+            <span className="text-text-muted font-medium mb-1">
+              Position Size
+            </span>
+            <span className="font-medium">{trade.size} shares</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-text-muted font-medium mb-1">Stop Loss</span>
+            <span className="font-medium">
+              {trade.stopLoss ? formatCurrency(trade.stopLoss) : "--"}
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-text-muted font-medium mb-1">
+              Take Profit
+            </span>
+            <span className="font-medium">
+              {trade.takeProfit ? formatCurrency(trade.takeProfit) : "--"}
+            </span>
+          </div>
+
+          {/* Timestamps */}
+          <div className="flex flex-col">
+            <span className="text-text-muted font-medium mb-1">Trade Date</span>
+            <span className="font-medium">
+              {new Date(trade.openedAt).toLocaleDateString()}
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-text-muted font-medium mb-1">Entry Time</span>
+            <span className="font-medium">
+              {new Date(trade.openedAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZoneName: "short",
+              })}
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-text-muted font-medium mb-1">Exit Time</span>
+            <span className="font-medium">
+              {trade.closedAt
+                ? new Date(trade.closedAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    timeZoneName: "short",
+                  })
+                : "--"}
+            </span>
+          </div>
+
+          {/* Optional: Duration */}
+          <div className="flex flex-col">
+            <span className="text-text-muted font-medium mb-1">Duration</span>
+            <span className="font-medium">{trade.duration ?? "--"}</span>
+          </div>
         </div>
       </section>
 
