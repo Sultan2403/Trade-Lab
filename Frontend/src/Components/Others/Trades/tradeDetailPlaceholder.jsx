@@ -1,281 +1,254 @@
-import { useEffect, useMemo } from "react";
-import {
-  ArrowLeft,
-  ArrowUp,
-  ChevronLeft,
-  ChevronRight,
-  Edit,
-  Trash2,
-} from "lucide-react";
+import { useEffect } from "react";
+import { ArrowLeft, ArrowUp, ArrowDown, Edit, Trash2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import useTrades from "../../../Hooks/useTrades";
 
-const formatCurrency = (value) => {
-  if (value === null || value === undefined || Number.isNaN(Number(value))) return "--";
-  return `$${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-};
+const formatCurrency = (value) =>
+  value != null
+    ? `$${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : "--";
 
-const formatSignedCurrency = (value) => {
-  if (value === null || value === undefined || Number.isNaN(Number(value))) return "--";
-  const amount = Number(value);
-  return `${amount >= 0 ? "+" : "-"}${formatCurrency(Math.abs(amount))}`;
-};
-
-const formatDate = (value, options) => {
-  if (!value) return "--";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "--";
-  return date.toLocaleString(undefined, options);
-};
-
-const calculatePnl = (trade) => {
-  if (!trade) return null;
-  if (trade.pnl !== undefined && trade.pnl !== null && !Number.isNaN(Number(trade.pnl))) return Number(trade.pnl);
-  if (trade.exit_price === null || trade.exit_price === undefined) return null;
-  const sign = trade.direction === "Short" ? -1 : 1;
-  return (Number(trade.exit_price) - Number(trade.entry_price)) * Number(trade.size) * sign;
-};
-
-const calculateRMultiple = (trade, pnl) => {
-  if (!trade) return null;
-  if (trade.rMultiple !== undefined && trade.rMultiple !== null) return Number(trade.rMultiple);
-  if (trade.riskToReward !== undefined && trade.riskToReward !== null) return Number(trade.riskToReward);
-
-  const riskPerUnit = Math.abs(Number(trade.entry_price) - Number(trade.stopLoss));
-  const riskAmount = riskPerUnit * Number(trade.size);
-  if (!riskAmount || Number.isNaN(riskAmount) || pnl === null || Number.isNaN(pnl)) return null;
-  return pnl / riskAmount;
-};
-
-export default function TradeDetailPlaceholder() {
+const TradeDetail = () => {
   const { tradeId } = useParams();
   const navigate = useNavigate();
-  const { data, loading, getTrade } = useTrades();
+  const { data, loading, error, getTrade } = useTrades();
 
   useEffect(() => {
     getTrade(tradeId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tradeId]);
 
-  const trade = data?.trade;
+  if (loading) return <div className="p-6 text-sm">Loading trade...</div>;
+  if (error || !data?.trade)
+    return (
+      <div className="p-6 text-sm text-state-danger">Failed to load trade.</div>
+    );
 
-  const viewModel = useMemo(() => {
-    const pnl = calculatePnl(trade);
-    const rMultiple = calculateRMultiple(trade, pnl);
-    const isLong = (trade?.direction ?? "Long") === "Long";
-    const isProfit = (pnl ?? 0) >= 0;
-
-    return {
-      symbol: trade?.pair ?? "AAPL",
-      direction: trade?.direction ?? "Long",
-      isLong,
-      positionSize: trade?.size ? `${trade.size} shares` : "--",
-      entryPrice: formatCurrency(trade?.entry_price),
-      exitPrice: formatCurrency(trade?.exit_price),
-      stopLoss: formatCurrency(trade?.stopLoss),
-      takeProfit: formatCurrency(trade?.takeProfit),
-      pnl,
-      pnlText: formatSignedCurrency(pnl),
-      pnlColor: isProfit ? "text-state-success" : "text-state-danger",
-      pnlBg: isProfit ? "bg-green-100 text-state-success" : "bg-red-100 text-state-danger",
-      pnlPct:
-        trade?.entry_price && trade?.exit_price
-          ? `${(((Number(trade.exit_price) - Number(trade.entry_price)) / Number(trade.entry_price)) * 100).toFixed(2)}%`
-          : "--",
-      rMultiple,
-      outcome: pnl === null ? "Open" : pnl > 0 ? "Win" : pnl < 0 ? "Loss" : "Breakeven",
-      outcomeBg:
-        pnl === null
-          ? "bg-surface-muted text-text-secondary"
-          : pnl > 0
-            ? "bg-green-100 text-state-success"
-            : pnl < 0
-              ? "bg-red-100 text-state-danger"
-              : "bg-surface-muted text-text-secondary",
-      note:
-        trade?.notes ??
-        "Strong bullish momentum after earnings announcement. Entry was based on breakout above $188 resistance level with good volume confirmation. Price action showed immediate strength and reached target within 2 hours. Risk management was effective with tight stop loss at previous support. This trade validated the breakout strategy and confirms the importance of volume analysis in entry decisions.",
-      closedDate: formatDate(trade?.closedAt ?? trade?.openedAt, {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      }),
-      closedTime: formatDate(trade?.closedAt ?? trade?.openedAt, {
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZoneName: "short",
-      }),
-      openedDate: formatDate(trade?.openedAt, {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-      openedTime: formatDate(trade?.openedAt, {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        timeZoneName: "short",
-      }),
-      closedTimeFull: formatDate(trade?.closedAt, {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        timeZoneName: "short",
-      }),
-      tradeDate: formatDate(trade?.openedAt ?? trade?.closedAt, {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-    };
-  }, [trade]);
+  const trade = data.trade;
+  const isProfit = trade.pnl >= 0;
+  const directionUp = trade.direction === "Long";
 
   return (
-    <div className="min-h-full bg-[#fdfcfb]">
-      <div className="border-b border-border px-8 py-6">
-        <div className="mb-4 flex items-center gap-3 text-[28px] text-text-secondary">
-          <span className="text-brand-800">Trade History</span>
-          <span>›</span>
-          <span>Trade Detail</span>
+    <div className="min-h-full p-8 space-y-6 bg-[#fdfcfb]">
+      {/* Header */}
+      <div className="flex flex-col gap-4">
+        {/* Trade Name */}
+        <div>
+          <span className="text-xl font-semibold">
+            {trade.pair} {trade.direction} Position
+          </span>
         </div>
-        <h1 className="text-[48px] font-semibold leading-tight text-text-primary">Trade #{tradeId}</h1>
-        <p className="mt-1 text-[28px] text-text-secondary">
-          {loading ? "Loading trade details..." : `${viewModel.symbol} ${viewModel.direction} Position`}
-        </p>
-      </div>
 
-      <div className="flex items-center justify-between border-b border-border px-8 py-4 text-brand-800">
-        <button className="inline-flex items-center gap-2 text-body" onClick={() => navigate("/trades") }>
-          <ArrowLeft size={18} />
-          Back to Trade History
-        </button>
-        <div className="flex items-center gap-4 text-body">
-          <button className="inline-flex items-center gap-2"><ChevronLeft size={18} />Previous Trade</button>
-          <button className="inline-flex items-center gap-2">Next Trade<ChevronRight size={18} /></button>
-          <div className="mx-2 h-5 w-px bg-border" />
-          <button className="inline-flex items-center gap-2 rounded border border-brand-800 px-4 py-2">
-            <Edit size={16} />Edit Trade
+        {/* Action Buttons */}
+        <div className="flex justify-between items-center">
+          {/* Left: Back */}
+          <button
+            className="flex items-center gap-1 text-brand-700 text-sm font-medium hover:underline transition-colors"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft size={16} /> Back to Trade History
           </button>
-          <button className="inline-flex items-center gap-2 text-state-danger">
-            <Trash2 size={16} />Delete Trade
-          </button>
+
+          {/* Right: Edit / Delete */}
+          <div className="flex gap-2">
+            {/* Edit Trade */}
+            <button className="flex items-center gap-2 px-4 py-2 rounded-md border border-brand-700 text-brand-700 hover:bg-brand-700/10 text-sm font-medium transition-colors">
+              <Edit size={14} /> Edit Trade
+            </button>
+
+            {/* Delete Trade */}
+            <button className="flex items-center gap-1 px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors">
+              <Trash2 size={14} /> Delete Trade
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="space-y-6 p-8">
-        <section className="rounded-lg border border-border bg-white p-6">
-          <div className="mb-6 flex items-start justify-between">
-            <div className="flex items-center gap-4">
-              <span className={`text-5xl font-semibold ${viewModel.pnlColor}`}>{viewModel.pnlText}</span>
-              <div className="flex items-center gap-3">
-                <span className="text-4xl font-semibold">{viewModel.symbol}</span>
-                <div className="inline-flex items-center gap-1">
-                  <ArrowUp size={14} className={viewModel.isLong ? "text-state-success" : "rotate-180 text-state-danger"} />
-                  <span className={`rounded px-2 py-1 text-sm ${viewModel.isLong ? "bg-green-100 text-state-success" : "bg-red-100 text-state-danger"}`}>
-                    {viewModel.direction}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="text-right text-text-secondary">
-              <div className="text-2xl">{viewModel.closedDate}</div>
-              <div>{viewModel.closedTime}</div>
-            </div>
-          </div>
-          <div className="grid grid-cols-5 gap-6 text-body">
-            {[
-              ["Entry Price", viewModel.entryPrice],
-              ["Exit Price", viewModel.exitPrice],
-              ["Position Size", viewModel.positionSize],
-              ["Stop Loss", viewModel.stopLoss],
-              ["Take Profit", viewModel.takeProfit],
-            ].map(([label, value]) => (
-              <div key={label}>
-                <p className="text-text-muted">{label}</p>
-                <p className="font-medium text-text-primary">{value}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+      <section className="bg-surface-card border border-border rounded-panel p-6 flex flex-col gap-6">
+        {/* Overview Header */}
+        <h4 className="text-card-title mb-4">Overview</h4>
 
-        <section className="rounded-lg border border-border bg-white p-6">
-          <h2 className="mb-4 text-card-title">Performance Analysis</h2>
-          <div className="grid grid-cols-3 gap-4">
-            {["Profit/Loss", "R-Multiple", "Outcome", "Trade Duration", "Slippage", "Commission"].map((label, index) => (
-              <div key={label} className="rounded-lg border border-[#eef1f2] bg-[#fdfcfb] p-4">
-                <p className="text-text-muted">{label}</p>
-                {index === 0 && (
-                  <>
-                    <p className={`mt-2 text-3xl font-semibold ${viewModel.pnlColor}`}>{viewModel.pnlText}</p>
-                    <p className={`mt-2 ${viewModel.pnlColor}`}>{viewModel.pnlPct}</p>
-                  </>
-                )}
-                {index === 1 && (
-                  <>
-                    <p className="mt-2 text-3xl font-semibold">{viewModel.rMultiple ? viewModel.rMultiple.toFixed(1) : "--"}</p>
-                    <p className="mt-2 text-state-success">Good Risk/Reward</p>
-                  </>
-                )}
-                {index === 2 && (
-                  <>
-                    <div className="mt-2"><span className={`rounded px-2 py-1 text-sm ${viewModel.outcomeBg}`}>{viewModel.outcome}</span></div>
-                    <p className="mt-2 text-text-secondary">Target Reached</p>
-                  </>
-                )}
-                {index === 3 && <p className="mt-2 text-3xl font-medium">2h 15m</p>}
-                {index === 4 && <p className="mt-2 text-3xl font-medium">$0.05</p>}
-                {index === 5 && <p className="mt-2 text-3xl font-medium">$2.00</p>}
-              </div>
-            ))}
+        {/* Top Row: Overview */}
+        <div className="flex flex-row justify-between items-center w-full">
+          {/* Pair */}
+          <div className="flex flex-col items-start">
+            <span className="text-text-muted text-sm font-medium">Pair</span>
+            <span className="text-2xl md:text-3xl font-bold text-text-primary">
+              {trade.pair}
+            </span>
           </div>
-        </section>
 
-        <section className="rounded-lg border border-border bg-white p-6">
-          <h2 className="mb-4 text-card-title">Trade Details</h2>
-          <div className="grid grid-cols-2 gap-6 text-body">
-            <div className="space-y-4">
-              {["Instrument/Pair", "Direction", "Entry Price", "Exit Price", "Position Size"].map((label) => (
-                <div key={label} className="flex justify-between">
-                  <span className="text-text-muted">{label}</span>
-                  <span className="font-medium">
-                    {label === "Instrument/Pair" && viewModel.symbol}
-                    {label === "Direction" && (
-                      <span className="inline-flex items-center gap-2"><ArrowUp size={12} className={viewModel.isLong ? "text-state-success" : "rotate-180 text-state-danger"} />{viewModel.direction}</span>
-                    )}
-                    {label === "Entry Price" && viewModel.entryPrice}
-                    {label === "Exit Price" && viewModel.exitPrice}
-                    {label === "Position Size" && viewModel.positionSize}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <div className="space-y-4">
-              {["Stop Loss", "Take Profit", "Trade Date", "Entry Time", "Exit Time"].map((label) => (
-                <div key={label} className="flex justify-between">
-                  <span className="text-text-muted">{label}</span>
-                  <span className="font-medium">
-                    {label === "Stop Loss" && viewModel.stopLoss}
-                    {label === "Take Profit" && viewModel.takeProfit}
-                    {label === "Trade Date" && viewModel.tradeDate}
-                    {label === "Entry Time" && viewModel.openedTime}
-                    {label === "Exit Time" && viewModel.closedTimeFull}
-                  </span>
-                </div>
-              ))}
+          {/* P&L */}
+          <div className="flex flex-col items-center">
+            <span className="text-text-muted text-sm font-medium">P/L</span>
+            <span
+              className={`text-xl md:text-2xl font-semibold ${isProfit ? "text-state-success" : "text-state-danger"}`}
+            >
+              {isProfit ? "+" : "-"}
+              {formatCurrency(Math.abs(trade.pnl))}
+            </span>
+          </div>
+
+          {/* Direction */}
+          <div className="flex flex-col items-end">
+            <span className="text-text-muted text-sm font-medium">
+              Direction
+            </span>
+            <div
+              className={`inline-flex items-center gap-1 rounded-md px-3 py-1 text-sm font-medium ${
+                directionUp
+                  ? "bg-success-soft text-state-success"
+                  : "bg-danger-soft text-state-danger"
+              }`}
+            >
+              {directionUp ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
+              {trade.direction}
             </div>
           </div>
-        </section>
+        </div>
+        <hr/>
 
-        <section className="rounded-lg border border-border bg-white p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-card-title">Trade Notes</h2>
-            <button className="inline-flex items-center gap-2 text-brand-800"><Edit size={16} />Edit Notes</button>
+        {/* Bottom Metrics (unchanged) */}
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 w-full text-text-primary text-sm">
+          <div className="flex flex-col">
+            <span className="text-text-muted">Entry Price</span>
+            <span className="font-medium">
+              {formatCurrency(trade.entry_price)}
+            </span>
           </div>
-          <div className="rounded-lg border border-[#eef1f2] bg-[#fdfcfb] p-4 text-body text-text-secondary">
-            {viewModel.note}
+          <div className="flex flex-col">
+            <span className="text-text-muted">Exit Price</span>
+            <span className="font-medium">
+              {formatCurrency(trade.exit_price)}
+            </span>
           </div>
-        </section>
-      </div>
+          <div className="flex flex-col">
+            <span className="text-text-muted">Position Size</span>
+            <span className="font-medium">{trade.size} lots</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-text-muted">Stop Loss</span>
+            <span className="font-medium">
+              {formatCurrency(trade.stopLoss)}
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-text-muted">Take Profit</span>
+            <span className="font-medium">
+              {formatCurrency(trade.takeProfit)}
+            </span>
+          </div>
+          <div className="flex flex-col text-right text-text-secondary">
+            <span>{new Date(trade.openedAt).toLocaleDateString()}</span>
+            <span>
+              {new Date(trade.openedAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZoneName: "short",
+              })}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* Performance Analysis */}
+      <section className="bg-white border border-border rounded-lg p-6">
+        <h2 className="text-card-title mb-4">Performance Analysis</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-text-primary text-sm">
+          <div className="flex flex-col">
+            <span className="text-text-muted">Profit/Loss</span>
+            <span
+              className={`font-medium ${isProfit ? "text-state-success" : "text-state-danger"}`}
+            >
+              {isProfit ? "+" : "-"}
+              {formatCurrency(Math.abs(trade.pnl))}
+            </span>
+            <span className="text-text-muted text-xs">
+              {trade.pnlPercent?.toFixed(2)}%
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-text-muted">R-Multiple</span>
+            <span className="font-medium">{trade.rMultiple}</span>
+            <span className="text-text-success text-xs">Good Risk/Reward</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-text-muted">Outcome</span>
+            <span className="font-medium text-state-success">
+              {trade.pnl >= 0 ? "Win" : "Loss"}
+            </span>
+            <span className="text-text-muted text-xs">Target Reached</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-text-muted">Trade Duration</span>
+            <span className="font-medium">{trade.duration}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-text-muted">Slippage</span>
+            <span className="font-medium">
+              {formatCurrency(trade.slippage)}
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-text-muted">Commission</span>
+            <span className="font-medium">
+              {formatCurrency(trade.commission)}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* Trade Details */}
+      <section className="bg-white border border-border rounded-lg p-6">
+        <h2 className="text-card-title mb-4">Trade Details</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-text-primary text-sm">
+          {[
+            ["Instrument/Pair", trade.pair],
+            ["Direction", trade.direction],
+            ["Entry Price", formatCurrency(trade.entry_price)],
+            ["Exit Price", formatCurrency(trade.exit_price)],
+            ["Position Size", `${trade.size} shares`],
+            ["Stop Loss", formatCurrency(trade.stopLoss)],
+            ["Take Profit", formatCurrency(trade.takeProfit)],
+            ["Trade Date", new Date(trade.openedAt).toLocaleDateString()],
+            [
+              "Entry Time",
+              new Date(trade.openedAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZoneName: "short",
+              }),
+            ],
+            [
+              "Exit Time",
+              new Date(trade.closedAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZoneName: "short",
+              }),
+            ],
+          ].map(([label, value]) => (
+            <div key={label} className="flex justify-between">
+              <span className="text-text-muted">{label}</span>
+              <span className="font-medium">{value ?? "--"}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Trade Notes */}
+      <section className="bg-white border border-border rounded-lg p-6">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-card-title">Trade Notes</h2>
+          <button className="text-brand-800 inline-flex items-center gap-2">
+            <Edit size={16} /> Edit Notes
+          </button>
+        </div>
+        <div className="bg-[#fdfcfb] border border-[#eef1f2] p-4 rounded text-text-secondary text-sm">
+          {trade.notes ?? "No notes for this trade."}
+        </div>
+      </section>
     </div>
   );
-}
+};
+
+export default TradeDetail;
