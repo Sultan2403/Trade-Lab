@@ -75,7 +75,9 @@ const TradeDetail = () => {
         <div className="flex flex-row justify-between items-center w-full">
           {/* Pair */}
           <div className="flex flex-col items-start">
-            <span className="text-text-muted text-sm font-medium">Pair</span>
+            <span className="text-text-muted text-sm font-medium">
+              Instrument/Pair
+            </span>
             <span className="text-2xl md:text-3xl font-bold text-text-primary">
               {trade.pair}
             </span>
@@ -275,7 +277,7 @@ const TradeDetail = () => {
           <div className="flex flex-col">
             <span className="text-text-muted font-medium mb-1">Exit Price</span>
             <span className="font-medium">
-              {formatCurrency(trade.exit_price)}
+              {trade.exit_price ? formatCurrency(trade.exit_price) : "--"}
             </span>
           </div>
 
@@ -301,9 +303,9 @@ const TradeDetail = () => {
             </span>
           </div>
 
-          {/* Timestamps */}
+          {/* Entry / Exit Dates & Times */}
           <div className="flex flex-col">
-            <span className="text-text-muted font-medium mb-1">Trade Date</span>
+            <span className="text-text-muted font-medium mb-1">Entry Date</span>
             <span className="font-medium">
               {new Date(trade.openedAt).toLocaleDateString()}
             </span>
@@ -319,6 +321,14 @@ const TradeDetail = () => {
             </span>
           </div>
           <div className="flex flex-col">
+            <span className="text-text-muted font-medium mb-1">Exit Date</span>
+            <span className="font-medium">
+              {trade.closedAt
+                ? new Date(trade.closedAt).toLocaleDateString()
+                : "--"}
+            </span>
+          </div>
+          <div className="flex flex-col">
             <span className="text-text-muted font-medium mb-1">Exit Time</span>
             <span className="font-medium">
               {trade.closedAt
@@ -331,10 +341,14 @@ const TradeDetail = () => {
             </span>
           </div>
 
-          {/* Optional: Duration */}
+          {/* Duration */}
           <div className="flex flex-col">
             <span className="text-text-muted font-medium mb-1">Duration</span>
-            <span className="font-medium">{trade.duration ?? "--"}</span>
+            <span className="font-medium">
+              {trade.closedAt && trade.openedAt
+                ? `${Math.floor((new Date(trade.closedAt) - new Date(trade.openedAt)) / 1000)} sec`
+                : "--"}
+            </span>
           </div>
         </div>
       </section>
@@ -343,7 +357,14 @@ const TradeDetail = () => {
       <section className="bg-white border border-border rounded-lg p-6">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-card-title">Trade Notes</h2>
-          <button className="text-brand-800 inline-flex items-center gap-2">
+          <button
+            disabled={!trade?.notes}
+            className={`inline-flex items-center gap-2 font-medium transition-colors ${
+              trade?.notes
+                ? "text-brand-800 hover:text-brand-700 cursor-pointer"
+                : "text-text-muted cursor-not-allowed opacity-50"
+            }`}
+          >
             <Edit size={16} /> Edit Notes
           </button>
         </div>
