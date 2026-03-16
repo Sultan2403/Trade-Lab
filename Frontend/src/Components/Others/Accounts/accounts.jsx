@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Alert, CircularProgress, Dialog } from "@mui/material";
 import { MoreHorizontal, Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import useAccounts from "../../../Hooks/useAccounts";
 import {
@@ -16,7 +17,6 @@ const TYPE_BADGE_STYLES = {
 
 const formatWholeCurrency = (value) =>
   Number(value ?? 0).toLocaleString(undefined, {
-    minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   });
 
@@ -53,100 +53,132 @@ const getActiveAccount = (accounts) => {
 };
 
 function AccountCard({ account, isSelected, onSelect }) {
+  const navigate = useNavigate();
+
   const typeStyle =
     TYPE_BADGE_STYLES[account?.type] || "bg-surface-muted text-text-secondary";
 
   const performance = getPerformanceData(account);
-  const net = Number(account?.current_balance ?? 0) - Number(account?.starting_balance ?? 0);
+  const net =
+    Number(account?.current_balance ?? 0) -
+    Number(account?.starting_balance ?? 0);
+
+  const netColor =
+    net > 0
+      ? "text-state-success"
+      : net < 0
+        ? "text-state-danger"
+        : "text-text-primary";
+
+  const balanceColor =
+    account.current_balance > account.starting_balance
+      ? "text-state-success"
+      : account.current_balance < account.starting_balance
+        ? "text-state-danger"
+        : "text-text-primary";
 
   return (
     <article
-      className={`rounded-2xl border bg-surface-card p-6 transition-all ${
+      className={`flex h-full flex-col rounded-2xl border bg-surface-card p-6 transition-all ${
         isSelected
           ? "border-brand-800 shadow-[0_0_0_1px_rgba(15,102,111,0.35)]"
           : "border-border hover:border-brand-700/35"
       }`}
     >
-      <div className="flex items-start justify-between gap-3">
+      {/* Header */}{" "}
+      <div className="flex items-start justify-between">
+        {" "}
         <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-[2rem] font-semibold leading-tight text-text-primary">
-              {account.name}
+          {" "}
+          <div className="flex items-center gap-2 flex-wrap">
+            {" "}
+            <h3 className="text-xl font-semibold text-text-primary">
+              {account.name}{" "}
             </h3>
             {isSelected && (
-              <span className="rounded-md bg-[#D8E9EF] px-2.5 py-1 text-caption font-medium text-brand-900">
+              <span className="rounded-md bg-[#D8E9EF] px-2 py-0.5 text-xs font-medium text-brand-900">
                 Active
               </span>
             )}
           </div>
-
           {account.type && (
             <span
-              className={`inline-flex rounded-md px-2.5 py-1 text-caption font-medium ${typeStyle}`}
+              className={`inline-flex rounded-md px-2 py-0.5 text-xs font-medium ${typeStyle}`}
             >
               {account.type}
             </span>
           )}
         </div>
-
         <button
           type="button"
-          className="rounded-md border border-border p-2 text-text-secondary transition-colors hover:bg-surface-muted"
+          className="rounded-md border border-border p-2 text-text-secondary hover:bg-surface-muted"
           aria-label={`More options for ${account.name}`}
         >
           <MoreHorizontal size={18} />
         </button>
       </div>
-
-      <div className="mt-5 space-y-2 text-text-secondary">
+      {/* Balances */}
+      <div className="mt-6 space-y-3">
         <div>
-          <p className="text-body">Starting Balance</p>
-          <p className="text-3xl font-semibold text-text-primary">
+          <p className="text-sm text-text-secondary">Starting Balance</p>
+          <p className="text-xl font-semibold text-text-primary">
             ${formatWholeCurrency(account.starting_balance)}
           </p>
         </div>
 
         <div>
-          <p className="text-body">Current Balance</p>
-          <p className="text-5xl font-semibold leading-tight text-text-primary">
+          <p className="text-sm text-text-secondary">Current Balance</p>
+          <p className={`text-4xl font-semibold ${balanceColor}`}>
+            {" "}
             ${formatWholeCurrency(account.current_balance)}
           </p>
         </div>
 
-        <p className={`text-lg ${performance.tone}`}>
-          {performance.sign} {performance.text} <span className="text-text-secondary">Growth</span>
+        <p className={`text-sm font-medium ${performance.tone}`}>
+          {performance.sign} {performance.text}{" "}
+          <span className="text-text-secondary">Growth</span>
         </p>
       </div>
-
-      <div className="mt-5 grid grid-cols-3 rounded-xl bg-surface-muted p-4 text-center">
-        <div className="space-y-1 border-r border-border px-2">
-          <p className="text-3xl font-semibold text-text-primary">--</p>
-          <p className="text-body text-text-secondary">Total Trades</p>
+      {/* Stats */}
+      <div className="mt-7 grid grid-cols-3 rounded-xl bg-surface-muted px-4 py-5 text-center">
+        <div className="flex min-w-0 flex-col items-center justify-center border-r border-border px-2">
+          <p className="truncate text-xl font-semibold text-text-primary">--</p>
+          <p className="text-xs text-text-secondary">Total Trades</p>
         </div>
 
-        <div className="space-y-1 border-r border-border px-2">
-          <p className="text-3xl font-semibold text-text-primary">--</p>
-          <p className="text-body text-text-secondary">Win Rate</p>
+        <div className="flex min-w-0 flex-col items-center justify-center border-r border-border px-2">
+          <p className="truncate text-xl font-semibold text-text-primary">--</p>
+          <p className="text-xs text-text-secondary">Win Rate</p>
         </div>
 
-        <div className="space-y-1 px-2">
-          <p className={net > 0 ? "text-3xl font-semibold text-state-success" : net < 0 ? "text-3xl font-semibold text-state-danger" : "text-3xl font-semibold text-text-primary"}>
+        <div className="flex min-w-0 flex-col items-center justify-center px-2">
+          <p className={`truncate text-xl font-semibold ${netColor}`}>
             {net > 0 ? "+" : ""}${formatWholeCurrency(net)}
           </p>
-          <p className="text-body text-text-secondary">Net P&amp;L</p>
+          <p className="text-xs text-text-secondary">Net P&amp;L</p>
         </div>
       </div>
-
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        <button type="button" className={`min-w-[220px] rounded-lg border px-4 py-2.5 text-lg font-medium transition-colors ${isSelected ? "border-brand-800 bg-brand-800 text-text-inverse hover:bg-brand-900" : "border-brand-700 text-brand-800 hover:bg-brand-700/10"}`}>
-          View Dashboard
-        </button>
+      {/* Actions */}
+      <div className="mt-6 flex items-center gap-4">
+        {isSelected && (
+          <button
+            type="button"
+            onClick={() => navigate("/dashboard")}
+            className={`flex-1 rounded-lg border px-4 py-2 text-sm font-medium transition ${
+              isSelected
+                ? "border-brand-800 bg-brand-800 text-text-inverse hover:bg-brand-900"
+                : "border-brand-700 text-brand-800 hover:bg-brand-700/10"
+            }`}
+          >
+            View Dashboard
+          </button>
+        )}
 
         {!isSelected && (
           <button
             type="button"
             onClick={onSelect}
-            className="text-lg font-medium text-brand-800 transition-colors hover:text-brand-900"
+            className="w-full rounded-lg bg-brand-800 px-4 py-2.5 text-sm font-medium text-text-inverse transition-colors hover:bg-brand-900"
           >
             Switch to Account
           </button>
@@ -161,12 +193,14 @@ function CreateAccountTile({ onClick, compact = false }) {
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border bg-surface-card p-8 text-center transition-colors hover:border-brand-700/50 hover:bg-brand-700/5 ${compact ? "min-h-[260px]" : "min-h-[280px]"}`}
+      className={`flex h-full w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border bg-surface-card p-8 text-center transition-colors hover:border-brand-700/50 hover:bg-brand-700/5 ${compact ? "min-h-[260px]" : "min-h-[280px]"}`}
     >
       <span className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-surface-muted text-brand-800">
         <Plus size={26} />
       </span>
-      <h3 className="text-3xl font-semibold text-text-primary">Create New Account</h3>
+      <h3 className="text-3xl font-semibold text-text-primary">
+        Create New Account
+      </h3>
       <p className="mt-2 max-w-xs text-body text-text-secondary">
         Set up a new trading account to track your trades separately.
       </p>
@@ -243,10 +277,18 @@ export default function AccountsPage() {
     }
   };
 
-  const otherAccounts = useMemo(
-    () => accounts.filter((account) => account.id !== activeAccount?.id),
-    [accounts, activeAccount?.id],
-  );
+  const orderedAccounts = useMemo(() => {
+    if (!accounts.length) return [];
+
+    const active =
+      accounts.find((a) => a.id === selectedAccountId) ||
+      accounts.find((a) => a.is_active) ||
+      accounts[0];
+
+    if (!active) return accounts;
+
+    return [active, ...accounts.filter((a) => a.id !== active.id)];
+  }, [accounts, selectedAccountId]);
 
   return (
     <div className="space-y-6">
@@ -274,14 +316,12 @@ export default function AccountsPage() {
       ) : accounts.length === 0 ? (
         <CreateAccountTile onClick={() => setShowCreateModal(true)} compact />
       ) : (
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
-          {activeAccount && <AccountCard account={activeAccount} isSelected />}
-
-          {otherAccounts.map((account) => (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {orderedAccounts.map((account, index) => (
             <AccountCard
               key={account.id}
               account={account}
-              isSelected={false}
+              isSelected={index === 0}
               onSelect={() => {
                 setAccountId(account.id);
                 setSelectedAccountId(account.id);
@@ -289,7 +329,7 @@ export default function AccountsPage() {
             />
           ))}
 
-          <CreateAccountTile onClick={() => setShowCreateModal(true)} />
+          {/* <CreateAccountTile onClick={() => setShowCreateModal(true)} /> */}
         </div>
       )}
 
@@ -300,9 +340,13 @@ export default function AccountsPage() {
         fullWidth
       >
         <div className="p-6 sm:p-8">
-          <h2 className="text-3xl font-semibold text-text-primary">Create New Account</h2>
+          <h2 className="text-3xl font-semibold text-text-primary">
+            Create New Account
+          </h2>
+
           <p className="mt-2 text-body text-text-secondary">
-            Add another account to separate strategies and track performance clearly.
+            Add another account to separate strategies and track performance
+            clearly.
           </p>
 
           <div className="mt-5">
