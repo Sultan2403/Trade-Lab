@@ -25,6 +25,11 @@ const pageConfig = {
     title: "Your Trading Accounts",
     subtitle: "Manage your accounts and view performance at a glance",
   },
+  "/profile/accounts": {
+    breadcrumbs: ["Trading Accounts"],
+    title: "Your Trading Accounts",
+    subtitle: "Manage your accounts and view performance at a glance",
+  },
   "/settings": {
     breadcrumbs: ["Settings"],
     title: "Settings",
