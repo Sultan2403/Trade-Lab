@@ -1,5 +1,6 @@
 import { createElement } from "react";
 import { Check, ChevronDown, X } from "lucide-react";
+import getUserData from "../../../Helpers/Utils/jwt.util";
 
 const disabledInputClass =
   "w-full rounded-md border border-border bg-surface-card px-3 py-2 text-[15px] text-text-muted";
@@ -10,13 +11,21 @@ const upcomingBadge = (
   </span>
 );
 
-const SectionCard = ({ title, subtitle, children, comingSoon = false, dimmed = false }) => (
+const SectionCard = ({
+  title,
+  subtitle,
+  children,
+  comingSoon = false,
+  dimmed = false,
+}) => (
   <section className={`ui-card p-6 ${dimmed ? "opacity-75" : ""}`}>
     <div className="mb-5 flex items-center gap-3">
       <h2 className="text-xl font-semibold">{title}</h2>
       {comingSoon ? upcomingBadge : null}
     </div>
-    {subtitle ? <p className="mb-5 text-[15px] text-text-secondary">{subtitle}</p> : null}
+    {subtitle ? (
+      <p className="mb-5 text-[15px] text-text-secondary">{subtitle}</p>
+    ) : null}
     {children}
   </section>
 );
@@ -37,7 +46,34 @@ const ActionBtn = ({ children, disabled = false, danger = false }) => (
   </button>
 );
 
+
+function TimezoneSelector() {
+  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  return (
+    <div>
+      <label className="mb-2 block text-sm text-text-primary">
+        Timezone
+      </label>
+
+      <button
+        type="button"
+        className="flex w-full items-center justify-between rounded-md border border-border px-3 py-2 text-[15px] text-text-primary hover:border-border-strong"
+      >
+        <span>{userTimeZone}</span>
+        <ChevronDown size={16} className="text-text-muted" />
+      </button>
+
+      <p className="mt-1 text-xs text-text-muted">
+        Affects trade timestamps and date displays.
+      </p>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
+  const { username, email } = getUserData();
+
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <SectionCard title="Personal information">
@@ -48,7 +84,10 @@ export default function ProfilePage() {
               alt="profile"
               className="h-24 w-24 rounded-full border border-border object-cover"
             />
-            <button type="button" className="mt-2 text-sm text-brand-900 hover:text-brand-800">
+            <button
+              type="button"
+              className="mt-2 text-sm text-brand-900 hover:text-brand-800"
+            >
               Remove photo
             </button>
             <p className="mt-1 text-xs text-text-muted">JPG, PNG up to 5MB</p>
@@ -57,31 +96,38 @@ export default function ProfilePage() {
 
         <div className="space-y-5">
           <div>
-            <label className="mb-2 block text-sm text-text-primary">Full Name *</label>
-            <input className="ui-input py-2.5 text-[15px]" defaultValue="Marcus Chen" />
+            <label className="mb-2 block text-sm text-text-primary">
+              Username *
+            </label>
+            <input
+              className="ui-input py-2.5 text-[15px]"
+              defaultValue={username}
+            />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-text-primary">Email address *</label>
+            <label className="mb-2 block text-sm text-text-primary">
+              Email address *
+            </label>
             <div className="flex gap-3">
-              <input className="ui-input py-2.5 text-[15px]" defaultValue="marcus.chen@email.com" />
+              <input
+                className="ui-input py-2.5 text-[15px]"
+                defaultValue={email}
+              />
               <ActionBtn>Change Email</ActionBtn>
             </div>
-            <p className="mt-1 text-xs text-text-muted">Used for login and notifications.</p>
+            <p className="mt-1 text-xs text-text-muted">
+              Used for login and notifications.
+            </p>
+          </div>
           </div>
 
-          <div>
-            <label className="mb-2 block text-sm text-text-primary">Timezone</label>
-            <button type="button" className="flex w-full items-center justify-between rounded-md border border-border px-3 py-2 text-[15px] text-text-primary hover:border-border-strong">
-              <span>America/Chicago (CST)</span>
-              <ChevronDown size={16} className="text-text-muted" />
-            </button>
-            <p className="mt-1 text-xs text-text-muted">Affects trade timestamps and date displays.</p>
-          </div>
-        </div>
+  <TimezoneSelector/>
 
         <div className="mt-7 flex gap-3">
-          <button type="button" className="ui-btn-primary py-2 text-sm">Save changes</button>
+          <button type="button" className="ui-btn-primary py-2 text-sm">
+            Save changes
+          </button>
           <ActionBtn>Cancel</ActionBtn>
         </div>
       </SectionCard>
@@ -110,7 +156,9 @@ export default function ProfilePage() {
 
       <SectionCard title="Subscription & billing" comingSoon dimmed>
         <div className="space-y-4">
-          <p className="text-sm text-text-secondary">You are currently on the Free plan.</p>
+          <p className="text-sm text-text-secondary">
+            You are currently on the Free plan.
+          </p>
           <div className="grid gap-2 sm:grid-cols-2">
             {[
               [Check, "Unlimited trades", true],
@@ -119,8 +167,17 @@ export default function ProfilePage() {
               [X, "AI-powered insights", false],
             ].map(([icon, label, included]) => (
               <div key={label} className="flex items-center gap-2 text-sm">
-                {createElement(icon, { size: 14, className: included ? "text-state-success" : "text-state-danger" })}
-                <span className={included ? "text-text-primary" : "text-text-muted"}>{label}</span>
+                {createElement(icon, {
+                  size: 14,
+                  className: included
+                    ? "text-state-success"
+                    : "text-state-danger",
+                })}
+                <span
+                  className={included ? "text-text-primary" : "text-text-muted"}
+                >
+                  {label}
+                </span>
               </div>
             ))}
           </div>
@@ -128,11 +185,21 @@ export default function ProfilePage() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Trading profile" subtitle="Help us personalize your experience." comingSoon dimmed>
+      <SectionCard
+        title="Trading profile"
+        subtitle="Help us personalize your experience."
+        comingSoon
+        dimmed
+      >
         <div className="grid gap-4">
           <div>
             <label className="mb-2 block text-sm">Years of experience</label>
-            <input className={disabledInputClass} value="Select experience level" disabled readOnly />
+            <input
+              className={disabledInputClass}
+              value="Select experience level"
+              disabled
+              readOnly
+            />
           </div>
           <div>
             <label className="mb-2 block text-sm">Trading goals</label>
@@ -147,17 +214,27 @@ export default function ProfilePage() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Connected services" subtitle="Manage broker and API integrations." comingSoon dimmed>
+      <SectionCard
+        title="Connected services"
+        subtitle="Manage broker and API integrations."
+        comingSoon
+        dimmed
+      >
         <div className="space-y-3">
-          {["Interactive Brokers", "TD Ameritrade", "MetaTrader 5"].map((name) => (
-            <div key={name} className="flex items-center justify-between rounded-md border border-border p-3">
-              <div>
-                <p className="font-medium">{name}</p>
-                <p className="text-sm text-text-muted">Not connected</p>
+          {["Interactive Brokers", "TD Ameritrade", "MetaTrader 5"].map(
+            (name) => (
+              <div
+                key={name}
+                className="flex items-center justify-between rounded-md border border-border p-3"
+              >
+                <div>
+                  <p className="font-medium">{name}</p>
+                  <p className="text-sm text-text-muted">Not connected</p>
+                </div>
+                <ActionBtn disabled>Connect</ActionBtn>
               </div>
-              <ActionBtn disabled>Connect</ActionBtn>
-            </div>
-          ))}
+            ),
+          )}
         </div>
       </SectionCard>
     </div>
