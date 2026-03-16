@@ -1,4 +1,7 @@
-const { calculateRiskPercent } = require("./calculations.helpers");
+const {
+  calculateRiskPercent,
+  calculateTradeDuration,
+} = require("./calculations.helpers");
 
 const FIELD_ALIASES = {
   external_id: ["ticket", "order", "id"],
@@ -91,9 +94,9 @@ function normalizeTrade(row) {
     Number(resolveField(normalizedRow, FIELD_ALIASES.take_profit)) || null;
 
   const status = exitTime ? "Closed" : "Open";
-
+  const openedAt = entryTime;
+  const closedAt = exitTime;
   return {
-
     external_id: resolveField(normalizedRow, FIELD_ALIASES.external_id),
     pair: resolveField(normalizedRow, FIELD_ALIASES.symbol)?.toUpperCase(),
 
@@ -107,8 +110,10 @@ function normalizeTrade(row) {
     exit_price:
       Number(resolveField(normalizedRow, FIELD_ALIASES.exit_price)) || null,
 
-    openedAt: entryTime,
-    closedAt: exitTime,
+    openedAt,
+    closedAt,
+
+    duration: calculateTradeDuration(openedAt, closedAt),
 
     stopLoss,
     takeProfit,

@@ -2,6 +2,10 @@ import { useEffect } from "react";
 import { ArrowLeft, ArrowUp, ArrowDown, Edit, Trash2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import useTrades from "../../../Hooks/useTrades";
+import {
+  getRMultipleLabel,
+  getRMultipleColor,
+} from "../../../Helpers/Calculations/calculations";
 
 const formatCurrency = (value) =>
   value != null
@@ -105,7 +109,7 @@ const TradeDetail = () => {
             </div>
           </div>
         </div>
-        <hr/>
+        <hr />
 
         {/* Bottom Metrics (unchanged) */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4 w-full text-text-primary text-sm">
@@ -151,46 +155,82 @@ const TradeDetail = () => {
       </section>
 
       {/* Performance Analysis */}
-      <section className="bg-white border border-border rounded-lg p-6">
-        <h2 className="text-card-title mb-4">Performance Analysis</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-text-primary text-sm">
+      <section className="bg-surface-card border border-border rounded-panel p-6 flex flex-col gap-4">
+        {/* Section Header */}
+        <h2 className="text-card-title">Performance Analysis</h2>
+
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-text-primary text-sm">
+          {/* Profit/Loss */}
           <div className="flex flex-col">
-            <span className="text-text-muted">Profit/Loss</span>
+            <span className="text-text-muted text-base font-medium">
+              Profit/Loss
+            </span>
             <span
-              className={`font-medium ${isProfit ? "text-state-success" : "text-state-danger"}`}
+              className={`font-semibold text-lg ${isProfit ? "text-state-success" : "text-state-danger"}`}
             >
               {isProfit ? "+" : "-"}
               {formatCurrency(Math.abs(trade.pnl))}
             </span>
-            <span className="text-text-muted text-xs">
-              {trade.pnlPercent?.toFixed(2)}%
+            {trade.pnlPercent != null && (
+              <span className="text-text-muted text-xs mt-1">
+                {trade.pnlPercent.toFixed(2)}%
+              </span>
+            )}
+          </div>
+
+          {/* R-Multiple */}
+          <div className="flex flex-col">
+            <span className="text-text-muted text-base font-medium">
+              R-Multiple
+            </span>
+
+            <span
+              className={`font-semibold text-lg ${getRMultipleColor(trade.riskToReward)}`}
+            >
+              {trade.riskToReward ?? "--"}
+            </span>
+            <span className="text-xs mt-1">
+              {getRMultipleLabel(trade.riskToReward)}
             </span>
           </div>
+
+          {/* Outcome */}
           <div className="flex flex-col">
-            <span className="text-text-muted">R-Multiple</span>
-            <span className="font-medium">{trade.rMultiple}</span>
-            <span className="text-text-success text-xs">Good Risk/Reward</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-text-muted">Outcome</span>
-            <span className="font-medium text-state-success">
-              {trade.pnl >= 0 ? "Win" : "Loss"}
+            <span className="text-text-muted text-base font-medium">
+              Outcome
             </span>
-            <span className="text-text-muted text-xs">Target Reached</span>
+            <span
+              className={`font-semibold text-lg ${trade.pnl >= 0 ? "text-state-success" : "text-state-danger"}`}
+            >
+              {trade.pnl > 0 ? "Win" : trade.pnl === 0 ? "Breakeven" : "Loss"}
+            </span>
           </div>
+
+          {/* Trade Duration */}
           <div className="flex flex-col">
-            <span className="text-text-muted">Trade Duration</span>
-            <span className="font-medium">{trade.duration}</span>
+            <span className="text-text-muted text-base font-medium">
+              Trade Duration
+            </span>
+            <span className="font-semibold text-lg">{trade.duration || "--"}</span>
           </div>
+
+          {/* Slippage */}
           <div className="flex flex-col">
-            <span className="text-text-muted">Slippage</span>
-            <span className="font-medium">
+            <span className="text-text-muted text-base font-medium">
+              Slippage
+            </span>
+            <span className="font-semibold text-lg">
               {formatCurrency(trade.slippage)}
             </span>
           </div>
+
+          {/* Commission */}
           <div className="flex flex-col">
-            <span className="text-text-muted">Commission</span>
-            <span className="font-medium">
+            <span className="text-text-muted text-base font-medium">
+              Commission
+            </span>
+            <span className="font-semibold text-lg">
               {formatCurrency(trade.commission)}
             </span>
           </div>
