@@ -3,8 +3,7 @@ import { ArrowUpRight, BarChart3 } from "lucide-react";
 
 import useAccounts from "../../Hooks/useAccounts";
 import { setAccountId } from "../../Helpers/Accounts/accounts.helper";
-
-const ACCOUNT_TYPES = ["Live", "Demo"]; // removed Paper
+import AccountCreateForm from "../Accounts/accountCreateForm";
 
 const TYPE_BADGE_STYLES = {
   Live: "bg-[#D0F1D6] text-[#0B6623]", // stronger green background + darker green text
@@ -137,9 +136,9 @@ export default function Onboarding() {
           </p>
         </div>
 
-        {(backendError || formError) && (
+        {backendError && (
           <p className="mb-4 rounded-panel border border-state-danger-soft bg-state-danger-soft px-3 py-2 text-caption text-state-danger">
-            {formError || backendError}
+            {backendError}
           </p>
         )}
 
@@ -230,96 +229,22 @@ export default function Onboarding() {
             </button>
           </div>
         ) : (
-          <form onSubmit={handleCreateAccount} className="space-y-3.5">
+          <div className="space-y-3.5">
             <p className="text-center text-lg text-text-muted">
               Step 1 of 1 - Getting Started
             </p>
             <div className="h-2.5 rounded-full bg-surface-muted">
               <div className="h-full w-full rounded-full bg-brand-800" />
             </div>
-
-            <div>
-              <label
-                htmlFor="name"
-                className="mb-1.5 block text-body font-medium text-text-secondary"
-              >
-                Account Name <span className="text-state-danger">*</span>
-              </label>
-              <input
-                id="name"
-                name="name"
-                value={createForm.name}
-                onChange={handleCreateFormChange}
-                placeholder="e.g., Main Trading Account, Demo Account"
-                className="ui-input py-2.5 text-body"
-              />
-              <p className="mt-1.5 text-caption text-text-muted">
-                Choose a name that helps you identify this account
-              </p>
-            </div>
-
-            <div>
-              <label
-                htmlFor="starting_balance"
-                className="mb-1.5 block text-body font-medium text-text-secondary"
-              >
-                Starting Balance <span className="text-state-danger">*</span>
-              </label>
-              <div className="relative">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-body text-text-secondary">
-                  $
-                </span>
-                <input
-                  id="starting_balance"
-                  name="starting_balance"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={createForm.starting_balance}
-                  onChange={handleCreateFormChange}
-                  placeholder="0.00"
-                  className="ui-input py-2.5 pl-8 text-body"
-                />
-              </div>
-              <p className="mt-1.5 text-caption text-text-muted">
-                Enter your initial account balance
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-1.5 block text-body font-medium text-text-secondary">
-                Account Type (Optional)
-              </p>
-              <div className="space-y-2.5">
-                {ACCOUNT_TYPES.map((type) => (
-                  <label
-                    key={type}
-                    className="flex cursor-pointer items-center gap-3 text-lg text-text-primary"
-                  >
-                    <input
-                      type="radio"
-                      name="type"
-                      value={type}
-                      checked={createForm.type === type}
-                      onChange={handleCreateFormChange}
-                      className="h-5 w-5"
-                    />
-                    {type} {/* just Live or Demo now */}
-                  </label>
-                ))}
-              </div>
-              <p className="mt-1.5 text-caption text-text-muted">
-                You can change this later
-              </p>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="ui-btn-primary mt-1.5 w-full py-2.5 text-xl"
-            >
-              {loading ? "Creating Account..." : "Create Account & Continue"}
-            </button>
+            <AccountCreateForm
+              form={createForm}
+              formError={formError}
+              loading={loading}
+              onChange={handleCreateFormChange}
+              onSubmit={handleCreateAccount}
+              submitLabel="Create Account & Continue"
+              helperText="You can change this later"
+            />
 
             {hasAccounts && (
               <button
@@ -330,7 +255,7 @@ export default function Onboarding() {
                 Back to Account Selection
               </button>
             )}
-          </form>
+          </div>
         )}
 
         <div className="mt-8 flex flex-col items-center text-center text-text-muted">
