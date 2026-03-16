@@ -9,6 +9,7 @@ import TradeDetailPlaceholder from "./Components/Others/Trades/tradeDetailPlaceh
 import ImportTrades from "./Components/Others/Trades/importTrades";
 import Onboarding from "./Components/Onboarding/onboarding";
 import AccountsPage from "./Components/Others/Accounts/accounts";
+import ProfilePage from "./Components/Others/Profile/profile";
 import SettingsLayout from "./Components/Others/Settings/settingsLayout";
 import AccountManagementSettings from "./Components/Others/Settings/accountManagement";
 import SettingsPlaceholder from "./Components/Others/Settings/settingsPlaceholder";
@@ -43,6 +44,8 @@ function App() {
           <Route path="/trades" element={<TradesHistory />} />
           <Route path="/trades/:tradeId" element={<TradeDetailPlaceholder />} />
           <Route path="/analytics" element={<PlaceholderPage title="Analytics" />} />
+          <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
+          <Route path="/profile" element={<ProfilePage />} />
 
           <Route path="/settings" element={<SettingsLayout />}>
             <Route index element={<Navigate to="account-management" replace />} />
