@@ -103,8 +103,6 @@ async function processAndUploadTrades({ accountId, trades }) {
   const account = await Account.findById(accountId);
   if (!account) throw new Error("Account not found");
 
-  // only closed trades
-
   let virtualBalance = account.current_balance;
 
   // attach accountId and compute riskPercent
@@ -144,7 +142,6 @@ async function processAndUploadTrades({ accountId, trades }) {
 
       successCount += result.length;
     } catch (err) {
-      console.error(err);
       const inserted = err.insertedDocs?.length || 0;
       const failed = err.writeErrors?.length || 0;
 

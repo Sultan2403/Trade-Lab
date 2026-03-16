@@ -1,6 +1,6 @@
 import { Avatar, IconButton } from "@mui/material";
 import { ChevronDown } from "lucide-react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Nav from "../Navigation/nav";
 
 const pageConfig = {
@@ -76,17 +76,26 @@ const pageConfig = {
   },
 };
 
+export function getPageConfig(path) {
+  if (path.startsWith("/trades/")) {
+    return {
+      breadcrumbs: ["Trade History", "Trade Details"],
+      title: "Trade Details",
+      subtitle: "View your trade details",
+    };
+  }
+
+  return pageConfig[path];
+}
+
 export default function Main() {
   const { pathname } = useLocation();
-  const pageMeta = pathname.startsWith("/trades/")
-    ? {
-        breadcrumbs: ["Trade History", "Trade Detail"],
-        title: "Trade Detail",
-        subtitle: "Detailed trade breakdown is in progress",
-      }
-    : pathname === "/settings"
+  const isTradeDetail = pathname.startsWith("/trades/");
+
+  const pageMeta =
+    pathname === "/settings"
       ? pageConfig["/settings/account-management"]
-      : (pageConfig[pathname] ?? pageConfig["/dashboard"]);
+      : getPageConfig(pathname) || pageConfig["/dashboard"];
 
   // const accessToken = getAccessToken();
   // const refreshToken = getRefreshToken();
@@ -131,7 +140,13 @@ export default function Main() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-8">
+        <main
+          className={
+            isTradeDetail
+              ? "flex-1 overflow-y-auto"
+              : "flex-1 overflow-y-auto p-8"
+          }
+        >
           <Outlet />
         </main>
       </div>

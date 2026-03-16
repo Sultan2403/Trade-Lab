@@ -38,7 +38,8 @@ const directionOptions = ["All", "Long", "Short"];
 const limitOptions = [10, 20, 50];
 
 const formatPrice = (value) => {
-  if (value === null || value === undefined || Number.isNaN(Number(value))) return "--";
+  if (value === null || value === undefined || Number.isNaN(Number(value)))
+    return "--";
   return `$${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
@@ -57,16 +58,29 @@ const formatDate = (value) => {
 const calcPnl = (trade) => {
   if (trade.exit_price === null || trade.exit_price === undefined) return null;
   const directionSign = trade.direction === "Short" ? -1 : 1;
-  return (Number(trade.exit_price) - Number(trade.entry_price)) * Number(trade.size) * directionSign;
+  return (
+    (Number(trade.exit_price) - Number(trade.entry_price)) *
+    Number(trade.size) *
+    directionSign
+  );
 };
 
 const calcRMultiple = (trade, pnl) => {
-  if (trade.rMultiple !== undefined && trade.rMultiple !== null) return Number(trade.rMultiple);
+  if (trade.rMultiple !== undefined && trade.rMultiple !== null)
+    return Number(trade.rMultiple);
 
-  const riskPerUnit = Math.abs(Number(trade.entry_price) - Number(trade.stopLoss));
+  const riskPerUnit = Math.abs(
+    Number(trade.entry_price) - Number(trade.stopLoss),
+  );
   const riskAmount = riskPerUnit * Number(trade.size);
 
-  if (!riskAmount || Number.isNaN(riskAmount) || pnl === null || Number.isNaN(pnl)) return null;
+  if (
+    !riskAmount ||
+    Number.isNaN(riskAmount) ||
+    pnl === null ||
+    Number.isNaN(pnl)
+  )
+    return null;
 
   return pnl / riskAmount;
 };
@@ -108,8 +122,10 @@ export default function TradesHistory() {
             .includes(search.toLowerCase().trim()),
         );
 
-        const matchesStatus = statusFilter === "All" || trade.status === statusFilter;
-        const matchesDirection = directionFilter === "All" || trade.direction === directionFilter;
+        const matchesStatus =
+          statusFilter === "All" || trade.status === statusFilter;
+        const matchesDirection =
+          directionFilter === "All" || trade.direction === directionFilter;
 
         return matchesSearch && matchesStatus && matchesDirection;
       })
@@ -130,15 +146,26 @@ export default function TradesHistory() {
 
     filtered.sort((a, b) => {
       if (field === "pair") return a.pair.localeCompare(b.pair) * directionSign;
-      if (field === "pnl") return ((a.pnl ?? Number.NEGATIVE_INFINITY) - (b.pnl ?? Number.NEGATIVE_INFINITY)) * directionSign;
-      return (new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime()) * directionSign;
+      if (field === "pnl")
+        return (
+          ((a.pnl ?? Number.NEGATIVE_INFINITY) -
+            (b.pnl ?? Number.NEGATIVE_INFINITY)) *
+          directionSign
+        );
+      return (
+        (new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime()) *
+        directionSign
+      );
     });
 
     return filtered;
   }, [data?.trades?.trades, directionFilter, search, sortBy, statusFilter]);
 
   return (
-    <Paper className="rounded-panel border border-border bg-surface-card p-6" elevation={0}>
+    <Paper
+      className="rounded-panel border border-border bg-surface-card p-6"
+      elevation={0}
+    >
       <Stack spacing={3}>
         <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
           <TextField
@@ -146,12 +173,14 @@ export default function TradesHistory() {
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search by instrument or notes..."
             fullWidth
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search size={16} />
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search size={16} />
+                  </InputAdornment>
+                ),
+              },
             }}
           />
 
@@ -204,13 +233,31 @@ export default function TradesHistory() {
           </FormControl>
         </Stack>
 
-        {error && <Alert severity="error">Unable to load trades right now.</Alert>}
+        {error && (
+          <Alert severity="error">Unable to load trades right now.</Alert>
+        )}
 
-        <TableContainer sx={{ border: "1px solid", borderColor: "#D0D5DD", borderRadius: "12px" }}>
+        <TableContainer
+          sx={{
+            border: "1px solid",
+            borderColor: "#D0D5DD",
+            borderRadius: "12px",
+          }}
+        >
           <Table>
             <TableHead>
               <TableRow sx={{ backgroundColor: "#F3F4F6" }}>
-                {["Date", "Instrument", "Direction", "Entry", "Exit", "Position Size", "P&L", "R-Multiple", "Outcome"].map((head) => (
+                {[
+                  "Date",
+                  "Instrument",
+                  "Direction",
+                  "Entry",
+                  "Exit",
+                  "Position Size",
+                  "P&L",
+                  "R-Multiple",
+                  "Outcome",
+                ].map((head) => (
                   <TableCell key={head} sx={{ fontWeight: 700 }}>
                     {head}
                   </TableCell>
@@ -227,15 +274,17 @@ export default function TradesHistory() {
               ) : rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={9} align="center" sx={{ py: 8 }}>
-                    <Typography color="text.secondary">No trades found for selected filters.</Typography>
+                    <Typography color="text.secondary">
+                      No trades found for selected filters.
+                    </Typography>
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((trade) => (
                   <TableRow
-                    key={trade._id}
+                    key={trade.id}
                     hover
-                    onClick={() => navigate(`/trades/${trade._id}`)}
+                    onClick={() => navigate(`/trades/${trade.id}`)}
                     sx={{ cursor: "pointer" }}
                   >
                     <TableCell>{formatDate(trade.openedAt)}</TableCell>
@@ -256,19 +305,38 @@ export default function TradesHistory() {
                     <TableCell
                       sx={{
                         color:
-                          trade.pnl === null ? "text.secondary" : trade.pnl >= 0 ? "#067647" : "#B42318",
+                          trade.pnl === null
+                            ? "text.secondary"
+                            : trade.pnl >= 0
+                              ? "#067647"
+                              : "#B42318",
                         fontWeight: trade.pnl === null ? 400 : 700,
                       }}
                     >
                       {trade.pnl === null ? "--" : formatPrice(trade.pnl)}
                     </TableCell>
-                    <TableCell>{trade.rMultiple === null ? "--" : trade.rMultiple.toFixed(2)}</TableCell>
+                    <TableCell>
+                      {trade.rMultiple === null
+                        ? "--"
+                        : trade.rMultiple.toFixed(2)}
+                    </TableCell>
                     <TableCell>
                       <Chip
                         size="small"
                         label={trade.outcome}
-                        color={trade.outcome === "Win" ? "success" : trade.outcome === "Loss" ? "error" : "default"}
-                        variant={trade.outcome === "Open" || trade.outcome === "Breakeven" ? "outlined" : "filled"}
+                        color={
+                          trade.outcome === "Win"
+                            ? "success"
+                            : trade.outcome === "Loss"
+                              ? "error"
+                              : "default"
+                        }
+                        variant={
+                          trade.outcome === "Open" ||
+                          trade.outcome === "Breakeven"
+                            ? "outlined"
+                            : "filled"
+                        }
                       />
                     </TableCell>
                   </TableRow>
@@ -278,9 +346,15 @@ export default function TradesHistory() {
           </Table>
         </TableContainer>
 
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }} justifyContent="space-between">
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          spacing={2}
+          alignItems={{ md: "center" }}
+          justifyContent="space-between"
+        >
           <Typography color="text.secondary">
-            Showing page {pagination?.page ?? page} of {pagination?.pages ?? 1} ({pagination?.total ?? 0} total trades)
+            Showing page {pagination?.page ?? page} of {pagination?.pages ?? 1}{" "}
+            ({pagination?.total ?? 0} total trades)
           </Typography>
 
           <Stack direction="row" spacing={2} alignItems="center">
