@@ -10,6 +10,9 @@ import ImportTrades from "./Components/Others/Trades/importTrades";
 import Onboarding from "./Components/Onboarding/onboarding";
 import AccountsPage from "./Components/Others/Accounts/accounts";
 import ProfilePage from "./Components/Others/Profile/profile";
+import SettingsLayout from "./Components/Others/Settings/settingsLayout";
+import AccountManagementSettings from "./Components/Others/Settings/accountManagement";
+import SettingsPlaceholder from "./Components/Others/Settings/settingsPlaceholder";
 import { getAccountId } from "./Helpers/Accounts/accounts.helper";
 
 const PlaceholderPage = ({ title }) => (
@@ -34,9 +37,7 @@ function App() {
           element={accountId ? <Navigate to="/dashboard" replace /> : <Onboarding />}
         />
 
-        <Route
-          element={accountId ? <Main /> : <Navigate to="/onboarding" replace />}
-        >
+        <Route element={accountId ? <Main /> : <Navigate to="/onboarding" replace />}>
           <Route path="/add-trade" element={<AddTrade />} />
           <Route path="/import-trades" element={<ImportTrades />} />
           <Route path="/dashboard" element={<PlaceholderPage title="Dashboard" />} />
@@ -45,6 +46,18 @@ function App() {
           <Route path="/analytics" element={<PlaceholderPage title="Analytics" />} />
           <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
           <Route path="/profile" element={<ProfilePage />} />
+
+          <Route path="/settings" element={<SettingsLayout />}>
+            <Route index element={<Navigate to="account-management" replace />} />
+            <Route path="account-management" element={<AccountManagementSettings />} />
+            <Route path="preferences" element={<SettingsPlaceholder title="Preferences" />} />
+            <Route path="trading" element={<SettingsPlaceholder title="Trading" />} />
+            <Route path="display" element={<SettingsPlaceholder title="Display" />} />
+            <Route path="privacy" element={<SettingsPlaceholder title="Data & Privacy" />} />
+            <Route path="notifications" element={<SettingsPlaceholder title="Notifications" />} />
+          </Route>
+
+          <Route path="/profile" element={<PlaceholderPage title="Profile" />} />
           <Route path="/profile/accounts" element={<AccountsPage title="Profile" />} />
         </Route>
       </Routes>
