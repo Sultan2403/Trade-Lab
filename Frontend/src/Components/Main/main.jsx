@@ -21,9 +21,9 @@ const pageConfig = {
     subtitle: "Upload your trading history and we'll handle the rest",
   },
   "/dashboard": {
-    breadcrumbs: ["Overview"],
-    title: "Dashboard",
-    subtitle: "Track your latest trading performance",
+    breadcrumbs: ["Trading Accounts"],
+    title: "Your Trading Accounts",
+    subtitle: "Manage your accounts and view performance at a glance",
   },
 };
 
