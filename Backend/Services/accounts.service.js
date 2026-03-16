@@ -22,7 +22,7 @@ const getAccountProfile = async ({ accountId, userId }) => {
   if (!account) throw new Error("Account not found");
 
   // Aggregate trades for dashboard metrics
-  console.log(Trade);
+  
   const tradesMetrics = await Trade.aggregate([
     { $match: { accountId: account._id } }, // only this account's trades
     {

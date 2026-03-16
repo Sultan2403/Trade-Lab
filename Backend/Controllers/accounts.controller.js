@@ -34,8 +34,6 @@ const getAccountProfileController = async (req, res) => {
       userId,
     });
 
-    console.log(tradesMetrics)
-
     res.json({
       success: true,
       account,
