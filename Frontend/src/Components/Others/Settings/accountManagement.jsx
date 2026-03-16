@@ -144,7 +144,7 @@ export default function AccountManagementSettings() {
           </div>
 
           <button
-            onClick={() => navigate("/profile/accounts")}
+            onClick={() => navigate("/accounts")}
             className="ui-btn-primary"
           >
             Manage Accounts →

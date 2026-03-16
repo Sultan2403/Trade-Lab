@@ -2,7 +2,6 @@ import { Avatar, IconButton } from "@mui/material";
 import { ChevronDown } from "lucide-react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import Nav from "../Navigation/nav";
-import { getAccessToken, getRefreshToken } from "../../Helpers/Auth/tokens";
 
 const pageConfig = {
   "/trades": {
@@ -40,7 +39,7 @@ const pageConfig = {
     title: "Analytics",
     subtitle: "Performance analytics are in progress",
   },
-  "/profile/accounts": {
+  "/accounts": {
     breadcrumbs: ["Trading Accounts"],
     title: "Your Trading Accounts",
     subtitle: "Manage your accounts and view performance at a glance",

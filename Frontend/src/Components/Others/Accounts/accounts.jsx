@@ -229,14 +229,14 @@ export default function AccountsPage() {
 
   const accounts = useMemo(() => data?.accounts ?? [], [data?.accounts]);
 
-  const activeAccount = useMemo(() => {
-    const preselected = accounts.find(
-      (account) => account.id === selectedAccountId,
-    );
-    if (preselected) return preselected;
+  // const activeAccount = useMemo(() => {
+  //   const preselected = accounts.find(
+  //     (account) => account.id === selectedAccountId,
+  //   );
+  //   if (preselected) return preselected;
 
-    return getActiveAccount(accounts);
-  }, [accounts, selectedAccountId]);
+  //   return getActiveAccount(accounts);
+  // }, [accounts, selectedAccountId]);
 
   const handleCreateFormChange = (event) => {
     const { name, value } = event.target;

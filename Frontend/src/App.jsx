@@ -7,7 +7,7 @@ import AddTrade from "./Components/Others/Trades/addTrade";
 import TradesHistory from "./Components/Others/Trades/tradesHistory";
 import TradeDetailPlaceholder from "./Components/Others/Trades/tradeDetailPlaceholder";
 import ImportTrades from "./Components/Others/Trades/importTrades";
-import Onboarding from "./Components/Onboarding/onboarding";
+import Onboarding from "./Components/Others/Onboarding/onboarding";
 import AccountsPage from "./Components/Others/Accounts/accounts";
 import ProfilePage from "./Components/Others/Profile/profile";
 import SettingsLayout from "./Components/Others/Settings/settingsLayout";
@@ -58,7 +58,7 @@ function App() {
           </Route>
 
           <Route path="/profile" element={<PlaceholderPage title="Profile" />} />
-          <Route path="/profile/accounts" element={<AccountsPage title="Profile" />} />
+          <Route path="/accounts" element={<AccountsPage title="Profile" />} />
         </Route>
       </Routes>
     </BrowserRouter>
