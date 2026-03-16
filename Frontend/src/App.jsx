@@ -14,6 +14,7 @@ import SettingsLayout from "./Components/Others/Settings/settingsLayout";
 import AccountManagementSettings from "./Components/Others/Settings/accountManagement";
 import SettingsPlaceholder from "./Components/Others/Settings/settingsPlaceholder";
 import { getAccountId } from "./Helpers/Accounts/accounts.helper";
+import Dashboard from "./Components/Main/dashboard";
 
 const PlaceholderPage = ({ title }) => (
   <div className="rounded-panel border border-border bg-surface-card p-8 text-body text-text-secondary">
@@ -40,7 +41,7 @@ function App() {
         <Route element={accountId ? <Main /> : <Navigate to="/onboarding" replace />}>
           <Route path="/add-trade" element={<AddTrade />} />
           <Route path="/import-trades" element={<ImportTrades />} />
-          <Route path="/dashboard" element={<PlaceholderPage title="Dashboard" />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/trades" element={<TradesHistory />} />
           <Route path="/trades/:tradeId" element={<TradeDetailPlaceholder />} />
           <Route path="/analytics" element={<PlaceholderPage title="Analytics" />} />
