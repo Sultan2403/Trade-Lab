@@ -30,6 +30,36 @@ const pageConfig = {
     title: "Your Trading Accounts",
     subtitle: "Manage your accounts and view performance at a glance",
   },
+  "/settings/account-management": {
+    breadcrumbs: ["Settings"],
+    title: "Settings",
+    subtitle: "Manage your app preferences and account configuration",
+  },
+  "/settings/preferences": {
+    breadcrumbs: ["Settings"],
+    title: "Settings",
+    subtitle: "Manage your app preferences and account configuration",
+  },
+  "/settings/trading": {
+    breadcrumbs: ["Settings"],
+    title: "Settings",
+    subtitle: "Manage your app preferences and account configuration",
+  },
+  "/settings/display": {
+    breadcrumbs: ["Settings"],
+    title: "Settings",
+    subtitle: "Manage your app preferences and account configuration",
+  },
+  "/settings/privacy": {
+    breadcrumbs: ["Settings"],
+    title: "Settings",
+    subtitle: "Manage your app preferences and account configuration",
+  },
+  "/settings/notifications": {
+    breadcrumbs: ["Settings"],
+    title: "Settings",
+    subtitle: "Manage your app preferences and account configuration",
+  },
 };
 
 export default function Main() {
@@ -40,7 +70,9 @@ export default function Main() {
         title: "Trade Detail",
         subtitle: "Detailed trade breakdown is in progress",
       }
-    : (pageConfig[pathname] ?? pageConfig["/dashboard"]);
+    : pathname === "/settings"
+      ? pageConfig["/settings/account-management"]
+      : (pageConfig[pathname] ?? pageConfig["/dashboard"]);
 
   // const accessToken = getAccessToken();
   // const refreshToken = getRefreshToken();
