@@ -1,6 +1,6 @@
 const Trades = require("../DB/Models/trades.model");
 const Account = require("../DB/Models/accounts.model");
-const { calculateRiskPercent } = require("../Helpers/calculations.helpers");
+const { calculateRiskPercent, calculateRiskToReward } = require("../Helpers/calculations.helpers");
 
 const createTrade = async ({ accountId, tradeData }) => {
   const session = await mongoose.startSession();
@@ -116,6 +116,8 @@ async function processAndUploadTrades({ accountId, trades }) {
       accountBalance: virtualBalance,
     });
 
+    const riskToReward = calculateRiskToReward(trade)
+
     // update virtual balance with pnl
     virtualBalance += trade.pnl;
 
@@ -123,6 +125,7 @@ async function processAndUploadTrades({ accountId, trades }) {
       ...trade,
       accountId,
       riskPercent,
+      riskToReward,
       status: "Closed",
     };
   });

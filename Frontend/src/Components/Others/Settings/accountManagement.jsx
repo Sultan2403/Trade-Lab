@@ -2,10 +2,21 @@ import { useEffect } from "react";
 import useAccounts from "../../../Hooks/useAccounts";
 import { useNavigate } from "react-router-dom";
 import { getAccountId } from "../../../Helpers/Accounts/accounts.helper";
+import { ArrowUp, ArrowDown } from "lucide-react";
 
 export default function AccountManagementSettings() {
-  const { data, loading, error, getAllAccounts } = useAccounts();
+  const {
+    data: profileData,
+    loading,
+    error,
+    getAccountProfile,
+  } = useAccounts();
   const navigate = useNavigate();
+
+  const account = profileData?.account;
+  const metrics = profileData?.tradesMetrics;
+
+  const currentAccountId = getAccountId();
 
   const formatCurrency = (value) =>
     Number(value ?? 0).toLocaleString(undefined, {
@@ -13,29 +24,31 @@ export default function AccountManagementSettings() {
       maximumFractionDigits: 2,
     });
 
-  const accounts = data?.accounts ?? [];
-  const currentAccountId = getAccountId();
-
-  const activeAccount =
-    accounts.find((acc) => acc.id === currentAccountId) || accounts[0];
+  const growthPercent = (account) => {
+    if (!account || account.starting_balance === 0) return 0;
+    return (
+      ((account.current_balance - account.starting_balance) /
+        account.starting_balance) *
+      100
+    );
+  };
 
   useEffect(() => {
-    getAllAccounts();
+    getAccountProfile();
   }, [currentAccountId]);
 
-  if (loading) return <div className="p-6 text-sm">Loading accounts...</div>;
-
+  if (loading) return <div className="p-6 text-sm">Loading account...</div>;
   if (error)
     return (
       <div className="p-6 text-sm text-state-danger">
-        Failed to load accounts
+        Failed to load account
       </div>
     );
 
   return (
     <div className="space-y-8">
       {/* Active Account */}
-      {activeAccount && (
+      {account && (
         <section className="space-y-3">
           <p className="text-caption text-text-muted">
             Currently Active Account
@@ -44,38 +57,63 @@ export default function AccountManagementSettings() {
           <article className="rounded-panel border border-border p-6">
             <div className="flex items-start justify-between border-b border-border pb-5">
               <div>
-                <h2 className="text-xl font-semibold">{activeAccount.name}</h2>
-
+                <h2 className="text-xl font-semibold">{account.name}</h2>
                 <span className="mt-2 inline-flex rounded-md bg-state-success-soft px-2.5 py-0.5 text-sm font-medium text-state-success">
-                  {activeAccount.type}
+                  {account.type}
                 </span>
               </div>
 
               <div className="text-right">
                 <p className="text-3xl font-semibold">
-                  ${formatCurrency(activeAccount.current_balance)}
+                  ${formatCurrency(account.current_balance)}
+                </p>
+
+                {/* Growth */}
+                <p
+                  className={`mt-2 text-sm font-medium flex items-center justify-end gap-1 ${
+                    growthPercent(account) >= 0
+                      ? "text-state-success"
+                      : "text-state-danger"
+                  }`}
+                >
+                  {growthPercent(account) >= 0 ? (
+                    <ArrowUp size={14} />
+                  ) : (
+                    <ArrowDown size={14} />
+                  )}
+                  {growthPercent(account).toFixed(2)}%
                 </p>
 
                 <p className="text-caption text-text-muted">
-                  Starting: ${formatCurrency(activeAccount.starting_balance)}
+                  Starting: ${formatCurrency(account.starting_balance)}
                 </p>
               </div>
             </div>
 
-            {/* Metrics placeholder */}
+            {/* Metrics from backend */}
             <div className="mt-5 grid grid-cols-3 gap-6">
               <div>
-                <p className="text-xl font-semibold">--</p>
+                <p className="text-xl font-semibold">
+                  {metrics?.totalTrades ?? "--"}
+                </p>
                 <p className="text-caption text-text-muted">Total Trades</p>
               </div>
 
               <div>
-                <p className="text-xl font-semibold">--</p>
+                <p className="text-xl font-semibold">
+                  {metrics?.winRate != null
+                    ? metrics.winRate.toFixed(2) + "%"
+                    : "--"}
+                </p>
                 <p className="text-caption text-text-muted">Win Rate</p>
               </div>
 
               <div>
-                <p className="text-xl font-semibold">--</p>
+                <p className="text-xl font-semibold text-state-success">
+                  {metrics?.netPnL != null
+                    ? `$${formatCurrency(metrics.netPnL)}`
+                    : "--"}
+                </p>
                 <p className="text-caption text-text-muted">Net P&L</p>
               </div>
             </div>
@@ -113,76 +151,6 @@ export default function AccountManagementSettings() {
           </button>
         </article>
       </section>
-
-      {/* ------------------------------------------------ */}
-      {/* QUICK SWITCH DISABLED FOR NOW                   */}
-      {/* ------------------------------------------------ */}
-
-      {/*
-      const getAccountStatus = (account) => {
-        const diff = account.current_balance - account.starting_balance;
-        if (diff > 0) return "success";
-        if (diff < 0) return "danger";
-        return "default";
-      };
-
-      const valueToneClass = {
-        success: "text-state-success",
-        danger: "text-state-danger",
-        default: "text-text-primary",
-      };
-
-      const quickAccounts = accounts.map((account, i) => ({
-        ...account,
-        active: i === 0,
-        value: `$${formatCurrency(account.current_balance)}`,
-        status: getAccountStatus(account),
-      }));
-
-      {quickAccounts.length > 1 && (
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-card-title">Quick Switch</h3>
-
-            <button
-              onClick={() => navigate("/profile/accounts")}
-              className="text-sm text-brand-800 hover:text-brand-900"
-            >
-              View All
-            </button>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {quickAccounts.map((account) => (
-              <article
-                key={account.id}
-                onClick={() => {
-                  setAccountId(account.id);
-                  window.location.reload();
-                }}
-                className={`cursor-pointer rounded-panel border p-4 transition hover:shadow-sm ${
-                  account.active
-                    ? "border-brand-800 bg-surface-base"
-                    : "border-border bg-surface-card hover:border-brand-600"
-                }`}
-              >
-                <p className="text-body font-semibold">{account.name}</p>
-
-                <p className="text-caption text-text-muted">{account.type}</p>
-
-                <p
-                  className={`mt-2 text-2xl font-semibold ${
-                    valueToneClass[account.status]
-                  }`}
-                >
-                  {account.value}
-                </p>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
-      */}
     </div>
   );
 }

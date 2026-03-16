@@ -6,7 +6,7 @@ const tradeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Account",
       required: true,
-      index: true
+      index: true,
     },
 
     external_id: {
@@ -100,7 +100,13 @@ const tradeSchema = new mongoose.Schema(
     riskPercent: {
       type: Number,
       required: false,
-      default: null
+      default: null,
+    },
+
+    riskToReward: {
+      type: Number,
+      required: false,
+      default: null,
     },
 
     metadata: {
@@ -120,7 +126,6 @@ tradeSchema.index(
   { accountId: 1, external_id: 1 },
   { unique: true, sparse: true },
 );
-
 
 tradeSchema.set("toJSON", {
   transform: (doc, obj) => {

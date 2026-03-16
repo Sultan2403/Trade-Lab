@@ -1,7 +1,7 @@
 const {
   createAccount,
   getAccountProfile,
-  getAllUserAccounts
+  getAllUserAccounts,
 } = require("../Services/accounts.service");
 
 const createAccountController = async (req, res) => {
@@ -29,11 +29,17 @@ const getAccountProfileController = async (req, res) => {
     const { accountId } = req.params;
     const userId = req.user.id;
 
-    const account = await getAccountProfile({ accountId, userId });
+    const { account, tradesMetrics } = await getAccountProfile({
+      accountId,
+      userId,
+    });
+
+    console.log(tradesMetrics)
 
     res.json({
       success: true,
       account,
+      tradesMetrics,
     });
   } catch (err) {
     console.error(err);
