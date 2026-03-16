@@ -233,9 +233,9 @@ export default function TradesHistory() {
               ) : (
                 rows.map((trade) => (
                   <TableRow
-                    key={trade._id}
+                    key={trade.id}
                     hover
-                    onClick={() => navigate(`/trades/${trade._id}`)}
+                    onClick={() => navigate(`/trades/${trade.id}`)}
                     sx={{ cursor: "pointer" }}
                   >
                     <TableCell>{formatDate(trade.openedAt)}</TableCell>
