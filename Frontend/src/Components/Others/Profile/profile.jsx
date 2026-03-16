@@ -46,15 +46,12 @@ const ActionBtn = ({ children, disabled = false, danger = false }) => (
   </button>
 );
 
-
 function TimezoneSelector() {
   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (
     <div>
-      <label className="mb-2 block text-sm text-text-primary">
-        Timezone
-      </label>
+      <label className="mb-2 block text-sm text-text-primary">Timezone</label>
 
       <button
         type="button"
@@ -120,9 +117,9 @@ export default function ProfilePage() {
               Used for login and notifications.
             </p>
           </div>
-          </div>
+        </div>
 
-  <TimezoneSelector/>
+        <TimezoneSelector />
 
         <div className="mt-7 flex gap-3">
           <button type="button" className="ui-btn-primary py-2 text-sm">
