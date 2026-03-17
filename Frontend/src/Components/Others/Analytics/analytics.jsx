@@ -28,6 +28,12 @@ import {
 import useAccounts from "../../../Hooks/useAccounts";
 import useAnalytics from "../../../Hooks/useAnalytics";
 
+const COLORS = {
+  profit: "#15616D",
+  loss: "#DC2626",
+  neutral: "#9CA3AF",
+};
+
 const formatNumber = (value, options = {}) =>
   value != null ? Number(value).toLocaleString(undefined, options) : "N/A";
 
@@ -456,7 +462,9 @@ export default function AnalyticsPage() {
           Array.from({ length: cards.length }).map((_, i) => (
             <AnalyticsCardSkeleton key={i} />
           ))}
-        {!loading && !error && cards.map((card) => <StatCard key={card.title} {...card} />)}
+        {!loading &&
+          !error &&
+          cards.map((card) => <StatCard key={card.title} {...card} />)}
       </div>
 
       {!loading && error && (
@@ -474,19 +482,69 @@ export default function AnalyticsPage() {
       )}
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <ChartPanel title="Trade Outcomes" loading={allMetricsLoading}>
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie data={mapped.tradeOutcomes} dataKey="value" innerRadius={70} outerRadius={110}>
-                {mapped.tradeOutcomes.map((entry) => (
-                  <Cell key={entry.name} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </ChartPanel>
+       <ChartPanel title="Trade Outcomes" loading={allMetricsLoading}>
+  <ResponsiveContainer width="100%" height="100%">
+    {mapped.tradeOutcomes.some(d => d.value > 0) ? (
+      <PieChart>
+        <Pie
+          data={mapped.tradeOutcomes}
+          dataKey="value"
+          innerRadius={70}
+          outerRadius={110}
+          label={({ percent }) =>
+            percent > 0.05 ? `${(percent * 100).toFixed(0)}%` : ""
+          }
+          labelLine={false}
+          onMouseEnter={(_, index) => setActiveIndex(index)}
+          onMouseLeave={() => setActiveIndex(null)}
+        >
+          {mapped.tradeOutcomes.map((entry, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={entry.color}
+              opacity={
+                activeIndex === null || activeIndex === index ? 1 : 0.4
+              }
+            />
+          ))}
+        </Pie>
+
+        {/* CENTER TEXT */}
+        <text
+          x="50%"
+          y="50%"
+          textAnchor="middle"
+          dominantBaseline="middle"
+          className="fill-text-primary text-lg font-semibold"
+        >
+          {mapped.tradeOutcomes.reduce((acc, cur) => acc + cur.value, 0)}
+        </text>
+        <text
+          x="50%"
+          y="60%"
+          textAnchor="middle"
+          dominantBaseline="middle"
+          className="fill-text-secondary text-xs"
+        >
+          Trades
+        </text>
+
+        <Tooltip
+          contentStyle={{
+            borderRadius: "8px",
+            border: "none",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+          }}
+        />
+        <Legend />
+      </PieChart>
+    ) : (
+      <div className="flex h-full items-center justify-center text-text-secondary">
+        No trade data yet
+      </div>
+    )}
+  </ResponsiveContainer>
+</ChartPanel>
 
         <ChartPanel title="Monthly Performance" loading={allMetricsLoading}>
           <ResponsiveContainer width="100%" height="100%">
@@ -504,7 +562,9 @@ export default function AnalyticsPage() {
           <ChartPanelSkeleton />
         ) : (
           <article className="ui-card p-6">
-            <h3 className="text-lg font-semibold text-text-primary">Performance by Instrument</h3>
+            <h3 className="text-lg font-semibold text-text-primary">
+              Performance by Instrument
+            </h3>
             <div className="mt-5 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -524,14 +584,18 @@ export default function AnalyticsPage() {
                       <td className="py-2">{item.winRate.toFixed(1)}%</td>
                       <td
                         className={`py-2 ${
-                          item.netPnL >= 0 ? "text-state-success" : "text-state-danger"
+                          item.netPnL >= 0
+                            ? "text-state-success"
+                            : "text-state-danger"
                         }`}
                       >
                         {formatCurrency(item.netPnL)}
                       </td>
                       <td
                         className={`py-2 ${
-                          item.avgPnL >= 0 ? "text-state-success" : "text-state-danger"
+                          item.avgPnL >= 0
+                            ? "text-state-success"
+                            : "text-state-danger"
                         }`}
                       >
                         {formatCurrency(item.avgPnL)}
@@ -560,7 +624,10 @@ export default function AnalyticsPage() {
               <Tooltip />
               <Bar dataKey="count">
                 {mapped.plDistribution.map((item) => (
-                  <Cell key={item.bin} fill={item.isNegative ? "#DC2626" : "#15616D"} />
+                  <Cell
+                    key={item.bin}
+                    fill={item.isNegative ? "#DC2626" : "#15616D"}
+                  />
                 ))}
               </Bar>
             </BarChart>
