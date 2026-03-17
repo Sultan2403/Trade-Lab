@@ -14,4 +14,8 @@ const accountIdSchema = Joi.object({
   limit: Joi.number().integer().min(1).optional(),
 }).required();
 
+const accountProfileQuerySchema = Joi.object({
+  timeframe: Joi.number().integer().min(7).optional()
+})
+
 module.exports = { accountCreateSchema, accountIdSchema };
