@@ -166,73 +166,87 @@ export default function TradesHistory() {
       elevation={0}
     >
       <Stack spacing={3}>
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={2} // 👈 more breathing room
-          alignItems="center"
-          flexWrap="wrap" // 👈 prevents squishing
-        >
-          {/* Search */}
-          <UIInput
-            className="ui-input"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search trades..."
-            startIcon={<Search size={16} />}
-            sx={{ maxWidth: 260 }}
-          />
+        <Stack spacing={2}>
+          {/* Optional subtle header */}
+          <Typography fontSize="1.6rem" fontWeight={500} color="text.primary">
+            Trades Overview
+          </Typography>
 
-          {/* Filters */}
-          {[
-            {
-              value: sortBy,
-              onChange: setSortBy,
-              options: sortOptions,
-              getLabel: (o) => o.label,
-              getValue: (o) => o.value,
-            },
-            {
-              value: statusFilter,
-              onChange: setStatusFilter,
-              options: statusOptions,
-              getLabel: (o) => o,
-              getValue: (o) => o,
-            },
-            {
-              value: directionFilter,
-              onChange: setDirectionFilter,
-              options: directionOptions,
-              getLabel: (o) => o,
-              getValue: (o) => o,
-            },
-          ].map((filter, i) => (
-            <TextField
-              key={i}
-              select
-              value={filter.value}
-              onChange={(e) => filter.onChange(e.target.value)}
-              size="small"
-              variant="outlined"
+          {/* Control bar */}
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            justifyContent="space-between"
+            alignItems="center"
+            spacing={2}
+            flexWrap="wrap"
+          >
+            {/* Left: Search */}
+            <UIInput
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search trades by pair"
+              startIcon={<Search size={16} />}
               sx={{
-                minWidth: 130,
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  fontSize: "0.8rem",
-                  backgroundColor: "#fff",
-                },
+                maxWidth: 280,
+                borderRadius: "8px", // less rounded
+                flex: 1, // grow to fill left side
               }}
-            >
-              {filter.options.map((opt) => (
-                <MenuItem
-                  key={filter.getValue(opt)}
-                  value={filter.getValue(opt)}
-                  sx={{ fontSize: "0.85rem" }}
+            />
+
+            {/* Right: Filters */}
+            <Stack direction="row" spacing={1.5} flexWrap="wrap">
+              {[
+                {
+                  value: sortBy,
+                  onChange: setSortBy,
+                  options: sortOptions,
+                  getLabel: (o) => o.label,
+                  getValue: (o) => o.value,
+                },
+                {
+                  value: statusFilter,
+                  onChange: setStatusFilter,
+                  options: statusOptions,
+                  getLabel: (o) => o,
+                  getValue: (o) => o,
+                },
+                {
+                  value: directionFilter,
+                  onChange: setDirectionFilter,
+                  options: directionOptions,
+                  getLabel: (o) => o,
+                  getValue: (o) => o,
+                },
+              ].map((filter, i) => (
+                <TextField
+                  key={i}
+                  select
+                  value={filter.value}
+                  onChange={(e) => filter.onChange(e.target.value)}
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    minWidth: 140,
+                    borderRadius: "8px", // slightly rounded
+                    "& .MuiOutlinedInput-root": {
+                      fontSize: "0.85rem",
+                      backgroundColor: "#fff",
+                    },
+                  }}
                 >
-                  {filter.getLabel(opt)}
-                </MenuItem>
+                  {filter.options.map((opt) => (
+                    <MenuItem
+                      key={filter.getValue(opt)}
+                      value={filter.getValue(opt)}
+                      sx={{ fontSize: "0.85rem" }}
+                    >
+                      {filter.getLabel(opt)}
+                    </MenuItem>
+                  ))}
+                </TextField>
               ))}
-            </TextField>
-          ))}
+            </Stack>
+          </Stack>
         </Stack>
 
         {error && (
