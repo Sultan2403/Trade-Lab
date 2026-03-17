@@ -66,20 +66,29 @@ function StatCard({
   const trend = getTrendMeta(delta);
 
   return (
-    <article className="ui-card p-5">
-      <div className="flex items-start justify-between gap-4">
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-brand-700/15 text-brand-900">
+    <article className="ui-card p-4">
+      {/* Top Row */}
+      <div className="flex items-start justify-between">
+        <span className="flex h-9 w-9 items-center justify-center rounded-md bg-brand-700/15 text-brand-900">
           {createElement(icon, { size: 18 })}
         </span>
-        <span className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium ${trend.badge}`}>
+
+        <span
+          className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium ${trend.badge}`}
+        >
           {createElement(trend.icon, { size: 12 })}
           {trend.text}
         </span>
       </div>
 
-      <p className="mt-4 text-[2rem] font-semibold leading-tight text-text-primary">{title}</p>
-      <p className={`mt-2 text-5xl font-semibold leading-tight ${valueClassName}`}>{value}</p>
-      <p className="mt-2 text-caption text-text-muted">{suffix}</p>
+      {/* Title */}
+      <p className="mt-3 text-md font-semibold text-text-secondary">{title}</p>
+
+      {/* Metric */}
+      <p className={`mt-1 text-2xl font-semibold ${valueClassName}`}>{value}</p>
+
+      {/* Subtext */}
+      <p className="mt-1 text-xs text-text-muted">{suffix}</p>
     </article>
   );
 }
@@ -102,7 +111,9 @@ export default function Dashboard() {
     return Array.from({ length: 7 }, (_, index) => {
       const ratio = index / 6;
       const base = startBalance + (endBalance - startBalance) * ratio;
-      const volatility = Math.sin(index * 1.2) * (Math.abs(endBalance - startBalance) * 0.08 + 120);
+      const volatility =
+        Math.sin(index * 1.2) *
+        (Math.abs(endBalance - startBalance) * 0.08 + 120);
 
       return {
         day: `Jan ${index + 1}`,
@@ -159,7 +170,11 @@ export default function Dashboard() {
 
   return (
     <section className="space-y-8">
-      {loading && <div className="ui-card p-4 text-caption text-text-secondary">Loading dashboard metrics...</div>}
+      {loading && (
+        <div className="ui-card p-4 text-caption text-text-secondary">
+          Loading dashboard metrics...
+        </div>
+      )}
 
       {error && (
         <div className="ui-card border-state-danger/40 p-4 text-caption text-state-danger">
