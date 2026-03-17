@@ -37,7 +37,7 @@ const pageConfig = {
   "/analytics": {
     breadcrumbs: ["Analytics"],
     title: "Analytics",
-    subtitle: "Performance analytics are in progress",
+    subtitle: "Detailed performance visualizations and trading insights",
   },
   "/accounts": {
     breadcrumbs: ["Trading Accounts"],

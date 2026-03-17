@@ -2,7 +2,7 @@ const { celebrate } = require("celebrate");
 const express = require("express");
 
 const {
-  equityCurveController,
+  equityCurveController,getAnalytics
 } = require("../Controllers/analytics.controller");
 
 const {
@@ -10,6 +10,8 @@ const {
 } = require("../Schemas/accounts.schema");
 
 const router = express.Router();
+
+router.get("/", celebrate({ query: accountIdSchema }), getAnalytics);
 
 router.get(
   "/equity-curve",
