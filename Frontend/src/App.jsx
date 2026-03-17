@@ -16,6 +16,7 @@ import SettingsPlaceholder from "./Components/Others/Settings/settingsPlaceholde
 import { getAccountId } from "./Helpers/Accounts/accounts.helper";
 import Dashboard from "./Components/Main/dashboard";
 import AnalyticsPage from "./Components/Others/Analytics/analytics";
+import LandingPage from "./Components/Main/landingPage";
 
 const PlaceholderPage = ({ title }) => (
   <div className="rounded-panel border border-border bg-surface-card p-8 text-body text-text-secondary">
@@ -29,7 +30,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={accountId ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
