@@ -316,7 +316,7 @@ export default function TradesHistory() {
               ) : rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
-                    <Typography color="text.secondary" fontSize={13}>
+                    <Typography color="text.secondary" fontSize={14}>
                       No trades found for selected filters.
                     </Typography>
                   </TableCell>
@@ -324,9 +324,9 @@ export default function TradesHistory() {
               ) : (
                 rows.map((trade) => (
                   <TableRow
-                    key={trade._id}
+                    key={trade.id}
                     hover
-                    onClick={() => navigate(`/trades/${trade._id}`)}
+                    onClick={() => navigate(`/trades/${trade.id}`)}
                     sx={{
                       cursor: "pointer",
                       "&:hover": {
