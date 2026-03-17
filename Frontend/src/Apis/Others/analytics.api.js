@@ -9,6 +9,8 @@ const analyticsApi = {
         accountId: getAccountId(),
       },
     }),
+
+  getAllMetrics: () => api.get("/analytics/", { params: { accountId: getAccountId() } }),
 };
 
 export default analyticsApi;

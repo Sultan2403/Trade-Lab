@@ -41,17 +41,6 @@ const getPerformanceData = (account) => {
   };
 };
 
-const getActiveAccount = (accounts) => {
-  const storedAccountId = getAccountId();
-
-  return (
-    accounts.find((account) => account?.is_active) ||
-    accounts.find((account) => account?.id === storedAccountId) ||
-    accounts[0] ||
-    null
-  );
-};
-
 function AccountCard({ account, isSelected, onSelect }) {
   const navigate = useNavigate();
 
