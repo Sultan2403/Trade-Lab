@@ -77,6 +77,14 @@ const pageConfig = {
 };
 
 export function getPageConfig(path) {
+  if (path.startsWith("/trades/") && path.endsWith("/edit")) {
+    return {
+      breadcrumbs: ["Trade History", "Trade Detail", "Edit"],
+      title: "Edit Trade",
+      subtitle: "Update trade information and notes",
+    };
+  }
+
   if (path.startsWith("/trades/")) {
     return {
       breadcrumbs: ["Trade History", "Trade Details"],

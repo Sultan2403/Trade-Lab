@@ -55,7 +55,9 @@ const TradeDetail = () => {
           {/* Right: Edit / Delete */}
           <div className="flex gap-2">
             {/* Edit Trade */}
-            <button className="flex items-center gap-2 px-4 py-2 rounded-md border border-brand-700 text-brand-700 hover:bg-brand-700/10 text-sm font-medium transition-colors">
+            <button
+              onClick={() => navigate(`/trades/${tradeId}/edit`)}
+              className="flex items-center gap-2 px-4 py-2 rounded-md border border-brand-700 text-brand-700 hover:bg-brand-700/10 text-sm font-medium transition-colors">
               <Edit size={14} /> Edit Trade
             </button>
 

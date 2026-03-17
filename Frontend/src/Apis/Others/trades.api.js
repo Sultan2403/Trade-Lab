@@ -22,6 +22,11 @@ const tradesApi = {
       params: { accountId: getAccountId() },
     }),
 
+  deleteTrade: (id) =>
+    api.delete(`/trades/${id}`, {
+      params: { accountId: getAccountId() },
+    }),
+
   uploadTradesCsv: (csvFile) => {
     const formData = new FormData();
     formData.append("csv-file", csvFile);

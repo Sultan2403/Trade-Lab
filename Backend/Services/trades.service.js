@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Trades = require("../DB/Models/trades.model");
 const Account = require("../DB/Models/accounts.model");
 const { calculateRiskPercent, calculateRiskToReward } = require("../Helpers/calculations.helpers");
@@ -70,17 +71,32 @@ const getTradeById = async ({ accountId, tradeId }) => {
 };
 
 const updateTrade = async ({ accountId, tradeId, update }) => {
-  const trade = await Trades.findOneAndUpdate(
-    { _id: tradeId, accountId },
-    update,
-    {
-      new: true,
-    },
-  );
+  const existingTrade = await Trades.findOne({ _id: tradeId, accountId });
 
-  if (!trade) {
+  if (!existingTrade) {
     throw new Error("Trade not found");
   }
+
+  if (existingTrade?.metadata?.source === "csv-import") {
+    const allowedFields = ["notes", "tags"];
+    const receivedFields = Object.keys(update || {});
+    const blockedFields = receivedFields.filter(
+      (field) => !allowedFields.includes(field),
+    );
+
+    if (blockedFields.length) {
+      const error = new Error(
+        "CSV-import trades can only update notes and tags",
+      );
+      error.statusCode = 400;
+      throw error;
+    }
+  }
+
+  const trade = await Trades.findOneAndUpdate({ _id: tradeId, accountId }, update, {
+    new: true,
+    runValidators: true,
+  });
 
   return trade;
 };

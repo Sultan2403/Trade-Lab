@@ -46,7 +46,9 @@ const getTrade = async (req, res) => {
     res.json({ success: true, trade });
   } catch (error) {
     console.error(error);
-    res.status(404).json({ success: false, message: error.message });
+    res
+      .status(error.statusCode || 404)
+      .json({ success: false, message: error.message });
   }
 };
 
@@ -64,13 +66,15 @@ const updateTrade = async (req, res) => {
     res.json({ success: true, trade });
   } catch (error) {
     console.error(error);
-    res.status(404).json({ success: false, message: error.message });
+    res
+      .status(error.statusCode || 404)
+      .json({ success: false, message: error.message });
   }
 };
 
 const deleteTrade = async (req, res) => {
   try {
-    const accountId = req.query;
+    const { accountId } = req.query;
     const tradeId = req.params.id;
 
     await tradeService.deleteTrade({ accountId, tradeId });

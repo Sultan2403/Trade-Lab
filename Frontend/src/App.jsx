@@ -6,6 +6,7 @@ import Register from "./Components/Auth/register";
 import AddTrade from "./Components/Others/Trades/addTrade";
 import TradesHistory from "./Components/Others/Trades/tradesHistory";
 import TradeDetailPlaceholder from "./Components/Others/Trades/tradeDetailPlaceholder";
+import EditTrade from "./Components/Others/Trades/editTrade";
 import ImportTrades from "./Components/Others/Trades/importTrades";
 import Onboarding from "./Components/Others/Onboarding/onboarding";
 import AccountsPage from "./Components/Others/Accounts/accounts";
@@ -44,6 +45,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/trades" element={<TradesHistory />} />
           <Route path="/trades/:tradeId" element={<TradeDetailPlaceholder />} />
+          <Route path="/trades/:tradeId/edit" element={<EditTrade />} />
           <Route path="/analytics" element={<PlaceholderPage title="Analytics" />} />
           <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
           <Route path="/profile" element={<ProfilePage />} />
