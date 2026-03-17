@@ -42,6 +42,12 @@ const formatCurrency = (value) => {
   }
 };
 
+const getDisplayValue = (value, fallback = "N/A") => {
+  if (value == null) return fallback;
+  if (["string", "number"].includes(typeof value)) return value;
+  return fallback;
+};
+
 const getSmartTrend = (rawValue, delta, type = "number") => {
   const val = Number(rawValue ?? 0);
   let d;
@@ -92,6 +98,7 @@ function StatCard({
   valueClassName = "text-text-primary",
 }) {
   const trend = getSmartTrend(value, delta, type);
+  const safeValue = getDisplayValue(value);
 
   return (
     <article className="ui-card p-4">
@@ -109,7 +116,9 @@ function StatCard({
         )}
       </div>
       <p className="mt-3 text-md font-semibold text-text-secondary">{title}</p>
-      <p className={`mt-1 text-2xl font-semibold ${valueClassName}`}>{value}</p>
+      <p className={`mt-1 text-2xl font-semibold ${valueClassName}`}>
+        {safeValue}
+      </p>
       <p className="mt-1 text-xs text-text-muted">{suffix}</p>
     </article>
   );
@@ -342,7 +351,7 @@ export default function Dashboard() {
     {
       icon: CalendarDays,
       title: "Active Days",
-      value: metrics?.activeDays?.value ?? metrics?.activeDays ?? "N/A",
+      value: getDisplayValue(metrics?.activeDays?.value ?? metrics?.activeDays),
       delta: null,
       type: "none",
       suffix: "this month",
