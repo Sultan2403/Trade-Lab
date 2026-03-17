@@ -149,7 +149,7 @@ export default function TradesHistory() {
     });
 
     return filtered;
-  }, [data?.trades?.trades, directionFilter, search, sortBy, statusFilter]);
+  }, [data?.trades, directionFilter, search, sortBy, statusFilter]);
 
   return (
     <Paper

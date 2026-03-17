@@ -8,6 +8,7 @@ import {
   Scale,
   Target,
   TrendingUp,
+  ArrowRight,
 } from "lucide-react";
 import {
   CartesianGrid,
@@ -167,6 +168,7 @@ function EquityChart() {
 
   return (
     <div className="ui-card p-6">
+
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-3xl font-semibold">Equity Curve</h2>
         <div className="flex gap-2 text-xs">
@@ -352,7 +354,7 @@ export default function Dashboard() {
       {/* Overview Section */}
       <header>
         <h1 className="text-3xl font-semibold text-text-primary mb-4">
-          Overview
+          Performance Overview
         </h1>
       </header>
 
@@ -395,12 +397,14 @@ export default function Dashboard() {
           Recent Trades
         </h2>
         <Link
-          to="/trades" // or use your router Link if using React Router
-          className="text-sm font-medium text-brand-700 hover:underline"
+          to="/trades"
+          className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:underline"
         >
           View All Trades
+          <ArrowRight size={16} />
         </Link>
       </header>
+
       <TradesTable />
     </section>
   );
