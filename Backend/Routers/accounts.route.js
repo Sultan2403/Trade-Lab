@@ -16,8 +16,6 @@ const authMiddleware = require("../Middleware/auth.middleware");
 
 const router = express.Router();
 
-router.use(authMiddleware);
-
 router.post(
   "/",
   celebrate({ body: accountCreateSchema }),

@@ -17,8 +17,6 @@ const { uploadCSV, parseTrades } = require("../Middleware/csv.middleware");
 const { tradeIdParamsSchema } = require("../Schemas/trades.schema");
 const { accountIdSchema } = require("../Schemas/accounts.schema");
 
-router.use(authMiddleware);
-
 router.post("/", createTrade);
 
 router.get("/", celebrate({ query: accountIdSchema }), getTrades);
