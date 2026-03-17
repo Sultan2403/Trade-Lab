@@ -1,4 +1,4 @@
-import { createElement, useEffect, useMemo } from "react";
+import { createElement, useEffect, useState, useMemo } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -19,20 +19,24 @@ import {
   YAxis,
 } from "recharts";
 import useAccounts from "../../Hooks/useAccounts";
+import useAnalytics from "../../Hooks/useAnalytics";
 
 // Helpers
 const formatNumber = (value, options = {}) =>
   value != null ? Number(value).toLocaleString(undefined, options) : "N/A";
 
-const formatCurrency = (value) =>
-  value != null
-    ? new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency: "USD",
-        currencyDisplay: "symbol",
-        maximumFractionDigits: 0,
-      }).format(Number(value))
-    : "N/A";
+const formatCurrency = (value) => {
+  if (value != null) {
+    return `$${new Intl.NumberFormat(undefined, {
+      style: "decimal", // <--- currency style
+      currency: "USD",
+      currencyDisplay: "symbol",
+      maximumFractionDigits: 0,
+    }).format(Number(value))}`;
+  } else {
+    return "N/A";
+  }
+};
 
 const getSmartTrend = (rawValue, delta, type = "number") => {
   const val = Number(rawValue ?? 0);
@@ -107,6 +111,153 @@ function StatCard({
   );
 }
 
+function EquityChart() {
+  // Map labels to numeric values the API expects
+  const timeframeMap = {
+    "7D": 7,
+    "1M": 30,
+    "3M": 90,
+    "6M": 180,
+    "1Y": 365, // 0 could mean "all" depending on your API
+  };
+
+  const [activeTimeframe, setActiveTimeframe] = useState("7D");
+  const { data, loading, error, getEquityCurve } = useAnalytics();
+
+  // Fetch equity curve on timeframe change
+  useEffect(() => {
+    const tfNumber = timeframeMap[activeTimeframe];
+    getEquityCurve({ timeframe: tfNumber });
+  }, [activeTimeframe]);
+
+  const chartData = useMemo(() => {
+    if (!data?.data) return [];
+    return data.data.map((point) => ({
+      day: new Date(point.date).toLocaleTimeString(), // or .toLocaleDateString() if you prefer
+      Equity: point.equity,
+    }));
+  }, [data]);
+  //   const chartData = useMemo(() => {
+  //   if (!data?.data) return [];
+  //   return data.data.map((point) => {
+  //     const date = new Date(point.date);
+  //     // If timeframe > 1 month, show month/day, else show day
+  //     const formattedDate =
+  //       activeTimeframe === "1Y"
+  //         ? date.toLocaleDateString(undefined, { month: "short", year: "numeric" })
+  //         : date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  //     return {
+  //       day: formattedDate,
+  //       Equity: point.equity,
+  //     };
+  //   });
+  // }, [data, activeTimeframe]);
+
+  const timeframes = Object.keys(timeframeMap);
+
+  return (
+    <div className="ui-card p-6">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-3xl font-semibold">Equity Curve</h2>
+        <div className="flex gap-2 text-xs">
+          {timeframes.map((tf) => (
+            <button
+              key={tf}
+              type="button"
+              disabled={loading}
+              className={`rounded-md border px-3 py-1.5 ${
+                activeTimeframe === tf
+                  ? "border-brand-800 bg-brand-800 text-text-inverse"
+                  : "border-border bg-surface-card text-text-secondary"
+              }`}
+              onClick={() => setActiveTimeframe(tf)}
+            >
+              {tf}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="h-[360px] flex items-center justify-center">
+        {loading && <span className="text-text-secondary">Loading chart…</span>}
+        {error && (
+          <span className="text-state-danger">Failed to load chart.</span>
+        )}
+        {!loading && !error && chartData.length > 0 && (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={chartData}
+              margin={{ top: 20, right: 40, left: 0, bottom: 20 }}
+            >
+              {/* Define gradient */}
+              <defs>
+                <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#15616D" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#15616D" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+
+              {/* Grid */}
+              <CartesianGrid
+                stroke="#E8ECEF"
+                strokeDasharray="4 4"
+                vertical={false}
+              />
+
+              {/* X Axis */}
+              <XAxis
+                dataKey="day"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "#6B7280", fontSize: 12 }}
+                padding={{ left: 10, right: 10 }}
+              />
+
+              {/* Y Axis */}
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "#6B7280", fontSize: 12 }}
+                tickFormatter={(value) => `$${formatNumber(value)}`}
+                width={80}
+              />
+
+              {/* Tooltip */}
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #E5E7EB",
+                  borderRadius: 8,
+                  padding: "8px 12px",
+                }}
+                labelStyle={{ color: "#374151", fontWeight: 600 }}
+                formatter={(value) => formatCurrency(value)}
+              />
+
+              {/* Gradient area below line */}
+              <Line
+                type="monotone"
+                dataKey="Equity"
+                stroke="#15616D"
+                strokeWidth={3}
+                dot={{ r: 3, fill: "#15616D" }}
+                activeDot={{ r: 6, fill: "#15616D", strokeWidth: 2 }}
+                fill="url(#equityGradient)"
+                isAnimationActive={true}
+                animationDuration={800}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+        {!loading && !error && chartData.length === 0 && (
+          <span className="text-text-secondary">
+            No data available for this timeframe.
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
 // Main Dashboard
 export default function Dashboard() {
   const { data, loading, error, getAccountProfile } = useAccounts();
@@ -220,55 +371,7 @@ export default function Dashboard() {
       </div>
 
       <article className="ui-card p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-3xl font-semibold">Equity Curve</h2>
-          <div className="flex gap-2 text-xs">
-            {[
-              { label: "7D", active: true },
-              { label: "1M" },
-              { label: "3M" },
-              { label: "6M" },
-              { label: "1Y" },
-              { label: "All" },
-            ].map(({ label, active }) => (
-              <button
-                type="button"
-                key={label}
-                className={`rounded-md border px-3 py-1.5 ${
-                  active
-                    ? "border-brand-800 bg-brand-800 text-text-inverse"
-                    : "border-border bg-surface-card text-text-secondary"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="h-[360px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
-              <CartesianGrid stroke="#E8ECEF" vertical={false} />
-              <XAxis dataKey="day" tickLine={false} axisLine={false} />
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => `$${formatNumber(value)}`}
-                width={88}
-              />
-              <Tooltip formatter={(value) => formatCurrency(value)} />
-              <Line
-                type="monotone"
-                dataKey="equity"
-                stroke="#15616D"
-                strokeWidth={2.5}
-                dot={{ r: 3 }}
-                activeDot={{ r: 5 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        <EquityChart />
       </article>
     </section>
   );
