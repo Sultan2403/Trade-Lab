@@ -19,6 +19,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { Link } from "react-router-dom";
 import useAccounts from "../../Hooks/useAccounts";
 import useAnalytics from "../../Hooks/useAnalytics";
 import { TradesTable } from "../Others/Trades/tradesHistory";
@@ -140,15 +141,21 @@ function EquityChart() {
   //   }));
   // }, [data]);
   // console.log(chartData)
-    const chartData = useMemo(() => {
+  const chartData = useMemo(() => {
     if (!data?.data) return [];
     return data.data.map((point) => {
       const date = new Date(point.date);
       // If timeframe > 1 month, show month/day, else show day
       const formattedDate =
         activeTimeframe === "1Y"
-          ? date.toLocaleDateString(undefined, { month: "short", year: "numeric" })
-          : date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+          ? date.toLocaleDateString(undefined, {
+              month: "short",
+              year: "numeric",
+            })
+          : date.toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric",
+            });
       return {
         day: formattedDate,
         Equity: point.equity,
@@ -291,7 +298,7 @@ export default function Dashboard() {
         metrics?.winRate?.value != null
           ? `${metrics.winRate.value.toFixed(1)}%`
           : "N/A",
-      delta: metrics?.winRate?.value, // fallback numeric for delta
+      delta: metrics?.winRate?.value,
       type: "percent",
     },
     {
@@ -301,7 +308,7 @@ export default function Dashboard() {
         metrics?.netPnL?.value != null
           ? formatCurrency(metrics.netPnL.value)
           : "N/A",
-      delta: metrics?.netPnL?.value, // fallback numeric for delta
+      delta: metrics?.netPnL?.value,
       type: "currency",
       valueClassName:
         Number(metrics?.netPnL?.value ?? 0) > 0
@@ -328,41 +335,73 @@ export default function Dashboard() {
           ? Number(metrics.avgRR.value).toFixed(2)
           : "N/A",
       delta: metrics?.avgRR?.value,
-      type: metrics?.avgRR?.value != null ? "ratio" : "none", // no delta if null
+      type: metrics?.avgRR?.value != null ? "ratio" : "none",
     },
     {
       icon: CalendarDays,
       title: "Active Days",
       value: metrics?.activeDays?.value ?? metrics?.activeDays ?? "N/A",
       delta: null,
-      type: "none", // no delta
+      type: "none",
       suffix: "this month",
     },
   ].filter(Boolean);
 
   return (
     <section className="space-y-8">
-      {loading && (
-        <div className="ui-card p-4 text-caption text-text-secondary">
-          Loading dashboard metrics...
-        </div>
-      )}
-      {error && (
-        <div className="ui-card border-state-danger/40 p-4 text-caption text-state-danger">
-          We couldn't load your dashboard metrics right now.
-        </div>
-      )}
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {cards.map((card) => (
-          <StatCard key={card.title} {...card} />
-        ))}
-      </div>
+      {/* Overview Section */}
+      <header>
+        <h1 className="text-3xl font-semibold text-text-primary mb-4">
+          Overview
+        </h1>
+      </header>
 
+      {loading && (
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: cards.length }).map((_, i) => (
+            <div
+              key={i}
+              className="ui-card p-4 animate-pulse bg-surface-card h-32"
+            >
+              <div className="h-6 bg-gray-200 rounded mb-2 w-3/4" />
+              <div className="h-10 bg-gray-200 rounded w-full" />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!loading && error && (
+        <div className="ui-card border-state-danger/40 p-4 text-caption text-state-danger">
+          Failed to load metrics.
+        </div>
+      )}
+
+      {!loading && !error && (
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {cards.map((card) => (
+            <StatCard key={card.title} {...card} />
+          ))}
+        </div>
+      )}
+
+      {/* Equity Curve Section */}
       <article className="ui-card p-6">
         <EquityChart />
       </article>
 
-      <TradesTable/>
+      {/* Recent Trades Section */}
+      <header className="flex items-center justify-between mt-8 mb-4">
+        <h2 className="text-2xl font-semibold text-text-primary">
+          Recent Trades
+        </h2>
+        <Link
+          to="/trades" // or use your router Link if using React Router
+          className="text-sm font-medium text-brand-700 hover:underline"
+        >
+          View All Trades
+        </Link>
+      </header>
+      <TradesTable />
     </section>
   );
 }

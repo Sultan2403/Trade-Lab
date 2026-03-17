@@ -100,7 +100,7 @@ export default function TradesHistory() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, limit]);
 
-  const pagination = data?.trades?.pagination;
+  const pagination = data?.pagination;
 
   const rows = useMemo(() => {
     const list = data?.trades ?? [];
