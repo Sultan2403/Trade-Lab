@@ -274,25 +274,6 @@ export default function Dashboard() {
   }, []);
 
   const metrics = data?.tradesMetrics ?? {};
-  const account = data?.account ?? {};
-
-  // Mock chart data for Equity curve
-  const chartData = useMemo(() => {
-    const startBalance = Number(account?.starting_balance ?? 25000);
-    const endBalance = startBalance + Number(metrics?.netPnL?.value ?? 0);
-
-    return Array.from({ length: 7 }, (_, index) => {
-      const ratio = index / 6;
-      const base = startBalance + (endBalance - startBalance) * ratio;
-      const volatility =
-        Math.sin(index * 1.2) *
-        (Math.abs(endBalance - startBalance) * 0.08 + 120);
-      return {
-        day: `Jan ${index + 1}`,
-        Equity: Math.max(0, Math.round(base + volatility)),
-      };
-    });
-  }, [account?.starting_balance, metrics?.netPnL?.value]);
 
   // Cards array
   const cards = [

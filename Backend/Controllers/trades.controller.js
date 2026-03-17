@@ -26,7 +26,7 @@ const getTrades = async (req, res) => {
       limit,
     });
 
-    res.json({ success: true, trades });
+    res.json({ success: true, ...trades });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });

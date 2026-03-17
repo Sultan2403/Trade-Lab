@@ -103,7 +103,7 @@ export default function TradesHistory() {
   const pagination = data?.trades?.pagination;
 
   const rows = useMemo(() => {
-    const list = data?.trades?.trades ?? [];
+    const list = data?.trades ?? [];
 
     const filtered = list
       .filter((trade) => {
@@ -478,7 +478,7 @@ export function TradesTable() {
   useEffect(() => {
     if (!data) return;
     console.log(data)
-    setRows(data?.trades?.trades);
+    setRows(data?.trades);
   }, [data]);
   return (
     <Paper  
