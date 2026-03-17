@@ -26,6 +26,8 @@ export default function useAnalytics() {
   const methods = {
     getEquityCurve: (payload) =>
       execute(() => analyticsApi.getEquityCurve(payload)),
+
+    getAllMetrics: () => execute(() => analyticsApi.getAllMetrics()),
   };
 
   return { data, loading, error, ...methods };

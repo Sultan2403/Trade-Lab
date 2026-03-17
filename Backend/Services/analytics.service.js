@@ -1,5 +1,6 @@
-const Account = require("../DB/Models/accounts.model")
-const Trades = require("../DB/Models/trades.model")
+const Account = require("../DB/Models/accounts.model");
+const Trades = require("../DB/Models/trades.model");
+const mongoose = require("mongoose");
 
 const getEquityCurve = async ({ accountId, timeframe = 30 }) => {
   // Fetch the account
@@ -48,4 +49,210 @@ const getEquityCurve = async ({ accountId, timeframe = 30 }) => {
   return equitySnapshots;
 };
 
-module.exports = { getEquityCurve };
+async function computeAnalytics(accountId) {
+  if (!accountId) throw new Error("accountId is required");
+
+  const now = new Date();
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(now.getMonth() - 6);
+
+  const accountObjectId = new mongoose.Types.ObjectId(accountId);
+
+  const matchStage = {
+    $match: {
+      accountId: accountObjectId,
+      status: "Closed",
+      outcome: { $in: ["Win", "Loss", "Breakeven"] },
+      closedAt: { $ne: null },
+    },
+  };
+
+  // 1️⃣ Trades Outcomes
+  const tradeOutcomesAgg = await Trades.aggregate([
+    matchStage,
+    {
+      $group: {
+        _id: "$outcome",
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const tradeOutcomes = tradeOutcomesAgg.reduce(
+    (acc, cur) => {
+      acc[cur._id] = cur.count;
+      return acc;
+    },
+    { win: 0, loss: 0, breakEven: 0 },
+  );
+
+  // 2️⃣ Monthly Performance
+  const monthlyPerformanceAgg = await Trades.aggregate([
+    matchStage,
+    { $match: { closedAt: { $gte: sixMonthsAgo } } },
+    {
+      $group: {
+        _id: {
+          year: { $year: "$closedAt" },
+          month: { $month: "$closedAt" },
+        },
+        netPnL: { $sum: "$pnl" },
+      },
+    },
+    { $sort: { "_id.year": 1, "_id.month": 1 } },
+  ]);
+
+  const monthlyPerformance = monthlyPerformanceAgg.map((m) => ({
+    month: `${m._id.year}-${String(m._id.month).padStart(2, "0")}`,
+    netPnL: m.netPnL,
+  }));
+
+  // 3️⃣ Performance by Instrument
+  const performanceByInstrumentAgg = await Trades.aggregate([
+    matchStage,
+    {
+      $group: {
+        _id: "$pair",
+        trades: { $sum: 1 },
+        win: {
+          $sum: { $cond: [{ $eq: ["$outcome", "Win"] }, 1, 0] },
+        },
+        netPnL: { $sum: "$pnl" },
+        avgPnL: { $avg: "$pnl" },
+      },
+    },
+    { $sort: { trades: -1 } },
+    { $limit: 5 },
+  ]);
+
+  const performanceByInstrument = performanceByInstrumentAgg.map((i) => ({
+    symbol: i._id,
+    trades: i.trades,
+    winRate: i.trades ? Math.round((i.win / i.trades) * 100) : 0,
+    netPnL: i.netPnL,
+    avgPnL: i.avgPnL,
+  }));
+
+  // 4️⃣ P&L Distribution
+  const allPnL = await Trades.find(
+    { accountId: accountObjectId },
+    { pnl: 1, _id: 0 },
+  );
+
+  const plMap = {};
+  allPnL.forEach(({ pnl }) => {
+    const base = Math.floor(pnl / 100) * 100;
+    const bin = `${base}-${base + 99}`;
+    plMap[bin] = (plMap[bin] || 0) + 1;
+  });
+
+  const plDistribution = Object.entries(plMap).map(([bin, count]) => ({
+    bin,
+    count,
+  }));
+
+  // 5️⃣ Risk Multiple Distribution
+  const riskData = await Trades.aggregate([
+    matchStage,
+    {
+      $project: {
+        riskMultiple: {
+          $cond: [
+            { $eq: ["$riskPercent", 0] },
+            0,
+            { $divide: ["$pnl", "$riskPercent"] },
+          ],
+        },
+      },
+    },
+  ]);
+
+  const riskMap = {};
+  riskData.forEach(({ riskMultiple }) => {
+    const base = Math.floor(riskMultiple * 2) / 2;
+    const bin = `${base}-${(base + 0.5).toFixed(1)}`;
+    riskMap[bin] = (riskMap[bin] || 0) + 1;
+  });
+
+  const riskMultipleDistribution = Object.entries(riskMap).map(
+    ([bin, count]) => ({ bin, count }),
+  );
+
+  // 6️⃣ Win/Loss by Day
+  const winLossByDayAgg = await Trades.aggregate([
+    matchStage,
+    {
+      $project: {
+        day: { $dayOfWeek: "$closedAt" },
+        outcome: 1,
+      },
+    },
+    {
+      $group: {
+        _id: "$day",
+        win: {
+          $sum: { $cond: [{ $eq: ["$outcome", "Win"] }, 1, 0] },
+        },
+        loss: {
+          $sum: { $cond: [{ $eq: ["$outcome", "Loss"] }, 1, 0] },
+        },
+      },
+    },
+  ]);
+
+  const days = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+
+  const winLossByDay = winLossByDayAgg.map((d) => ({
+    day: days[d._id - 1],
+    win: d.win,
+    loss: d.loss,
+  }));
+
+  // 7️⃣ Win/Loss by Hour
+  const winLossByHourAgg = await Trades.aggregate([
+    matchStage,
+    {
+      $project: {
+        hour: { $hour: "$closedAt" },
+        outcome: 1,
+      },
+    },
+    {
+      $group: {
+        _id: "$hour",
+        win: {
+          $sum: { $cond: [{ $eq: ["$outcome", "Win"] }, 1, 0] },
+        },
+        loss: {
+          $sum: { $cond: [{ $eq: ["$outcome", "Loss"] }, 1, 0] },
+        },
+      },
+    },
+  ]);
+
+  const winLossByHour = winLossByHourAgg.map((h) => ({
+    hour: h._id,
+    win: h.win,
+    loss: h.loss,
+  }));
+
+  return {
+    tradeOutcomes,
+    monthlyPerformance,
+    performanceByInstrument,
+    plDistribution,
+    riskMultipleDistribution,
+    winLossByDay,
+    winLossByHour,
+  };
+}
+
+module.exports = { getEquityCurve, computeAnalytics };

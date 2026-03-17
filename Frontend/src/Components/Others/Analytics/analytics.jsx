@@ -259,10 +259,13 @@ function ChartPlaceholder({ title, subtitle }) {
 }
 
 export default function AnalyticsPage() {
-  const { data, loading, error, getAccountProfile } = useAccounts();
+  const { data, loading, error, getAccountProfile,  } = useAccounts();
+
+  const {getAllMetrics} = useAnalytics()
 
   useEffect(() => {
     getAccountProfile();
+    getAllMetrics()
   }, []);
 
   const metrics = data?.tradesMetrics ?? {};
