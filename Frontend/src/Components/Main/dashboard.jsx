@@ -21,6 +21,7 @@ import {
 } from "recharts";
 import useAccounts from "../../Hooks/useAccounts";
 import useAnalytics from "../../Hooks/useAnalytics";
+import { TradesTable } from "../Others/Trades/tradesHistory";
 
 // Helpers
 const formatNumber = (value, options = {}) =>
@@ -379,6 +380,8 @@ export default function Dashboard() {
       <article className="ui-card p-6">
         <EquityChart />
       </article>
+
+      <TradesTable/>
     </section>
   );
 }

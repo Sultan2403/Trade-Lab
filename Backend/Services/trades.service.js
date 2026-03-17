@@ -127,6 +127,7 @@ async function processAndUploadTrades({ accountId, trades }) {
       riskPercent,
       riskToReward,
       status: "Closed",
+      outcome: trade.pnl > 0 ? "Win" : trade.pnl < 0 ? "Loss" : "Breakeven"
     };
   });
 
