@@ -85,11 +85,21 @@ const EMPTY_ANALYTICS_RESPONSE = {
   winLossByHour: [],
 };
 
-const normalizeTradeOutcomes = (tradeOutcomes = {}) => ({
-  win: Number(tradeOutcomes.win ?? tradeOutcomes.Win ?? 0),
-  loss: Number(tradeOutcomes.loss ?? tradeOutcomes.Loss ?? 0),
-  breakEven: Number(tradeOutcomes.breakEven ?? tradeOutcomes.BreakEven ?? 0),
-});
+const normalizeTradeOutcomes = (tradeOutcomes = {}) => {
+  return {
+    win:
+      Number(tradeOutcomes.win ?? 0) +
+      Number(tradeOutcomes.Win ?? 0),
+
+    loss:
+      Number(tradeOutcomes.loss ?? 0) +
+      Number(tradeOutcomes.Loss ?? 0),
+
+    breakEven:
+      Number(tradeOutcomes.breakEven ?? 0) +
+      Number(tradeOutcomes.BreakEven ?? 0),
+  };
+};
 
 const getAllMetricsPayload = (response) => {
   if (!response) return EMPTY_ANALYTICS_RESPONSE;
