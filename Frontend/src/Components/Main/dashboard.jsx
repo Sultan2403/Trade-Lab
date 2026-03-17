@@ -9,6 +9,7 @@ import {
   Target,
   TrendingUp,
   ArrowRight,
+  Plus,
 } from "lucide-react";
 import {
   CartesianGrid,
@@ -20,7 +21,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import AddTradeMethodModal from "../UI/Trades/addTradeMethodModal";
 import useAccounts from "../../Hooks/useAccounts";
 import useAnalytics from "../../Hooks/useAnalytics";
 import { TradesTable } from "../Others/Trades/tradesHistory";
@@ -41,6 +43,64 @@ const formatCurrency = (value) => {
     return "N/A";
   }
 };
+
+const getDisplayValue = (value, fallback = "N/A") => {
+  if (value == null) return fallback;
+  if (["string", "number"].includes(typeof value)) return value;
+  return fallback;
+};
+
+
+const getTradeCount = (metrics = {}) => {
+  const totalTrades = metrics?.totalTrades?.value ?? metrics?.totalTrades ?? 0;
+  const parsed = Number(totalTrades);
+
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+function EmptyTradesState() {
+  const navigate = useNavigate();
+  const [isMethodModalOpen, setIsMethodModalOpen] = useState(false);
+
+  const handleMethodSelect = (method) => {
+    if (method === "broker") return;
+
+    setIsMethodModalOpen(false);
+
+    if (method === "manual") {
+      navigate("/add-trade");
+      return;
+    }
+
+    navigate("/import-trades");
+  };
+
+  return (
+    <>
+      <article className="ui-card p-8 text-center">
+        <p className="text-lg font-medium text-text-primary">
+          You have no trades, add or import them to get started.
+        </p>
+        <button
+          type="button"
+          onClick={() => setIsMethodModalOpen(true)}
+          className="mt-4 inline-flex items-center gap-2 rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-text-inverse hover:bg-brand-700/90"
+          aria-haspopup="dialog"
+          aria-label="Add a trade"
+        >
+          <Plus size={16} />
+          Add Trade
+        </button>
+      </article>
+
+      <AddTradeMethodModal
+        isOpen={isMethodModalOpen}
+        onClose={() => setIsMethodModalOpen(false)}
+        onSelectMethod={handleMethodSelect}
+      />
+    </>
+  );
+}
 
 const getSmartTrend = (rawValue, delta, type = "number") => {
   const val = Number(rawValue ?? 0);
@@ -92,6 +152,7 @@ function StatCard({
   valueClassName = "text-text-primary",
 }) {
   const trend = getSmartTrend(value, delta, type);
+  const safeValue = getDisplayValue(value);
 
   return (
     <article className="ui-card p-4">
@@ -109,7 +170,9 @@ function StatCard({
         )}
       </div>
       <p className="mt-3 text-md font-semibold text-text-secondary">{title}</p>
-      <p className={`mt-1 text-2xl font-semibold ${valueClassName}`}>{value}</p>
+      <p className={`mt-1 text-2xl font-semibold ${valueClassName}`}>
+        {safeValue}
+      </p>
       <p className="mt-1 text-xs text-text-muted">{suffix}</p>
     </article>
   );
@@ -283,6 +346,7 @@ export default function Dashboard() {
   }, []);
 
   const metrics = data?.tradesMetrics ?? {};
+  const hasTrades = getTradeCount(metrics) > 0;
 
   // Cards array
   const cards = [
@@ -342,7 +406,7 @@ export default function Dashboard() {
     {
       icon: CalendarDays,
       title: "Active Days",
-      value: metrics?.activeDays?.value ?? metrics?.activeDays ?? "N/A",
+      value: getDisplayValue(metrics?.activeDays?.value ?? metrics?.activeDays),
       delta: null,
       type: "none",
       suffix: "this month",
@@ -378,34 +442,38 @@ export default function Dashboard() {
         </div>
       )}
 
-      {!loading && !error && (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {cards.map((card) => (
-            <StatCard key={card.title} {...card} />
-          ))}
-        </div>
+      {!loading && !error && !hasTrades && <EmptyTradesState />}
+
+      {!loading && !error && hasTrades && (
+        <>
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {cards.map((card) => (
+              <StatCard key={card.title} {...card} />
+            ))}
+          </div>
+
+          {/* Equity Curve Section */}
+          <article className="ui-card p-6">
+            <EquityChart />
+          </article>
+
+          {/* Recent Trades Section */}
+          <header className="flex items-center justify-between mt-8 mb-4">
+            <h2 className="text-2xl font-semibold text-text-primary">
+              Recent Trades
+            </h2>
+            <Link
+              to="/trades"
+              className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:underline"
+            >
+              View All Trades
+              <ArrowRight size={16} />
+            </Link>
+          </header>
+
+          <TradesTable />
+        </>
       )}
-
-      {/* Equity Curve Section */}
-      <article className="ui-card p-6">
-        <EquityChart />
-      </article>
-
-      {/* Recent Trades Section */}
-      <header className="flex items-center justify-between mt-8 mb-4">
-        <h2 className="text-2xl font-semibold text-text-primary">
-          Recent Trades
-        </h2>
-        <Link
-          to="/trades"
-          className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:underline"
-        >
-          View All Trades
-          <ArrowRight size={16} />
-        </Link>
-      </header>
-
-      <TradesTable />
     </section>
   );
 }
