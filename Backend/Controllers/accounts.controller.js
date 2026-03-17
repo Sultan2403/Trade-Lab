@@ -27,11 +27,13 @@ const createAccountController = async (req, res) => {
 const getAccountProfileController = async (req, res) => {
   try {
     const { accountId } = req.params;
+    const { timeframe } = req.query;
     const userId = req.user.id;
 
     const { account, tradesMetrics } = await getAccountProfile({
       accountId,
       userId,
+      timeframe,
     });
 
     res.json({

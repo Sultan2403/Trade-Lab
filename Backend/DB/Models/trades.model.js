@@ -116,6 +116,14 @@ const tradeSchema = new mongoose.Schema(
       default: null,
     },
 
+    outcome: {
+      type: String,
+      enum: ["Win", "Loss", "Breakeven"],
+      required: function () {
+        return this.status === "Closed";
+      },
+    },
+
     metadata: {
       swap: { type: Number, default: null },
       commission: { type: Number, default: null },

@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Alert,
-  Chip,
   CircularProgress,
   FormControl,
-  InputAdornment,
   InputLabel,
   MenuItem,
   Pagination,
@@ -23,6 +21,7 @@ import {
 import { ArrowDown, ArrowUp, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useTrades from "../../../Hooks/useTrades";
+import UIInput from "../../UI/Common/input";
 
 const sortOptions = [
   { value: "openedAt-desc", label: "Date (Newest)" },
@@ -66,8 +65,8 @@ const calcPnl = (trade) => {
 };
 
 const calcRMultiple = (trade, pnl) => {
-  if (trade.rMultiple !== undefined && trade.rMultiple !== null)
-    return Number(trade.rMultiple);
+  if (trade.riskToReward !== undefined && trade.riskToReward !== null)
+    return Number(trade.riskToReward);
 
   const riskPerUnit = Math.abs(
     Number(trade.entry_price) - Number(trade.stopLoss),
@@ -83,14 +82,6 @@ const calcRMultiple = (trade, pnl) => {
     return null;
 
   return pnl / riskAmount;
-};
-
-const getOutcome = (trade, pnl) => {
-  if (trade.status === "Open") return "Open";
-  if (pnl === null || Number.isNaN(pnl)) return "Closed";
-  if (pnl > 0) return "Win";
-  if (pnl < 0) return "Loss";
-  return "Breakeven";
 };
 
 export default function TradesHistory() {
@@ -109,10 +100,10 @@ export default function TradesHistory() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, limit]);
 
-  const pagination = data?.trades?.pagination;
+  const pagination = data?.pagination;
 
   const rows = useMemo(() => {
-    const list = data?.trades?.trades ?? [];
+    const list = data?.trades ?? [];
 
     const filtered = list
       .filter((trade) => {
@@ -131,13 +122,12 @@ export default function TradesHistory() {
       })
       .map((trade) => {
         const pnl = calcPnl(trade);
-        const rMultiple = calcRMultiple(trade, pnl);
+        const riskToReward = calcRMultiple(trade, pnl);
 
         return {
           ...trade,
           pnl,
-          rMultiple,
-          outcome: getOutcome(trade, pnl),
+          riskToReward,
         };
       });
 
@@ -159,7 +149,7 @@ export default function TradesHistory() {
     });
 
     return filtered;
-  }, [data?.trades?.trades, directionFilter, search, sortBy, statusFilter]);
+  }, [data?.trades, directionFilter, search, sortBy, statusFilter]);
 
   return (
     <Paper
@@ -167,70 +157,87 @@ export default function TradesHistory() {
       elevation={0}
     >
       <Stack spacing={3}>
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-          <TextField
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search by instrument or notes..."
-            fullWidth
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search size={16} />
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
+        <Stack spacing={2}>
+          {/* Optional subtle header */}
+          <Typography fontSize="1.6rem" fontWeight={500} color="text.primary">
+            Trades Overview
+          </Typography>
 
-          <FormControl sx={{ minWidth: 180 }}>
-            <InputLabel id="sort-select">Sort By</InputLabel>
-            <Select
-              labelId="sort-select"
-              label="Sort By"
-              value={sortBy}
-              onChange={(event) => setSortBy(event.target.value)}
-            >
-              {sortOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          {/* Control bar */}
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            justifyContent="space-between"
+            alignItems="center"
+            spacing={2}
+            flexWrap="wrap"
+          >
+            {/* Left: Search */}
+            <UIInput
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search trades by pair"
+              startIcon={<Search size={16} />}
+              sx={{
+                maxWidth: 280,
+                borderRadius: "8px", // less rounded
+                flex: 1, // grow to fill left side
+              }}
+            />
 
-          <FormControl sx={{ minWidth: 140 }}>
-            <InputLabel id="status-select">Status</InputLabel>
-            <Select
-              labelId="status-select"
-              label="Status"
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-            >
-              {statusOptions.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
+            {/* Right: Filters */}
+            <Stack direction="row" spacing={1.5} flexWrap="wrap">
+              {[
+                {
+                  value: sortBy,
+                  onChange: setSortBy,
+                  options: sortOptions,
+                  getLabel: (o) => o.label,
+                  getValue: (o) => o.value,
+                },
+                {
+                  value: statusFilter,
+                  onChange: setStatusFilter,
+                  options: statusOptions,
+                  getLabel: (o) => o,
+                  getValue: (o) => o,
+                },
+                {
+                  value: directionFilter,
+                  onChange: setDirectionFilter,
+                  options: directionOptions,
+                  getLabel: (o) => o,
+                  getValue: (o) => o,
+                },
+              ].map((filter, i) => (
+                <TextField
+                  key={i}
+                  select
+                  value={filter.value}
+                  onChange={(e) => filter.onChange(e.target.value)}
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    minWidth: 140,
+                    borderRadius: "8px", // slightly rounded
+                    "& .MuiOutlinedInput-root": {
+                      fontSize: "0.85rem",
+                      backgroundColor: "#fff",
+                    },
+                  }}
+                >
+                  {filter.options.map((opt) => (
+                    <MenuItem
+                      key={filter.getValue(opt)}
+                      value={filter.getValue(opt)}
+                      sx={{ fontSize: "0.85rem" }}
+                    >
+                      {filter.getLabel(opt)}
+                    </MenuItem>
+                  ))}
+                </TextField>
               ))}
-            </Select>
-          </FormControl>
-
-          <FormControl sx={{ minWidth: 150 }}>
-            <InputLabel id="direction-select">Direction</InputLabel>
-            <Select
-              labelId="direction-select"
-              label="Direction"
-              value={directionFilter}
-              onChange={(event) => setDirectionFilter(event.target.value)}
-            >
-              {directionOptions.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+            </Stack>
+          </Stack>
         </Stack>
 
         {error && (
@@ -239,14 +246,34 @@ export default function TradesHistory() {
 
         <TableContainer
           sx={{
-            border: "1px solid",
-            borderColor: "#D0D5DD",
-            borderRadius: "12px",
+            border: "1px solid #E5E7EB",
+            borderRadius: 2,
           }}
         >
-          <Table>
+          <Table
+            sx={{
+              "& th": {
+                fontSize: 14,
+                fontWeight: 500,
+                color: "#374151",
+                backgroundColor: "#F9FAFB",
+                letterSpacing: "0.02em",
+              },
+              "& td": {
+                fontSize: 13.5,
+                color: "#111827",
+              },
+            }}
+          >
             <TableHead>
-              <TableRow sx={{ backgroundColor: "#F3F4F6" }}>
+              <TableRow
+                sx={{
+                  "&:hover": {
+                    backgroundColor: "#FAFAFA",
+                    boxShadow: "inset 0 0 0 1px #F1F5F9",
+                  },
+                }}
+              >
                 {[
                   "Date",
                   "Instrument",
@@ -258,23 +285,29 @@ export default function TradesHistory() {
                   "R-Multiple",
                   "Outcome",
                 ].map((head) => (
-                  <TableCell key={head} sx={{ fontWeight: 700 }}>
-                    {head}
-                  </TableCell>
+                  <TableCell key={head}>{head}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
+
             <TableBody>
               {loading ? (
-                <TableRow>
-                  <TableCell colSpan={9} align="center" sx={{ py: 8 }}>
-                    <CircularProgress size={24} />
+                <TableRow
+                  sx={{
+                    "&:hover": {
+                      backgroundColor: "#FAFAFA",
+                      boxShadow: "inset 0 0 0 1px #F1F5F9",
+                    },
+                  }}
+                >
+                  <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
+                    <CircularProgress size={20} />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} align="center" sx={{ py: 8 }}>
-                    <Typography color="text.secondary">
+                  <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
+                    <Typography color="text.secondary" fontSize={14}>
                       No trades found for selected filters.
                     </Typography>
                   </TableCell>
@@ -285,12 +318,21 @@ export default function TradesHistory() {
                     key={trade.id}
                     hover
                     onClick={() => navigate(`/trades/${trade.id}`)}
-                    sx={{ cursor: "pointer" }}
+                    sx={{
+                      cursor: "pointer",
+                      "&:hover": {
+                        backgroundColor: "#FAFAFA",
+                        boxShadow: "inset 0 0 0 1px #F1F5F9",
+                      },
+                    }}
                   >
                     <TableCell>{formatDate(trade.openedAt)}</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>{trade.pair}</TableCell>
+
+                    {/* 👇 toned down (no heavy bold) */}
+                    <TableCell sx={{ fontWeight: 500 }}>{trade.pair}</TableCell>
+
                     <TableCell>
-                      <span className="inline-flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 text-gray-700">
                         {trade.direction === "Long" ? (
                           <ArrowUp size={14} className="text-green-600" />
                         ) : (
@@ -299,45 +341,78 @@ export default function TradesHistory() {
                         {trade.direction}
                       </span>
                     </TableCell>
-                    <TableCell>{formatPrice(trade.entry_price)}</TableCell>
-                    <TableCell>{formatPrice(trade.exit_price)}</TableCell>
-                    <TableCell>{trade.size ?? "--"}</TableCell>
-                    <TableCell
-                      sx={{
-                        color:
-                          trade.pnl === null
-                            ? "text.secondary"
-                            : trade.pnl >= 0
-                              ? "#067647"
-                              : "#B42318",
-                        fontWeight: trade.pnl === null ? 400 : 700,
-                      }}
-                    >
-                      {trade.pnl === null ? "--" : formatPrice(trade.pnl)}
+
+                    <TableCell align="right">
+                      {formatPrice(trade.entry_price)}
                     </TableCell>
+                    <TableCell align="right">
+                      {formatPrice(trade.exit_price)}
+                    </TableCell>
+                    <TableCell align="right">
+                      {trade.size ? `${trade.size} Lots` : "--"}
+                    </TableCell>
+
+                    {/* 👇 PnL = ONLY thing that pops */}
                     <TableCell>
-                      {trade.rMultiple === null
+                      {trade.pnl === null ? (
+                        "--"
+                      ) : (
+                        <span
+                          style={{
+                            fontWeight: 500,
+                            color: trade.pnl >= 0 ? "#16A34A" : "#DC2626",
+                          }}
+                        >
+                          {formatPrice(trade.pnl)}
+                        </span>
+                      )}
+                    </TableCell>
+
+                    <TableCell>
+                      {trade.riskToReward === null
                         ? "--"
-                        : trade.rMultiple.toFixed(2)}
+                        : trade.riskToReward.toFixed(2)}
                     </TableCell>
+
                     <TableCell>
-                      <Chip
-                        size="small"
-                        label={trade.outcome}
-                        color={
-                          trade.outcome === "Win"
-                            ? "success"
-                            : trade.outcome === "Loss"
-                              ? "error"
-                              : "default"
-                        }
-                        variant={
-                          trade.outcome === "Open" ||
-                          trade.outcome === "Breakeven"
-                            ? "outlined"
-                            : "filled"
-                        }
-                      />
+                      {(() => {
+                        const styles = {
+                          Win: {
+                            bg: "#ECFDF3",
+                            color: "#027A48",
+                          },
+                          Loss: {
+                            bg: "#FEF3F2",
+                            color: "#B42318",
+                          },
+                          Breakeven: {
+                            bg: "#F2F4F7",
+                            color: "#344054",
+                          },
+                          Open: {
+                            bg: "#FFFAEB",
+                            color: "#B54708",
+                          },
+                        };
+
+                        const s = styles[trade.outcome] || styles.Breakeven;
+
+                        return (
+                          <span
+                            style={{
+                              backgroundColor: s.bg,
+                              color: s.color,
+                              fontSize: 12,
+                              fontWeight: 500,
+                              padding: "4px 10px",
+                              borderRadius: 999,
+                              display: "inline-block",
+                            }}
+                          >
+                            {trade.outcome}
+                          </span>
+                        );
+                      })()}
                     </TableCell>
                   </TableRow>
                 ))
@@ -388,6 +463,208 @@ export default function TradesHistory() {
           </Stack>
         </Stack>
       </Stack>
+    </Paper>
+  );
+}
+
+export function TradesTable() {
+  const [rows, setRows] = useState([]);
+  const { data, error, loading, getTrades } = useTrades();
+
+  useEffect(() => {
+    getTrades();
+  }, []);
+
+  useEffect(() => {
+    if (!data) return;
+    console.log(data)
+    setRows(data?.trades);
+  }, [data]);
+  return (
+    <Paper  
+      className="rounded-panel border border-border bg-surface-card p-6"
+      elevation={0}
+    >
+      {error && (
+        <Alert severity="error">Unable to load trades right now.</Alert>
+      )}
+
+      <TableContainer
+        sx={{
+          border: "1px solid #E5E7EB",
+          borderRadius: 2,
+        }}
+      >
+        <Table
+          sx={{
+            "& th": {
+              fontSize: 14,
+              fontWeight: 500,
+              color: "#374151",
+              backgroundColor: "#F9FAFB",
+              letterSpacing: "0.02em",
+            },
+            "& td": {
+              fontSize: 13.5,
+              color: "#111827",
+            },
+          }}
+        >
+          <TableHead>
+            <TableRow
+              sx={{
+                "&:hover": {
+                  backgroundColor: "#FAFAFA",
+                  boxShadow: "inset 0 0 0 1px #F1F5F9",
+                },
+              }}
+            >
+              {[
+                "Date",
+                "Instrument",
+                "Direction",
+                "Entry",
+                "Exit",
+                "Position Size",
+                "P&L",
+                "R-Multiple",
+                "Outcome",
+              ].map((head) => (
+                <TableCell key={head}>{head}</TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {loading ? (
+              <TableRow
+                sx={{
+                  "&:hover": {
+                    backgroundColor: "#FAFAFA",
+                    boxShadow: "inset 0 0 0 1px #F1F5F9",
+                  },
+                }}
+              >
+                <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
+                  <CircularProgress size={20} />
+                </TableCell>
+              </TableRow>
+            ) : rows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
+                  <Typography color="text.secondary" fontSize={14}>
+                    No trades found for selected filters.
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ) : (
+              rows.map((trade) => (
+                <TableRow
+                  key={trade.id}
+                  hover
+                  onClick={() => navigate(`/trades/${trade.id}`)}
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": {
+                      backgroundColor: "#FAFAFA",
+                      boxShadow: "inset 0 0 0 1px #F1F5F9",
+                    },
+                  }}
+                >
+                  <TableCell>{formatDate(trade.openedAt)}</TableCell>
+
+                  {/* 👇 toned down (no heavy bold) */}
+                  <TableCell sx={{ fontWeight: 500 }}>{trade.pair}</TableCell>
+
+                  <TableCell>
+                    <span className="inline-flex items-center gap-1.5 text-gray-700">
+                      {trade.direction === "Long" ? (
+                        <ArrowUp size={14} className="text-green-600" />
+                      ) : (
+                        <ArrowDown size={14} className="text-red-600" />
+                      )}
+                      {trade.direction}
+                    </span>
+                  </TableCell>
+
+                  <TableCell align="right">
+                    {formatPrice(trade.entry_price)}
+                  </TableCell>
+                  <TableCell align="right">
+                    {formatPrice(trade.exit_price)}
+                  </TableCell>
+                  <TableCell align="right">
+                    {trade.size ? `${trade.size} Lots` : "--"}
+                  </TableCell>
+
+                  {/* 👇 PnL = ONLY thing that pops */}
+                  <TableCell>
+                    {trade.pnl === null ? (
+                      "--"
+                    ) : (
+                      <span
+                        style={{
+                          fontWeight: 500,
+                          color: trade.pnl >= 0 ? "#16A34A" : "#DC2626",
+                        }}
+                      >
+                        {formatPrice(trade.pnl)}
+                      </span>
+                    )}
+                  </TableCell>
+
+                  <TableCell>
+                    {trade.riskToReward === null
+                      ? "--"
+                      : trade.riskToReward.toFixed(2)}
+                  </TableCell>
+
+                  <TableCell>
+                    {(() => {
+                      const styles = {
+                        Win: {
+                          bg: "#ECFDF3",
+                          color: "#027A48",
+                        },
+                        Loss: {
+                          bg: "#FEF3F2",
+                          color: "#B42318",
+                        },
+                        Breakeven: {
+                          bg: "#F2F4F7",
+                          color: "#344054",
+                        },
+                        Open: {
+                          bg: "#FFFAEB",
+                          color: "#B54708",
+                        },
+                      };
+
+                      const s = styles[trade.outcome] || styles.Breakeven;
+
+                      return (
+                        <span
+                          style={{
+                            backgroundColor: s.bg,
+                            color: s.color,
+                            fontSize: 12,
+                            fontWeight: 500,
+                            padding: "4px 10px",
+                            borderRadius: 999,
+                            display: "inline-block",
+                          }}
+                        >
+                          {trade.outcome}
+                        </span>
+                      );
+                    })()}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Paper>
   );
 }
