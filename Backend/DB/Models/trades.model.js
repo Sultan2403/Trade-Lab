@@ -77,6 +77,13 @@ const tradeSchema = new mongoose.Schema(
       },
     },
 
+    duration: {
+      type: String,
+      required: function () {
+        return this.status === "Closed";
+      },
+    },
+
     pnl: {
       type: Number,
       required: function () {

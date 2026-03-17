@@ -58,7 +58,7 @@ function ImportResultModal({ isOpen, onClose, summary }) {
             <p className="text-4xl font-semibold text-state-danger">
               {summary.failedCount}
             </p>
-            <p className="mt-1 text-body text-text-secondary">Trades Failed</p>
+            <p className="mt-1 text-body text-text-secondary">Trades Skipped</p>
           </div>
         </div>
 
@@ -231,7 +231,6 @@ export default function ImportTrades() {
   };
 
   useEffect(() => {
-    console.log(data);
     if (!data) return;
 
     if (data.success) {

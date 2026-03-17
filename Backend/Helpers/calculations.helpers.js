@@ -37,4 +37,34 @@ function calculateRiskToReward(trade) {
   return Number(rr.toFixed(2));
 }
 
-module.exports = { calculateRiskPercent, calculateRiskToReward };
+/**
+ * Calculate trade duration in a human-readable format
+ * @param {string | Date} openedAt - ISO string or Date of trade open
+ * @param {string | Date} closedAt - ISO string or Date of trade close
+ * @returns {string} e.g. "0h 34m 12s"
+ */
+function calculateTradeDuration(openedAt, closedAt) {
+  if (!openedAt || !closedAt) return "--"
+
+  const start = new Date(openedAt);
+  const end = new Date(closedAt);
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return "--";
+
+  let diffMs = end - start; // difference in milliseconds
+  if (diffMs < 0) diffMs = 0;
+
+  const hours = Math.floor(diffMs / 1000 / 60 / 60);
+  const minutes = Math.floor((diffMs / 1000 / 60) % 60);
+  const seconds = Math.floor((diffMs / 1000) % 60);
+
+  const parts = [];
+  if (hours) parts.push(`${hours}h`);
+  if (minutes || hours) parts.push(`${minutes}m`);
+  parts.push(`${seconds}s`);
+
+  return parts.join(" ");
+}
+
+
+module.exports = {calculateTradeDuration, calculateRiskPercent, calculateRiskToReward };
