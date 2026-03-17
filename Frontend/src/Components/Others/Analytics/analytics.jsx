@@ -91,6 +91,16 @@ const normalizeTradeOutcomes = (tradeOutcomes = {}) => ({
   breakEven: Number(tradeOutcomes.breakEven ?? tradeOutcomes.BreakEven ?? 0),
 });
 
+const getAllMetricsPayload = (response) => {
+  if (!response) return EMPTY_ANALYTICS_RESPONSE;
+
+  if (response.data && typeof response.data === "object") {
+    return response.data;
+  }
+
+  return response;
+};
+
 const mapPerformancePayload = (payload) => {
   const source = payload ?? EMPTY_ANALYTICS_RESPONSE;
   const normalizedOutcomes = normalizeTradeOutcomes(source.tradeOutcomes);
@@ -179,7 +189,18 @@ function AnalyticsCardSkeleton() {
   );
 }
 
-function ChartPanel({ title, children }) {
+function ChartPanelSkeleton() {
+  return (
+    <article className="ui-card p-6 animate-pulse">
+      <div className="h-6 w-40 rounded bg-surface-muted" />
+      <div className="mt-5 h-[300px] rounded bg-surface-muted" />
+    </article>
+  );
+}
+
+function ChartPanel({ title, loading, children }) {
+  if (loading) return <ChartPanelSkeleton />;
+
   return (
     <article className="ui-card p-6">
       <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
@@ -316,15 +337,25 @@ function AccountGrowthChart() {
   );
 }
 
-export default function AnalyticsPage({ analyticsPayload }) {
+export default function AnalyticsPage() {
   const { data, loading, error, getAccountProfile } = useAccounts();
+  const {
+    data: allMetricsResponse,
+    loading: allMetricsLoading,
+    error: allMetricsError,
+    getAllMetrics,
+  } = useAnalytics();
 
   useEffect(() => {
     getAccountProfile();
+    getAllMetrics();
   }, []);
 
   const metrics = data?.tradesMetrics ?? {};
-  const mapped = useMemo(() => mapPerformancePayload(analyticsPayload), [analyticsPayload]);
+  const mapped = useMemo(
+    () => mapPerformancePayload(getAllMetricsPayload(allMetricsResponse)),
+    [allMetricsResponse],
+  );
 
   const cards = [
     {
@@ -337,14 +368,18 @@ export default function AnalyticsPage({ analyticsPayload }) {
     {
       icon: Target,
       title: "Win Rate",
-      value: metrics?.winRate?.value != null ? `${Number(metrics.winRate.value).toFixed(1)}%` : "N/A",
+      value:
+        metrics?.winRate?.value != null
+          ? `${Number(metrics.winRate.value).toFixed(1)}%`
+          : "N/A",
       delta: metrics?.winRate?.delta,
       type: "percent",
     },
     {
       icon: CircleDollarSign,
       title: "Net Profit",
-      value: metrics?.netPnL?.value != null ? formatCurrency(metrics.netPnL.value) : "N/A",
+      value:
+        metrics?.netPnL?.value != null ? formatCurrency(metrics.netPnL.value) : "N/A",
       delta: metrics?.netPnL?.delta,
       type: "currency",
       valueClassName:
@@ -358,14 +393,17 @@ export default function AnalyticsPage({ analyticsPayload }) {
       icon: TrendingUp,
       title: "Profit Factor",
       value:
-        metrics?.profitFactor?.value != null ? Number(metrics.profitFactor.value).toFixed(2) : "N/A",
+        metrics?.profitFactor?.value != null
+          ? Number(metrics.profitFactor.value).toFixed(2)
+          : "N/A",
       delta: metrics?.profitFactor?.delta,
       type: metrics?.profitFactor?.value != null ? "ratio" : "none",
     },
     {
       icon: Scale,
       title: "Avg R-Multiple",
-      value: metrics?.avgRR?.value != null ? Number(metrics.avgRR.value).toFixed(2) : "N/A",
+      value:
+        metrics?.avgRR?.value != null ? Number(metrics.avgRR.value).toFixed(2) : "N/A",
       delta: metrics?.avgRR?.delta,
       type: metrics?.avgRR?.value != null ? "ratio" : "none",
     },
@@ -381,7 +419,9 @@ export default function AnalyticsPage({ analyticsPayload }) {
       icon: TrendingUp,
       title: "Largest Win",
       value:
-        metrics?.largestWin?.value != null ? formatCurrency(metrics.largestWin.value) : "N/A",
+        metrics?.largestWin?.value != null
+          ? formatCurrency(metrics.largestWin.value)
+          : "N/A",
       delta: null,
       type: "none",
       valueClassName: "text-state-success",
@@ -390,7 +430,9 @@ export default function AnalyticsPage({ analyticsPayload }) {
       icon: ArrowDown,
       title: "Largest Loss",
       value:
-        metrics?.largestLoss?.value != null ? formatCurrency(metrics.largestLoss.value) : "N/A",
+        metrics?.largestLoss?.value != null
+          ? formatCurrency(metrics.largestLoss.value)
+          : "N/A",
       delta: null,
       type: "none",
       valueClassName: "text-state-danger",
@@ -400,7 +442,10 @@ export default function AnalyticsPage({ analyticsPayload }) {
   return (
     <section className="space-y-8">
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        {loading && Array.from({ length: cards.length }).map((_, i) => <AnalyticsCardSkeleton key={i} />)}
+        {loading &&
+          Array.from({ length: cards.length }).map((_, i) => (
+            <AnalyticsCardSkeleton key={i} />
+          ))}
         {!loading && !error && cards.map((card) => <StatCard key={card.title} {...card} />)}
       </div>
 
@@ -412,8 +457,14 @@ export default function AnalyticsPage({ analyticsPayload }) {
 
       <AccountGrowthChart />
 
+      {allMetricsError && !allMetricsLoading && (
+        <div className="ui-card border-state-danger/40 p-4 text-caption text-state-danger">
+          Failed to load chart metrics.
+        </div>
+      )}
+
       <div className="grid gap-5 lg:grid-cols-2">
-        <ChartPanel title="Trade Outcomes">
+        <ChartPanel title="Trade Outcomes" loading={allMetricsLoading}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie data={mapped.tradeOutcomes} dataKey="value" innerRadius={70} outerRadius={110}>
@@ -427,7 +478,7 @@ export default function AnalyticsPage({ analyticsPayload }) {
           </ResponsiveContainer>
         </ChartPanel>
 
-        <ChartPanel title="Monthly Performance">
+        <ChartPanel title="Monthly Performance" loading={allMetricsLoading}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={mapped.monthlyPerformance}>
               <CartesianGrid strokeDasharray="4 4" vertical={false} />
@@ -439,46 +490,58 @@ export default function AnalyticsPage({ analyticsPayload }) {
           </ResponsiveContainer>
         </ChartPanel>
 
-        <article className="ui-card p-6">
-          <h3 className="text-lg font-semibold text-text-primary">Performance by Instrument</h3>
-          <div className="mt-5 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-text-secondary">
-                  <th className="py-2 text-left">Symbol</th>
-                  <th className="py-2 text-left">Trades</th>
-                  <th className="py-2 text-left">Win Rate</th>
-                  <th className="py-2 text-left">Net P&L</th>
-                  <th className="py-2 text-left">Avg P&L</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mapped.performanceByInstrument.map((item) => (
-                  <tr key={item.symbol} className="border-b border-border/60">
-                    <td className="py-2 font-medium">{item.symbol}</td>
-                    <td className="py-2">{item.trades}</td>
-                    <td className="py-2">{item.winRate.toFixed(1)}%</td>
-                    <td className={`py-2 ${item.netPnL >= 0 ? "text-state-success" : "text-state-danger"}`}>
-                      {formatCurrency(item.netPnL)}
-                    </td>
-                    <td className={`py-2 ${item.avgPnL >= 0 ? "text-state-success" : "text-state-danger"}`}>
-                      {formatCurrency(item.avgPnL)}
-                    </td>
+        {allMetricsLoading ? (
+          <ChartPanelSkeleton />
+        ) : (
+          <article className="ui-card p-6">
+            <h3 className="text-lg font-semibold text-text-primary">Performance by Instrument</h3>
+            <div className="mt-5 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-text-secondary">
+                    <th className="py-2 text-left">Symbol</th>
+                    <th className="py-2 text-left">Trades</th>
+                    <th className="py-2 text-left">Win Rate</th>
+                    <th className="py-2 text-left">Net P&L</th>
+                    <th className="py-2 text-left">Avg P&L</th>
                   </tr>
-                ))}
-                {mapped.performanceByInstrument.length === 0 && (
-                  <tr>
-                    <td className="py-4 text-text-secondary" colSpan={5}>
-                      No instrument data yet.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </article>
+                </thead>
+                <tbody>
+                  {mapped.performanceByInstrument.map((item) => (
+                    <tr key={item.symbol} className="border-b border-border/60">
+                      <td className="py-2 font-medium">{item.symbol}</td>
+                      <td className="py-2">{item.trades}</td>
+                      <td className="py-2">{item.winRate.toFixed(1)}%</td>
+                      <td
+                        className={`py-2 ${
+                          item.netPnL >= 0 ? "text-state-success" : "text-state-danger"
+                        }`}
+                      >
+                        {formatCurrency(item.netPnL)}
+                      </td>
+                      <td
+                        className={`py-2 ${
+                          item.avgPnL >= 0 ? "text-state-success" : "text-state-danger"
+                        }`}
+                      >
+                        {formatCurrency(item.avgPnL)}
+                      </td>
+                    </tr>
+                  ))}
+                  {mapped.performanceByInstrument.length === 0 && (
+                    <tr>
+                      <td className="py-4 text-text-secondary" colSpan={5}>
+                        No instrument data yet.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </article>
+        )}
 
-        <ChartPanel title="P&L Distribution">
+        <ChartPanel title="P&L Distribution" loading={allMetricsLoading}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={mapped.plDistribution}>
               <CartesianGrid strokeDasharray="4 4" vertical={false} />
@@ -494,7 +557,7 @@ export default function AnalyticsPage({ analyticsPayload }) {
           </ResponsiveContainer>
         </ChartPanel>
 
-        <ChartPanel title="R-Multiple Distribution">
+        <ChartPanel title="R-Multiple Distribution" loading={allMetricsLoading}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={mapped.riskMultipleDistribution}>
               <CartesianGrid strokeDasharray="4 4" vertical={false} />
@@ -506,7 +569,7 @@ export default function AnalyticsPage({ analyticsPayload }) {
           </ResponsiveContainer>
         </ChartPanel>
 
-        <ChartPanel title="Win/Loss by Day">
+        <ChartPanel title="Win/Loss by Day" loading={allMetricsLoading}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={mapped.winLossByDay}>
               <CartesianGrid strokeDasharray="4 4" vertical={false} />
@@ -520,7 +583,7 @@ export default function AnalyticsPage({ analyticsPayload }) {
           </ResponsiveContainer>
         </ChartPanel>
 
-        <ChartPanel title="Win/Loss by Hour">
+        <ChartPanel title="Win/Loss by Hour" loading={allMetricsLoading}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={mapped.winLossByHour}>
               <CartesianGrid strokeDasharray="4 4" vertical={false} />
