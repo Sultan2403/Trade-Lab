@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { validateTradeCreate } from "../../../Validators/trade.validator";
 import { createInitialTradeUIState, normalizeTrade } from "../../../Helpers/Trades/trades.helpers";
@@ -9,8 +9,19 @@ export default function AddTrade() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState(createInitialTradeUIState());
   const [fieldErrors, setFieldErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { loading, error, createTrade } = useTrades();
+  const { data, loading, error, createTrade } = useTrades();
+
+  useEffect(() => {
+    if (!isSubmitting || loading) return;
+
+    if (data?.data?.success && !error) {
+      navigate("/trades");
+    }
+
+    setIsSubmitting(false);
+  }, [data, error, isSubmitting, loading, navigate]);
 
   const handleTagsChange = (e) => {
     const tags = e.target.value
@@ -21,13 +32,15 @@ export default function AddTrade() {
   };
 
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "number" ? Number(value) : value,
+      [name]: value,
     }));
-    if (fieldErrors[name])
+
+    if (fieldErrors[name]) {
       setFieldErrors((prev) => ({ ...prev, [name]: null }));
+    }
   };
 
   const handleStatusToggle = () => {
@@ -37,29 +50,30 @@ export default function AddTrade() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const normalizedData = normalizeTrade(formData);
     const errors = validateTradeCreate(normalizedData);
 
-    if (Object.keys(errors).length > 0) return setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
 
     setFieldErrors({});
-
-    console.log("Sending to server...", normalizedData);
-
-    createTrade(normalizedData);
+    setIsSubmitting(true);
+    await createTrade(normalizedData);
   };
 
   const previewPnL = useMemo(() => {
     const entry = Number(formData.entry_price);
     const exit = Number(formData.exit_price);
     const size = Number(formData.size);
-    if (Number.isNaN(entry) || Number.isNaN(exit) || Number.isNaN(size))
-      return "--";
-    const pnl =
-      (exit - entry) * size * (formData.direction === "Long" ? 1 : -1);
+
+    if (Number.isNaN(entry) || Number.isNaN(exit) || Number.isNaN(size)) return "--";
+
+    const pnl = (exit - entry) * size * (formData.direction === "Long" ? 1 : -1);
     return pnl.toFixed(2);
   }, [
     formData.exit_price,

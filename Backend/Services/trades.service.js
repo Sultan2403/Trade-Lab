@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Trades = require("../DB/Models/trades.model");
 const Account = require("../DB/Models/accounts.model");
 const { calculateRiskPercent, calculateRiskToReward } = require("../Helpers/calculations.helpers");
@@ -8,26 +9,30 @@ const createTrade = async ({ accountId, tradeData }) => {
   try {
     session.startTransaction();
 
-    const metadata = { source: "manual-entry" };
+    const account = await Account.findById(accountId).session(session);
+    if (!account) {
+      throw new Error("Account not found");
+    }
 
     const trade = await Trades.create(
-      {
-        ...tradeData,
-        accountId,
-        metadata,
-      },
+      [
+        {
+          ...tradeData,
+          accountId,
+          metadata: { source: "manual-entry" },
+        },
+      ],
       { session },
     );
 
-    await Account.updateOne(
-      { _id: accountId },
-      { $inc: { current_balance: tradeData.pnl || 0 } },
-      { session },
-    );
+    if (tradeData.status === "Closed") {
+      account.current_balance += tradeData.pnl;
+      await account.save({ session });
+    }
 
     await session.commitTransaction();
 
-    return trade;
+    return trade[0];
   } catch (err) {
     await session.abortTransaction();
     throw err;
@@ -114,7 +119,7 @@ async function processAndUploadTrades({ accountId, trades }) {
       accountBalance: virtualBalance,
     });
 
-    const riskToReward = calculateRiskToReward(trade)
+    const riskToReward = calculateRiskToReward(trade);
 
     // update virtual balance with pnl
     virtualBalance += trade.pnl;
@@ -125,7 +130,7 @@ async function processAndUploadTrades({ accountId, trades }) {
       riskPercent,
       riskToReward,
       status: "Closed",
-      outcome: trade.pnl > 0 ? "Win" : trade.pnl < 0 ? "Loss" : "Breakeven"
+      outcome: trade.pnl > 0 ? "Win" : trade.pnl < 0 ? "Loss" : "Breakeven",
     };
   });
 

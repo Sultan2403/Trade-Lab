@@ -11,7 +11,9 @@ function calculateRiskPercent({ stopLoss, entry_price, size, accountBalance }) {
 }
 
 function calculateRiskToReward(trade) {
-  const { entryPrice, exitPrice, stopLoss } = trade;
+  const entryPrice = trade.entryPrice ?? trade.entry_price;
+  const exitPrice = trade.exitPrice ?? trade.exit_price;
+  const { stopLoss } = trade;
 
   // Required: entry and exit must exist
   if (typeof entryPrice !== "number" || typeof exitPrice !== "number") {

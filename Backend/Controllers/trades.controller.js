@@ -3,7 +3,7 @@ const tradeService = require("../Services/trades.service");
 const createTrade = async (req, res) => {
   try {
     const { accountId } = req.query;
-    const { tradeData } = req.body;
+    const tradeData = req.body;
     const trade = await tradeService.createTrade({ accountId, tradeData });
 
     res.status(201).json({ success: true, trade });
@@ -70,7 +70,7 @@ const updateTrade = async (req, res) => {
 
 const deleteTrade = async (req, res) => {
   try {
-    const accountId = req.query;
+    const { accountId } = req.query;
     const tradeId = req.params.id;
 
     await tradeService.deleteTrade({ accountId, tradeId });

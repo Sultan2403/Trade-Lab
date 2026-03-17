@@ -14,10 +14,10 @@ const {
 const authMiddleware = require("../Middleware/auth.middleware");
 const { uploadCSV, parseTrades } = require("../Middleware/csv.middleware");
 
-const { tradeIdParamsSchema } = require("../Schemas/trades.schema");
+const { tradeIdParamsSchema, createTradeSchema } = require("../Schemas/trades.schema");
 const { accountIdSchema } = require("../Schemas/accounts.schema");
 
-router.post("/", createTrade);
+router.post("/", celebrate({ query: accountIdSchema, body: createTradeSchema }), createTrade);
 
 router.get("/", celebrate({ query: accountIdSchema }), getTrades);
 

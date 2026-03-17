@@ -9,22 +9,16 @@ export function validateTradeCreate(trade) {
     errors.entry_price = "Entry price is required";
   }
 
-  if (!Number.isFinite(trade.stopLoss)) {
-    errors.stopLoss = "Stop loss is required";
-  }
-
-  if (!Number.isFinite(trade.takeProfit)) {
-    errors.takeProfit = "Take profit is required";
-  }
-
   if (!Number.isFinite(trade.size)) {
     errors.size = "Position size is required";
   }
 
-  if (!Number.isFinite(trade.riskPercent)) {
-    errors.riskPercent = "Risk percent is required";
-  } else if (trade.riskPercent < 0.01) {
-    errors.riskPercent = "Risk percent must be at least 0.01";
+  if (trade.riskPercent !== null && trade.riskPercent !== undefined) {
+    if (!Number.isFinite(trade.riskPercent)) {
+      errors.riskPercent = "Risk percent must be a number";
+    } else if (trade.riskPercent < 0.01) {
+      errors.riskPercent = "Risk percent must be at least 0.01";
+    }
   }
 
   if (!trade.openedAt) {
@@ -37,7 +31,19 @@ export function validateTradeCreate(trade) {
     }
 
     if (!Number.isFinite(trade.exit_price)) {
-      errors.exit_price = "Exit Price is required";
+      errors.exit_price = "Exit price is required";
+    }
+
+    if (!trade.duration) {
+      errors.duration = "Duration is required for closed trades";
+    }
+
+    if (!Number.isFinite(trade.pnl)) {
+      errors.pnl = "PnL is required for closed trades";
+    }
+
+    if (!["Win", "Loss", "Breakeven"].includes(trade.outcome)) {
+      errors.outcome = "Outcome is required for closed trades";
     }
   }
 
@@ -48,21 +54,21 @@ export function validateTradeCreate(trade) {
   }
 
   if (trade.direction === "Long") {
-    if (trade.stopLoss >= trade.entry_price) {
+    if (Number.isFinite(trade.stopLoss) && trade.stopLoss >= trade.entry_price) {
       errors.stopLoss = "Stop loss must be below entry for long trades";
     }
 
-    if (trade.takeProfit <= trade.entry_price) {
+    if (Number.isFinite(trade.takeProfit) && trade.takeProfit <= trade.entry_price) {
       errors.takeProfit = "Take profit must be above entry for long trades";
     }
   }
 
   if (trade.direction === "Short") {
-    if (trade.stopLoss <= trade.entry_price) {
+    if (Number.isFinite(trade.stopLoss) && trade.stopLoss <= trade.entry_price) {
       errors.stopLoss = "Stop loss must be above entry for short trades";
     }
 
-    if (trade.takeProfit >= trade.entry_price) {
+    if (Number.isFinite(trade.takeProfit) && trade.takeProfit >= trade.entry_price) {
       errors.takeProfit = "Take profit must be below entry for short trades";
     }
   }
@@ -71,7 +77,7 @@ export function validateTradeCreate(trade) {
     errors.tags = "Maximum number of tags is 10";
   }
 
-  if (trade.notes.length > 500) {
+  if ((trade.notes || "").length > 500) {
     errors.notes = "Maximum of 500 characters exceeded";
   }
 
