@@ -5,7 +5,7 @@ import Login from "./Components/Auth/login";
 import Register from "./Components/Auth/register";
 import AddTrade from "./Components/Others/Trades/addTrade";
 import TradesHistory from "./Components/Others/Trades/tradesHistory";
-import TradeDetailPlaceholder from "./Components/Others/Trades/tradeDetailPlaceholder";
+import TradeDetailPlaceholder from "./Components/Others/Trades/trade_detail";
 import ImportTrades from "./Components/Others/Trades/importTrades";
 import Onboarding from "./Components/Others/Onboarding/onboarding";
 import AccountsPage from "./Components/Others/Accounts/accounts";

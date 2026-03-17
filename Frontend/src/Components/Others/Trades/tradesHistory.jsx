@@ -470,6 +470,7 @@ export default function TradesHistory() {
 export function TradesTable() {
   const [rows, setRows] = useState([]);
   const { data, error, loading, getTrades } = useTrades();
+  const navigate = useNavigate()
 
   useEffect(() => {
     getTrades();

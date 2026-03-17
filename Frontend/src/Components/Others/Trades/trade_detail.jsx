@@ -49,7 +49,7 @@ const TradeDetail = () => {
             className="flex items-center gap-1 text-brand-700 text-sm font-medium hover:underline transition-colors"
             onClick={() => navigate(-1)}
           >
-            <ArrowLeft size={16} /> Back to Trade History
+            <ArrowLeft size={16} /> Back to Previous Page
           </button>
 
           {/* Right: Edit / Delete */}

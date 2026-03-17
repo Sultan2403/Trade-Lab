@@ -76,7 +76,7 @@ const pageConfig = {
   },
 };
 
-export function getPageConfig(path) {
+function getPageConfig(path) {
   if (path.startsWith("/trades/")) {
     return {
       breadcrumbs: ["Trade History", "Trade Details"],
