@@ -21,6 +21,7 @@ import {
 
 import useAccounts from "../../Hooks/useAccounts";
 
+// Helpers
 const formatNumber = (value, options = {}) =>
   Number(value ?? 0).toLocaleString(undefined, options);
 
@@ -31,30 +32,36 @@ const formatCurrency = (value) =>
     maximumFractionDigits: 0,
   }).format(Number(value ?? 0));
 
-const getTrendMeta = (value) => {
-  if ((value ?? 0) > 0) {
+const getSmartTrend = (value, delta, asPercent = false) => {
+  const val = Number(value ?? 0);
+  let d = delta ?? (val > 0 ? val : 0);
+
+  if (asPercent) d = Math.min(d, 100);
+
+  if (d > 0) {
     return {
       icon: ArrowUp,
       badge: "bg-state-success-soft text-state-success",
-      text: `+${Number(value).toFixed(2)}`,
+      text: `+${asPercent ? d.toFixed(0) + "%" : d.toFixed(2)}`,
     };
   }
 
-  if ((value ?? 0) < 0) {
+  if (d < 0) {
     return {
       icon: ArrowDown,
       badge: "bg-state-danger-soft text-state-danger",
-      text: Number(value).toFixed(2),
+      text: asPercent ? d.toFixed(0) + "%" : d.toFixed(2),
     };
   }
 
   return {
     icon: ArrowUp,
     badge: "bg-surface-muted text-text-muted",
-    text: "0.00",
+    text: asPercent ? "0%" : "0.00",
   };
 };
 
+// Card Component
 function StatCard({
   icon,
   title,
@@ -63,50 +70,41 @@ function StatCard({
   suffix = "vs last month",
   valueClassName = "text-text-primary",
 }) {
-  const trend = getTrendMeta(delta);
-
   return (
     <article className="ui-card p-4">
-      {/* Top Row */}
       <div className="flex items-start justify-between">
         <span className="flex h-9 w-9 items-center justify-center rounded-md bg-brand-700/15 text-brand-900">
           {createElement(icon, { size: 18 })}
         </span>
-
         <span
-          className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium ${trend.badge}`}
+          className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium ${getSmartTrend(value, delta).badge}`}
         >
-          {createElement(trend.icon, { size: 12 })}
-          {trend.text}
+          {createElement(getSmartTrend(value, delta).icon, { size: 12 })}
+          {getSmartTrend(value, delta).text}
         </span>
       </div>
-
-      {/* Title */}
       <p className="mt-3 text-md font-semibold text-text-secondary">{title}</p>
-
-      {/* Metric */}
       <p className={`mt-1 text-2xl font-semibold ${valueClassName}`}>{value}</p>
-
-      {/* Subtext */}
       <p className="mt-1 text-xs text-text-muted">{suffix}</p>
     </article>
   );
 }
 
+// Main Dashboard
 export default function Dashboard() {
   const { data, loading, error, getAccountProfile } = useAccounts();
 
   useEffect(() => {
     getAccountProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const metrics = data?.tradesMetrics ?? {};
   const account = data?.account ?? {};
 
+  // Mock chart data for equity curve
   const chartData = useMemo(() => {
     const startBalance = Number(account?.starting_balance ?? 25000);
-    const endBalance = startBalance + Number(metrics?.netPnL ?? 0);
+    const endBalance = startBalance + Number(metrics?.netPnL?.value ?? 0);
 
     return Array.from({ length: 7 }, (_, index) => {
       const ratio = index / 6;
@@ -114,59 +112,60 @@ export default function Dashboard() {
       const volatility =
         Math.sin(index * 1.2) *
         (Math.abs(endBalance - startBalance) * 0.08 + 120);
-
       return {
         day: `Jan ${index + 1}`,
         equity: Math.max(0, Math.round(base + volatility)),
       };
     });
-  }, [account?.starting_balance, metrics?.netPnL]);
+  }, [account?.starting_balance, metrics?.netPnL?.value]);
 
+  // Cards array
   const cards = [
     {
       icon: ChartNoAxesCombined,
       title: "Total Trades",
-      value: formatNumber(metrics?.totalTrades),
-      delta: Number(metrics?.totalTrades ?? 0) * 0.05,
+      value: formatNumber(metrics?.totalTrades?.value),
+      delta: metrics?.totalTrades?.delta,
     },
     {
       icon: Target,
       title: "Win Rate",
-      value: `${Number(metrics?.winRate ?? 0).toFixed(1)}%`,
-      delta: Number(metrics?.winRate ?? 0) * 0.08,
+      value: `${Number(metrics?.winRate?.value ?? 0).toFixed(1)}%`,
+      delta: metrics?.winRate?.delta,
+      asPercent: true,
     },
     {
       icon: CircleDollarSign,
       title: "Net Profit",
-      value: formatCurrency(metrics?.netPnL),
-      delta: Number(metrics?.netPnL ?? 0) / 1000,
+      value: formatCurrency(metrics?.netPnL?.value),
+      delta: metrics?.netPnL?.delta,
       valueClassName:
-        Number(metrics?.netPnL ?? 0) > 0
+        Number(metrics?.netPnL?.value ?? 0) > 0
           ? "text-state-success"
-          : Number(metrics?.netPnL ?? 0) < 0
+          : Number(metrics?.netPnL?.value ?? 0) < 0
             ? "text-state-danger"
             : "text-text-primary",
     },
     {
       icon: TrendingUp,
       title: "Profit Factor",
-      value: Number(metrics?.profitFactor ?? 0).toFixed(2),
-      delta: Number(metrics?.profitFactor ?? 0) - 1,
+      value: Number(metrics?.profitFactor?.value ?? 0).toFixed(2),
+      delta: metrics?.profitFactor?.delta,
     },
     {
       icon: Scale,
       title: "Avg Risk-Reward",
-      value: Number(metrics?.avgRR ?? 0).toFixed(2),
-      delta: Number(metrics?.avgRR ?? 0) - 2,
+      value: Number(metrics?.avgRR?.value ?? 0).toFixed(2),
+      delta: metrics?.avgRR?.delta,
     },
-    {
+    metrics?.activeDays && {
       icon: CalendarDays,
       title: "Active Days",
       value: formatNumber(metrics?.activeDays),
-      delta: Number(metrics?.activeDays ?? 0) * 0.2,
+      delta: null,
       suffix: "this month",
     },
-  ];
+  ].filter(Boolean);
 
   return (
     <section className="space-y-8">
@@ -203,7 +202,11 @@ export default function Dashboard() {
               <button
                 type="button"
                 key={label}
-                className={`rounded-md border px-3 py-1.5 ${active ? "border-brand-800 bg-brand-800 text-text-inverse" : "border-border bg-surface-card text-text-secondary"}`}
+                className={`rounded-md border px-3 py-1.5 ${
+                  active
+                    ? "border-brand-800 bg-brand-800 text-text-inverse"
+                    : "border-border bg-surface-card text-text-secondary"
+                }`}
               >
                 {label}
               </button>
