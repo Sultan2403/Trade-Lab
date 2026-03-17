@@ -12,8 +12,14 @@ import {
 import {
   Area,
   AreaChart,
+  Bar,
+  BarChart,
   CartesianGrid,
+  Cell,
+  Legend,
   Line,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -69,6 +75,68 @@ const getSmartTrend = (rawValue, delta, type = "number") => {
   };
 };
 
+const EMPTY_ANALYTICS_RESPONSE = {
+  tradeOutcomes: { win: 0, loss: 0, breakEven: 0 },
+  monthlyPerformance: [],
+  performanceByInstrument: [],
+  plDistribution: [],
+  riskMultipleDistribution: [],
+  winLossByDay: [],
+  winLossByHour: [],
+};
+
+const normalizeTradeOutcomes = (tradeOutcomes = {}) => ({
+  win: Number(tradeOutcomes.win ?? tradeOutcomes.Win ?? 0),
+  loss: Number(tradeOutcomes.loss ?? tradeOutcomes.Loss ?? 0),
+  breakEven: Number(tradeOutcomes.breakEven ?? tradeOutcomes.BreakEven ?? 0),
+});
+
+const mapPerformancePayload = (payload) => {
+  const source = payload ?? EMPTY_ANALYTICS_RESPONSE;
+  const normalizedOutcomes = normalizeTradeOutcomes(source.tradeOutcomes);
+
+  return {
+    tradeOutcomes: [
+      { name: "Wins", value: normalizedOutcomes.win, color: "#15616D" },
+      { name: "Losses", value: normalizedOutcomes.loss, color: "#DC2626" },
+      { name: "Break Even", value: normalizedOutcomes.breakEven, color: "#9CA3AF" },
+    ],
+    monthlyPerformance: (source.monthlyPerformance ?? []).map((item) => ({
+      month: new Date(`${item.month}-01`).toLocaleDateString(undefined, {
+        month: "short",
+        year: "2-digit",
+      }),
+      netPnL: Number(item.netPnL ?? 0),
+    })),
+    performanceByInstrument: (source.performanceByInstrument ?? []).map((item) => ({
+      symbol: item.symbol,
+      trades: Number(item.trades ?? 0),
+      winRate: Number(item.winRate ?? 0),
+      netPnL: Number(item.netPnL ?? 0),
+      avgPnL: Number(item.avgPnL ?? 0),
+    })),
+    plDistribution: (source.plDistribution ?? []).map((item) => ({
+      bin: item.bin,
+      count: Number(item.count ?? 0),
+      isNegative: item.bin.trim().startsWith("-"),
+    })),
+    riskMultipleDistribution: (source.riskMultipleDistribution ?? []).map((item) => ({
+      bin: item.bin,
+      count: Number(item.count ?? 0),
+    })),
+    winLossByDay: (source.winLossByDay ?? []).map((item) => ({
+      day: item.day,
+      win: Number(item.win ?? 0),
+      loss: Number(item.loss ?? 0),
+    })),
+    winLossByHour: (source.winLossByHour ?? []).map((item) => ({
+      hourLabel: `${item.hour}:00`,
+      win: Number(item.win ?? 0),
+      loss: Number(item.loss ?? 0),
+    })),
+  };
+};
+
 function StatCard({
   icon,
   title,
@@ -108,6 +176,15 @@ function AnalyticsCardSkeleton() {
       <div className="h-6 bg-gray-200 rounded mb-2 w-3/4" />
       <div className="h-10 bg-gray-200 rounded w-full" />
     </div>
+  );
+}
+
+function ChartPanel({ title, children }) {
+  return (
+    <article className="ui-card p-6">
+      <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
+      <div className="mt-5 h-[300px]">{children}</div>
+    </article>
   );
 }
 
@@ -206,16 +283,7 @@ function AccountGrowthChart() {
                 width={80}
               />
 
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#fff",
-                  border: "1px solid #E5E7EB",
-                  borderRadius: 8,
-                  padding: "8px 12px",
-                }}
-                labelStyle={{ color: "#374151", fontWeight: 600 }}
-                formatter={(value) => formatCurrency(value)}
-              />
+              <Tooltip formatter={(value) => formatCurrency(value)} />
 
               <Area
                 type="monotone"
@@ -248,27 +316,15 @@ function AccountGrowthChart() {
   );
 }
 
-function ChartPlaceholder({ title, subtitle }) {
-  return (
-    <article className="ui-card p-6 min-h-[260px]">
-      <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
-      <p className="mt-2 text-sm text-text-secondary">{subtitle}</p>
-      <div className="mt-6 h-40 rounded-md border border-dashed border-border bg-surface-base" />
-    </article>
-  );
-}
-
-export default function AnalyticsPage() {
-  const { data, loading, error, getAccountProfile,  } = useAccounts();
-
-  const {getAllMetrics} = useAnalytics()
+export default function AnalyticsPage({ analyticsPayload }) {
+  const { data, loading, error, getAccountProfile } = useAccounts();
 
   useEffect(() => {
     getAccountProfile();
-    getAllMetrics()
   }, []);
 
   const metrics = data?.tradesMetrics ?? {};
+  const mapped = useMemo(() => mapPerformancePayload(analyticsPayload), [analyticsPayload]);
 
   const cards = [
     {
@@ -345,7 +401,6 @@ export default function AnalyticsPage() {
     <section className="space-y-8">
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {loading && Array.from({ length: cards.length }).map((_, i) => <AnalyticsCardSkeleton key={i} />)}
-
         {!loading && !error && cards.map((card) => <StatCard key={card.title} {...card} />)}
       </div>
 
@@ -358,22 +413,126 @@ export default function AnalyticsPage() {
       <AccountGrowthChart />
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <ChartPlaceholder
-          title="Trade Outcomes"
-          subtitle="Wire your endpoint payload to this chart when it is ready."
-        />
-        <ChartPlaceholder
-          title="Monthly Performance"
-          subtitle="UI is ready for server-fed buckets and P&L values."
-        />
-        <ChartPlaceholder
-          title="Performance by Instrument"
-          subtitle="Table/series container prepared for instrument breakdown data."
-        />
-        <ChartPlaceholder
-          title="P&L Distribution"
-          subtitle="Histogram shell prepared for distribution bins from backend."
-        />
+        <ChartPanel title="Trade Outcomes">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={mapped.tradeOutcomes} dataKey="value" innerRadius={70} outerRadius={110}>
+                {mapped.tradeOutcomes.map((entry) => (
+                  <Cell key={entry.name} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+
+        <ChartPanel title="Monthly Performance">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={mapped.monthlyPerformance}>
+              <CartesianGrid strokeDasharray="4 4" vertical={false} />
+              <XAxis dataKey="month" />
+              <YAxis tickFormatter={(value) => `$${formatNumber(value)}`} />
+              <Tooltip formatter={(value) => formatCurrency(value)} />
+              <Bar dataKey="netPnL" fill="#15616D" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+
+        <article className="ui-card p-6">
+          <h3 className="text-lg font-semibold text-text-primary">Performance by Instrument</h3>
+          <div className="mt-5 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-text-secondary">
+                  <th className="py-2 text-left">Symbol</th>
+                  <th className="py-2 text-left">Trades</th>
+                  <th className="py-2 text-left">Win Rate</th>
+                  <th className="py-2 text-left">Net P&L</th>
+                  <th className="py-2 text-left">Avg P&L</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mapped.performanceByInstrument.map((item) => (
+                  <tr key={item.symbol} className="border-b border-border/60">
+                    <td className="py-2 font-medium">{item.symbol}</td>
+                    <td className="py-2">{item.trades}</td>
+                    <td className="py-2">{item.winRate.toFixed(1)}%</td>
+                    <td className={`py-2 ${item.netPnL >= 0 ? "text-state-success" : "text-state-danger"}`}>
+                      {formatCurrency(item.netPnL)}
+                    </td>
+                    <td className={`py-2 ${item.avgPnL >= 0 ? "text-state-success" : "text-state-danger"}`}>
+                      {formatCurrency(item.avgPnL)}
+                    </td>
+                  </tr>
+                ))}
+                {mapped.performanceByInstrument.length === 0 && (
+                  <tr>
+                    <td className="py-4 text-text-secondary" colSpan={5}>
+                      No instrument data yet.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <ChartPanel title="P&L Distribution">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={mapped.plDistribution}>
+              <CartesianGrid strokeDasharray="4 4" vertical={false} />
+              <XAxis dataKey="bin" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="count">
+                {mapped.plDistribution.map((item) => (
+                  <Cell key={item.bin} fill={item.isNegative ? "#DC2626" : "#15616D"} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+
+        <ChartPanel title="R-Multiple Distribution">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={mapped.riskMultipleDistribution}>
+              <CartesianGrid strokeDasharray="4 4" vertical={false} />
+              <XAxis dataKey="bin" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="count" fill="#15616D" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+
+        <ChartPanel title="Win/Loss by Day">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={mapped.winLossByDay}>
+              <CartesianGrid strokeDasharray="4 4" vertical={false} />
+              <XAxis dataKey="day" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="win" stackId="trades" fill="#15616D" />
+              <Bar dataKey="loss" stackId="trades" fill="#DC2626" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+
+        <ChartPanel title="Win/Loss by Hour">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={mapped.winLossByHour}>
+              <CartesianGrid strokeDasharray="4 4" vertical={false} />
+              <XAxis dataKey="hourLabel" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="win" stackId="trades" fill="#15616D" />
+              <Bar dataKey="loss" stackId="trades" fill="#DC2626" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartPanel>
       </div>
     </section>
   );
