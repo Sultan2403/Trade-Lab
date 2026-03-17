@@ -12,9 +12,10 @@ import {
 import {
   CartesianGrid,
   Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
+  Area,
+  AreaChart,
   XAxis,
   YAxis,
 } from "recharts";
@@ -124,34 +125,35 @@ function EquityChart() {
   const [activeTimeframe, setActiveTimeframe] = useState("7D");
   const { data, loading, error, getEquityCurve } = useAnalytics();
 
-  // Fetch equity curve on timeframe change
+  // Fetch Equity curve on timeframe change
   useEffect(() => {
     const tfNumber = timeframeMap[activeTimeframe];
     getEquityCurve({ timeframe: tfNumber });
   }, [activeTimeframe]);
 
-  const chartData = useMemo(() => {
-    if (!data?.data) return [];
-    return data.data.map((point) => ({
-      day: new Date(point.date).toLocaleTimeString(), // or .toLocaleDateString() if you prefer
-      Equity: point.equity,
-    }));
-  }, [data]);
-  //   const chartData = useMemo(() => {
+  // const chartData = useMemo(() => {
   //   if (!data?.data) return [];
-  //   return data.data.map((point) => {
-  //     const date = new Date(point.date);
-  //     // If timeframe > 1 month, show month/day, else show day
-  //     const formattedDate =
-  //       activeTimeframe === "1Y"
-  //         ? date.toLocaleDateString(undefined, { month: "short", year: "numeric" })
-  //         : date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-  //     return {
-  //       day: formattedDate,
-  //       Equity: point.equity,
-  //     };
-  //   });
-  // }, [data, activeTimeframe]);
+  //   return data.data.map((point) => ({
+  //     day: new Date(point.date).toLocaleTimeString(), // or .toLocaleDateString() if you prefer
+  //     Equity: point.equity,
+  //   }));
+  // }, [data]);
+  // console.log(chartData)
+    const chartData = useMemo(() => {
+    if (!data?.data) return [];
+    return data.data.map((point) => {
+      const date = new Date(point.date);
+      // If timeframe > 1 month, show month/day, else show day
+      const formattedDate =
+        activeTimeframe === "1Y"
+          ? date.toLocaleDateString(undefined, { month: "short", year: "numeric" })
+          : date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+      return {
+        day: formattedDate,
+        Equity: point.equity,
+      };
+    });
+  }, [data, activeTimeframe]);
 
   const timeframes = Object.keys(timeframeMap);
 
@@ -185,11 +187,10 @@ function EquityChart() {
         )}
         {!loading && !error && chartData.length > 0 && (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart
+            <AreaChart
               data={chartData}
               margin={{ top: 20, right: 40, left: 0, bottom: 20 }}
             >
-              {/* Define gradient */}
               <defs>
                 <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#15616D" stopOpacity={0.3} />
@@ -197,14 +198,12 @@ function EquityChart() {
                 </linearGradient>
               </defs>
 
-              {/* Grid */}
               <CartesianGrid
                 stroke="#E8ECEF"
-                strokeDasharray="4 4"
                 vertical={false}
+                strokeDasharray="4 4"
               />
 
-              {/* X Axis */}
               <XAxis
                 dataKey="day"
                 tickLine={false}
@@ -213,7 +212,6 @@ function EquityChart() {
                 padding={{ left: 10, right: 10 }}
               />
 
-              {/* Y Axis */}
               <YAxis
                 tickLine={false}
                 axisLine={false}
@@ -222,10 +220,9 @@ function EquityChart() {
                 width={80}
               />
 
-              {/* Tooltip */}
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#ffffff",
+                  backgroundColor: "#fff",
                   border: "1px solid #E5E7EB",
                   borderRadius: 8,
                   padding: "8px 12px",
@@ -234,7 +231,17 @@ function EquityChart() {
                 formatter={(value) => formatCurrency(value)}
               />
 
-              {/* Gradient area below line */}
+              {/* Gradient area (the glow) */}
+              <Area
+                type="monotone"
+                dataKey="Equity"
+                stroke="none"
+                fill="url(#equityGradient)"
+                isAnimationActive
+                animationDuration={800}
+              />
+
+              {/* Crisp line on top */}
               <Line
                 type="monotone"
                 dataKey="Equity"
@@ -242,11 +249,10 @@ function EquityChart() {
                 strokeWidth={3}
                 dot={{ r: 3, fill: "#15616D" }}
                 activeDot={{ r: 6, fill: "#15616D", strokeWidth: 2 }}
-                fill="url(#equityGradient)"
-                isAnimationActive={true}
+                isAnimationActive
                 animationDuration={800}
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
         )}
         {!loading && !error && chartData.length === 0 && (
@@ -269,7 +275,7 @@ export default function Dashboard() {
   const metrics = data?.tradesMetrics ?? {};
   const account = data?.account ?? {};
 
-  // Mock chart data for equity curve
+  // Mock chart data for Equity curve
   const chartData = useMemo(() => {
     const startBalance = Number(account?.starting_balance ?? 25000);
     const endBalance = startBalance + Number(metrics?.netPnL?.value ?? 0);
@@ -282,7 +288,7 @@ export default function Dashboard() {
         (Math.abs(endBalance - startBalance) * 0.08 + 120);
       return {
         day: `Jan ${index + 1}`,
-        equity: Math.max(0, Math.round(base + volatility)),
+        Equity: Math.max(0, Math.round(base + volatility)),
       };
     });
   }, [account?.starting_balance, metrics?.netPnL?.value]);
