@@ -45,7 +45,12 @@ const getAccountProfile = async ({ accountId, userId, timeframe = 30 }) => {
           netPnL: { $sum: "$pnl" },
           grossWins: { $sum: { $cond: [{ $gt: ["$pnl", 0] }, "$pnl", 0] } },
           grossLosses: { $sum: { $cond: [{ $lt: ["$pnl", 0] }, "$pnl", 0] } },
-          avgRR: { $avg: "$riskReward" },
+          avgRR: { $avg: "$riskToReward" },
+          activeDaysSet: {
+            $addToSet: {
+              $dateToString: { format: "%Y-%m-%d", date: "$openedAt" },
+            },
+          },
           largestWinValue: { $max: "$pnl" },
           largestLossValue: { $min: "$pnl" },
           largestWinId: {
@@ -80,6 +85,7 @@ const getAccountProfile = async ({ accountId, userId, timeframe = 30 }) => {
             ],
           },
           avgRR: 1,
+          activeDays: { $size: "$activeDaysSet" },
           largestWin: { id: "$largestWinId", value: "$largestWinValue" },
           largestLoss: { id: "$largestLossId", value: "$largestLossValue" },
         },
@@ -113,6 +119,9 @@ const getAccountProfile = async ({ accountId, userId, timeframe = 30 }) => {
     winRate: {
       value: current.winRate,
       delta: computeDelta(current.winRate, previous.winRate),
+    },
+    activeDays: {
+      value: current.activeDays,
     },
     netPnL: {
       value: current.netPnL,
