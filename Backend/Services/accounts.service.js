@@ -51,16 +51,16 @@ const getAccountProfile = async ({ accountId, userId, timeframe = 30 }) => {
               $dateToString: { format: "%Y-%m-%d", date: "$openedAt" },
             },
           },
-          largestWinValue: { $max: "$pnl" },
-          largestLossValue: { $min: "$pnl" },
-          largestWinId: {
-            $first: {
-              $cond: [{ $eq: ["$pnl", { $max: "$pnl" }] }, "$_id", null],
+          largestWinTrade: {
+            $max: {
+              pnl: "$pnl",
+              id: "$_id",
             },
           },
-          largestLossId: {
-            $first: {
-              $cond: [{ $eq: ["$pnl", { $min: "$pnl" }] }, "$_id", null],
+          largestLossTrade: {
+            $min: {
+              pnl: "$pnl",
+              id: "$_id",
             },
           },
         },
@@ -86,8 +86,14 @@ const getAccountProfile = async ({ accountId, userId, timeframe = 30 }) => {
           },
           avgRR: 1,
           activeDays: { $size: "$activeDaysSet" },
-          largestWin: { id: "$largestWinId", value: "$largestWinValue" },
-          largestLoss: { id: "$largestLossId", value: "$largestLossValue" },
+          largestWin: {
+            id: "$largestWinTrade.id",
+            value: "$largestWinTrade.pnl",
+          },
+          largestLoss: {
+            id: "$largestLossTrade.id",
+            value: "$largestLossTrade.pnl",
+          },
         },
       },
     ]);
