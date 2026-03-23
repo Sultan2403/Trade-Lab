@@ -8,6 +8,7 @@ import {
   Scale,
   Target,
   TrendingUp,
+  ExternalLink,
   Plus,
 } from "lucide-react";
 import {
@@ -238,9 +239,11 @@ function StatCard({
   type = "number",
   suffix = "vs last period",
   valueClassName = "text-text-primary",
+  tradeId,
 }) {
   const trend = getSmartTrend(value, delta, type);
   const safeValue = getDisplayValue(value);
+  const navigate = useNavigate();
 
   return (
     <article className="ui-card p-4">
@@ -248,20 +251,34 @@ function StatCard({
         <span className="flex h-10 w-10 items-center justify-center rounded-md bg-brand-700/15 text-brand-900">
           {createElement(icon, { size: 22 })}
         </span>
-        {type !== "none" && (
-          <span
-            className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium ${trend.badge}`}
-          >
-            {createElement(trend.icon, { size: 14 })}
-            {trend.text}
-          </span>
-        )}
+        <div className="flex items-center">
+          {tradeId ? (
+            <button
+              type="button"
+              onClick={() => navigate(`/trades/${tradeId}`)}
+              className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium text-brand-800 hover:bg-brand-700/10 transition"
+            >
+              View
+              <ExternalLink size={14} />
+            </button>
+          ) : (
+            type !== "none" && (
+              <span
+                className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium ${trend.badge}`}
+              >
+                {createElement(trend.icon, { size: 14 })}
+                {trend.text}
+              </span>
+            )
+          )}
+        </div>
       </div>
       <p className="mt-3 text-md font-semibold text-text-secondary">{title}</p>
       <p className={`mt-1 text-2xl font-semibold ${valueClassName}`}>
         {safeValue}
       </p>
       <p className="mt-1 text-xs text-text-muted">{suffix}</p>
+
     </article>
   );
 }
@@ -446,6 +463,7 @@ function AccountGrowthChart() {
 
 export default function AnalyticsPage() {
   const [activeIndex, setActiveIndex] = useState(null);
+  const navigate = useNavigate();
   const { data, loading, error, getAccountProfile } = useAccounts();
   const {
     data: allMetricsResponse,
@@ -535,9 +553,9 @@ export default function AnalyticsPage() {
         metrics?.largestWin?.value != null
           ? formatCurrency(metrics.largestWin.value)
           : "N/A",
-      delta: null,
       type: "none",
       valueClassName: "text-state-success",
+      tradeId: metrics?.largestWin?.id,
     },
     {
       icon: ArrowDown,
@@ -546,9 +564,9 @@ export default function AnalyticsPage() {
         metrics?.largestLoss?.value != null
           ? formatCurrency(metrics.largestLoss.value)
           : "N/A",
-      delta: null,
       type: "none",
       valueClassName: "text-state-danger",
+      tradeId: metrics?.largestLoss?.id,
     },
   ];
 
