@@ -286,7 +286,7 @@ const TradeDetail = () => {
             <span className="text-text-muted font-medium mb-1">
               Position Size
             </span>
-            <span className="font-medium">{trade.size} shares</span>
+            <span className="font-medium">{trade.size} lots</span>
           </div>
           <div className="flex flex-col">
             <span className="text-text-muted font-medium mb-1">Stop Loss</span>

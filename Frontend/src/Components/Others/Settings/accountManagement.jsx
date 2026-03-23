@@ -16,6 +16,8 @@ export default function AccountManagementSettings() {
   const account = profileData?.account;
   const metrics = profileData?.tradesMetrics;
 
+  console.log(account, metrics)
+
   const currentAccountId = getAccountId();
 
   const formatCurrency = (value) =>
@@ -94,7 +96,7 @@ export default function AccountManagementSettings() {
             <div className="mt-5 grid grid-cols-3 gap-6">
               <div>
                 <p className="text-xl font-semibold">
-                  {metrics?.totalTrades ?? "--"}
+                  {metrics?.totalTrades?.value ?? "--"}
                 </p>
                 <p className="text-caption text-text-muted">Total Trades</p>
               </div>
@@ -102,7 +104,7 @@ export default function AccountManagementSettings() {
               <div>
                 <p className="text-xl font-semibold">
                   {metrics?.winRate != null
-                    ? metrics.winRate.toFixed(2) + "%"
+                    ? metrics.winRate?.value?.toFixed(2) + "%"
                     : "--"}
                 </p>
                 <p className="text-caption text-text-muted">Win Rate</p>
@@ -111,7 +113,7 @@ export default function AccountManagementSettings() {
               <div>
                 <p className="text-xl font-semibold text-state-success">
                   {metrics?.netPnL != null
-                    ? `$${formatCurrency(metrics.netPnL)}`
+                    ? `$${formatCurrency(metrics.netPnL?.value)}`
                     : "--"}
                 </p>
                 <p className="text-caption text-text-muted">Net P&L</p>
