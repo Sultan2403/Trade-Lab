@@ -8,6 +8,7 @@ import {
   Scale,
   Target,
   TrendingUp,
+  Plus,
 } from "lucide-react";
 import {
   Area,
@@ -25,8 +26,10 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useNavigate } from "react-router-dom";
 import useAccounts from "../../../Hooks/useAccounts";
 import useAnalytics from "../../../Hooks/useAnalytics";
+import AddTradeMethodModal from "../../UI/Trades/addTradeMethodModal";
 
 const COLORS = {
   profit: "#15616D",
@@ -45,6 +48,64 @@ const formatCurrency = (value) => {
     maximumFractionDigits: 0,
   }).format(Number(value))}`;
 };
+
+
+const getDisplayValue = (value, fallback = "N/A") => {
+  if (value == null) return fallback;
+  if (["string", "number"].includes(typeof value)) return value;
+  return fallback;
+};
+
+const getTradeCount = (metrics = {}) => {
+  const totalTrades = metrics?.totalTrades?.value ?? metrics?.totalTrades ?? 0;
+  const parsed = Number(totalTrades);
+
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+function EmptyTradesState() {
+  const navigate = useNavigate();
+  const [isMethodModalOpen, setIsMethodModalOpen] = useState(false);
+
+  const handleMethodSelect = (method) => {
+    if (method === "broker") return;
+
+    setIsMethodModalOpen(false);
+
+    if (method === "manual") {
+      navigate("/add-trade");
+      return;
+    }
+
+    navigate("/import-trades");
+  };
+
+  return (
+    <>
+      <article className="ui-card p-8 text-center">
+        <p className="text-lg font-medium text-text-primary">
+          You have no trades, add or import them to get started.
+        </p>
+        <button
+          type="button"
+          onClick={() => setIsMethodModalOpen(true)}
+          className="mt-4 inline-flex items-center gap-2 rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-text-inverse hover:bg-brand-700/90"
+          aria-haspopup="dialog"
+          aria-label="Add a trade"
+        >
+          <Plus size={16} />
+          Add Trade
+        </button>
+      </article>
+
+      <AddTradeMethodModal
+        isOpen={isMethodModalOpen}
+        onClose={() => setIsMethodModalOpen(false)}
+        onSelectMethod={handleMethodSelect}
+      />
+    </>
+  );
+}
 
 const getSmartTrend = (rawValue, delta, type = "number") => {
   const val = Number(rawValue ?? 0);
@@ -173,6 +234,7 @@ function StatCard({
   valueClassName = "text-text-primary",
 }) {
   const trend = getSmartTrend(value, delta, type);
+  const safeValue = getDisplayValue(value);
 
   return (
     <article className="ui-card p-4">
@@ -190,7 +252,7 @@ function StatCard({
         )}
       </div>
       <p className="mt-3 text-md font-semibold text-text-secondary">{title}</p>
-      <p className={`mt-1 text-2xl font-semibold ${valueClassName}`}>{value}</p>
+      <p className={`mt-1 text-2xl font-semibold ${valueClassName}`}>{safeValue}</p>
       <p className="mt-1 text-xs text-text-muted">{suffix}</p>
     </article>
   );
@@ -368,6 +430,7 @@ export default function AnalyticsPage() {
   }, []);
 
   const metrics = data?.tradesMetrics ?? {};
+  const hasTrades = getTradeCount(metrics) > 0;
   const mapped = useMemo(
     () => mapPerformancePayload(getAllMetricsPayload(allMetricsResponse)),
     [allMetricsResponse],
@@ -426,7 +489,7 @@ export default function AnalyticsPage() {
     {
       icon: CalendarDays,
       title: "Active Days",
-      value: metrics?.activeDays?.value ?? "N/A",
+      value: getDisplayValue(metrics?.activeDays?.value ?? metrics?.activeDays),
       delta: null,
       type: "none",
       suffix: "in selected period",
@@ -457,15 +520,21 @@ export default function AnalyticsPage() {
 
   return (
     <section className="space-y-8">
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        {loading &&
-          Array.from({ length: cards.length }).map((_, i) => (
+      {loading && (
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: cards.length }).map((_, i) => (
             <AnalyticsCardSkeleton key={i} />
           ))}
-        {!loading &&
-          !error &&
-          cards.map((card) => <StatCard key={card.title} {...card} />)}
-      </div>
+        </div>
+      )}
+
+      {!loading && !error && hasTrades && (
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          {cards.map((card) => (
+            <StatCard key={card.title} {...card} />
+          ))}
+        </div>
+      )}
 
       {!loading && error && (
         <div className="ui-card border-state-danger/40 p-4 text-caption text-state-danger">
@@ -473,13 +542,17 @@ export default function AnalyticsPage() {
         </div>
       )}
 
-      <AccountGrowthChart />
+      {!hasTrades && !loading && !error && <EmptyTradesState />}
 
-      {allMetricsError && !allMetricsLoading && (
-        <div className="ui-card border-state-danger/40 p-4 text-caption text-state-danger">
-          Failed to load chart metrics.
-        </div>
-      )}
+      {hasTrades && (
+        <>
+          <AccountGrowthChart />
+
+          {allMetricsError && !allMetricsLoading && (
+            <div className="ui-card border-state-danger/40 p-4 text-caption text-state-danger">
+              Failed to load chart metrics.
+            </div>
+          )}
 
       <div className="grid gap-5 lg:grid-cols-2">
        <ChartPanel title="Trade Outcomes" loading={allMetricsLoading}>
@@ -673,7 +746,9 @@ export default function AnalyticsPage() {
             </BarChart>
           </ResponsiveContainer>
         </ChartPanel>
-      </div>
+          </div>
+        </>
+      )}
     </section>
   );
 }
