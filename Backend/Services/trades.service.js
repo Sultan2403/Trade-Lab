@@ -161,6 +161,21 @@ async function processAndUploadTrades({ accountId, trades }) {
   };
 }
 
+const getTradesByPeriod = async ({ accountId, timeframe = 30 }) => {
+  if (!accountId) throw new Error("accountId is required");
+
+  const endDate = new Date(); // now
+  const startDate = new Date();
+  startDate.setDate(endDate.getDate() - timeframe); // go back `timeframe` days
+
+  const trades = await Trades.find({
+    accountId,
+    closedAt: { $gte: startDate, $lte: endDate },
+  }).sort({ closedAt: -1 });
+
+  return trades;
+};
+
 module.exports = {
   createTrade,
   getTrades,
@@ -168,4 +183,5 @@ module.exports = {
   updateTrade,
   deleteTrade,
   processAndUploadTrades,
+  getTradesByPeriod,
 };
