@@ -1,5 +1,4 @@
 const {
-  calculateRiskPercent,
   calculateTradeDuration,
 } = require("./calculations.helpers");
 
