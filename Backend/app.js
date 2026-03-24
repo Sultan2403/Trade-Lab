@@ -12,6 +12,7 @@ const authRouter = require("./Routers/auth.route");
 const tradesRouter = require("./Routers/trades.route");
 const accountsRouter = require("./Routers/accounts.route");
 const analyticsRouter = require("./Routers/analytics.route");
+const insightsRouter = require("./Routers/insights.route");
 
 // Middlewares
 const { authLimiter } = require("./Middleware/rate-limiter.middleware");
@@ -32,6 +33,7 @@ app.use("/auth", authLimiter, authRouter);
 app.use("/trades", authMiddleware, tradesRouter);
 app.use("/accounts", authMiddleware, accountsRouter);
 app.use("/analytics", authMiddleware, analyticsRouter);
+app.use("/insights", authMiddleware, insightsRouter);
 
 
 app.get("/", (req, res) => {
