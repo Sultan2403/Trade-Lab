@@ -4,6 +4,8 @@ import { NavLink, useNavigate } from "react-router-dom";
 
 import AuthLayout from "./Layout";
 import useAuth from "../../Hooks/useAuth";
+import { setAccessToken, setRefreshToken } from "../../Helpers/Auth/tokens";
+import { clearAccountId } from "../../Helpers/Accounts/accounts.helper";
 import { validateUserRegister } from "../../Validators/auth.validator";
 
 export default function Register() {
@@ -46,12 +48,12 @@ export default function Register() {
   };
 
   useEffect(() => {
-    if (data?.success) {
-      const timeout = setTimeout(() => {
-        navigate("/login");
-      }, 2000);
-
-      return () => clearTimeout(timeout);
+    if (data?.success && data?.tokens) {
+      const { accessToken, refreshToken } = data.tokens;
+      setRefreshToken(refreshToken);
+      setAccessToken(accessToken);
+      clearAccountId();
+      navigate("/onboarding");
     }
   }, [data, navigate]);
 
@@ -76,7 +78,7 @@ export default function Register() {
 
         {data?.success && (
           <p className="rounded-panel border border-state-success-soft bg-state-success-soft px-3 py-2 text-caption text-state-success">
-            Registration successful. Redirecting to login...
+            Registration successful. Redirecting to onboarding...
           </p>
         )}
 

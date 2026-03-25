@@ -20,10 +20,12 @@ const registerUser = async (req, res) => {
     });
 
     const user = createdUser.toJSON();
+    const tokens = await generateNewTokens(user);
 
     res.status(201).json({
       success: true,
       message: "User created successfully",
+      tokens,
     });
   } catch (error) {
     if (error.code === 11000) {
