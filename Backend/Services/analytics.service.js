@@ -255,4 +255,76 @@ async function computeAnalytics(accountId) {
   };
 }
 
-module.exports = { getEquityCurve, computeAnalytics };
+function computeTraderScore({trades, analytics}) {
+  const totalTrades = trades.length;
+  const tradeDays = new Set(trades.map(t => t.openedAt.toISOString().split("T")[0]));
+
+  // ----------------------
+  // 1️⃣ Consistency: regular trading
+  // ----------------------
+  const avgTradesPerDay = totalTrades / (tradeDays.size || 1);
+  let consistency = Math.min((avgTradesPerDay / 5) * 100, 100); // 5 trades/day = 100%
+
+  // ----------------------
+  // 2️⃣ Discipline / Risk Management
+  // ----------------------
+  const disciplinedTrades = trades.filter(t => t.stopLoss && t.takeProfit).length;
+  let riskManagement = (disciplinedTrades / totalTrades) * 100 || 0; // 0-100%
+
+  // ----------------------
+  // 3️⃣ Performance: win rate & profit factor
+  // ----------------------
+  const winRate = analytics?.winRate?.value || 0; // 0-100
+  const profitFactor = analytics?.profitFactor?.value || 0;
+  // normalize profit factor assuming 2 = 100%
+  const normalizedProfitFactor = Math.min((profitFactor / 2) * 100, 100);
+  let performance = (winRate + normalizedProfitFactor) / 2;
+
+  // ----------------------
+  // 4️⃣ Behavior / Documentation
+  // ----------------------
+  let consecutiveLosses = 0;
+  let maxConsecutiveLosses = 0;
+  let chasingLosses = false;
+  trades.forEach((t, i) => {
+    if (t.pnl < 0) {
+      consecutiveLosses++;
+      if (consecutiveLosses > maxConsecutiveLosses) maxConsecutiveLosses = consecutiveLosses;
+      if (consecutiveLosses >= 2) chasingLosses = true;
+    } else consecutiveLosses = 0;
+  });
+  const overtrading = avgTradesPerDay > 10;
+
+  // Simple behavior scoring
+  let behavior = 100;
+  if (chasingLosses) behavior -= 25;
+  if (overtrading) behavior -= 25;
+  behavior = Math.max(behavior, 0);
+
+  // ----------------------
+  // Compute overall score
+  // ----------------------
+  const overallScore = Math.round((consistency + riskManagement + performance + behavior) / 4);
+
+  // ----------------------
+  // Return breakdown for frontend
+  // ----------------------
+  return {
+    overallScore, // out of 100
+    breakdown: {
+      consistency: Math.round(consistency),
+      riskManagement: Math.round(riskManagement),
+      performance: Math.round(performance),
+      behavior: Math.round(behavior),
+    },
+    meta: {
+      totalTrades,
+      avgTradesPerDay: avgTradesPerDay.toFixed(1),
+      maxConsecutiveLosses,
+      chasingLosses,
+      overtrading,
+    },
+  };
+}
+
+module.exports = { getEquityCurve, computeAnalytics ,computeTraderScore};

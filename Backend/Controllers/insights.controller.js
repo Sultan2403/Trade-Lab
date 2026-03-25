@@ -4,12 +4,12 @@ const getInsightsController = async (req, res) => {
   try {
     // Hook up insights logic here...
     const { accountId, timeframe } = req.query;
-    const insights = await getInsights({accountId, timeframe})
+    const data = await getInsights({accountId, timeframe})
 
     res.status(200).json({
       success: true,
       message: "Insights generated successfully",
-      insights
+      data
     });
   } catch (err) {
     console.error(err);

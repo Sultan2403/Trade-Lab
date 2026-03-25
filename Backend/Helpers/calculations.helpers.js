@@ -1,3 +1,5 @@
+const { crypto } = require("crypto");
+
 function calculateRiskPercent({ stopLoss, entry_price, size, accountBalance }) {
   if (!stopLoss || !accountBalance) return null;
 
@@ -44,7 +46,7 @@ function calculateRiskToReward(trade) {
  * @returns {string} e.g. "0h 34m 12s"
  */
 function calculateTradeDuration(openedAt, closedAt) {
-  if (!openedAt || !closedAt) return "--"
+  if (!openedAt || !closedAt) return "--";
 
   const start = new Date(openedAt);
   const end = new Date(closedAt);
@@ -71,9 +73,8 @@ function calculateTradeDuration(openedAt, closedAt) {
 // ------------------------
 function generateExternalId(trade) {
   const str = `${trade.accountId}-${trade.pair}-${trade.direction}-${trade.entry_price}-${trade.exit_price}-${trade.openedAt}-${trade.closedAt}`;
-  return crypto.createHash("sha256").update(str).digest("hex").slice(0, 16);
+  return str;
 }
-
 
 module.exports = {
   calculateTradeDuration,

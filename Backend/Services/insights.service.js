@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 const { getTradesByPeriod } = require("../Services/trades.service");
-const { computeAnalytics } = require("../Services/analytics.service");
+const { computeAnalytics, computeTraderScore } = require("../Services/analytics.service");
 
 // ------------------------
 // GET INSIGHTS ENTRY
@@ -17,8 +17,11 @@ const getInsights = async ({ timeframe = 30, accountId }) => {
   const tradeInsights = generateTradeInsights(trades);
   const analyticsInsights = generateAnalyticsInsights(analytics, trades);
   const combinedInsights = generateCombinedInsights(trades);
+  const traderScore = computeTraderScore({trades, analytics})
 
-  return [...tradeInsights, ...analyticsInsights, ...combinedInsights];
+  const insights = [...tradeInsights, ...analyticsInsights, ...combinedInsights]
+
+  return {insights, traderScore};
 };
 
 // ------------------------
