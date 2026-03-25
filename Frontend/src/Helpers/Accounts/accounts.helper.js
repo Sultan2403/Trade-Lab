@@ -7,3 +7,7 @@ export function getAccountId() {
 export function setAccountId(newId) {
   localStorage.setItem(ACCOUNT_ID_KEY, newId);
 }
+
+export function clearAccountId() {
+  localStorage.removeItem(ACCOUNT_ID_KEY);
+}

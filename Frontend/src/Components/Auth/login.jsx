@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 
 import useAuth from "../../Hooks/useAuth";
 import { setAccessToken, setRefreshToken } from "../../Helpers/Auth/tokens";
+import { clearAccountId } from "../../Helpers/Accounts/accounts.helper";
 import { validateUserLogin } from "../../Validators/auth.validator";
 import AuthLayout from "./Layout";
 
@@ -55,7 +56,8 @@ export default function Login() {
       const { accessToken, refreshToken } = data.tokens;
       setRefreshToken(refreshToken);
       setAccessToken(accessToken);
-      navigate("/dashboard");
+      clearAccountId();
+      navigate("/onboarding");
     }
   }, [data, navigate]);
 
