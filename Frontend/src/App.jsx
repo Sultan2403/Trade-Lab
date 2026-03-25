@@ -16,6 +16,7 @@ import SettingsPlaceholder from "./Components/Others/Settings/settingsPlaceholde
 import { getAccountId } from "./Helpers/Accounts/accounts.helper";
 import Dashboard from "./Components/Main/dashboard";
 import AnalyticsPage from "./Components/Others/Analytics/analytics";
+import InsightsPage from "./Components/Others/Insights/insights";
 import LandingPage from "./Components/Main/landingPage";
 
 const PlaceholderPage = ({ title }) => (
@@ -47,6 +48,7 @@ function App() {
           <Route path="/trades" element={<TradesHistory />} />
           <Route path="/trades/:tradeId" element={<TradeDetailPlaceholder />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/insights" element={<InsightsPage />} />
           <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
           <Route path="/profile" element={<ProfilePage />} />
 

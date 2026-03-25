@@ -39,6 +39,11 @@ const pageConfig = {
     title: "Analytics",
     subtitle: "Detailed performance visualizations and trading insights",
   },
+  "/insights": {
+    breadcrumbs: ["Insights"],
+    title: "Insights",
+    subtitle: "Understand what's working and what needs attention",
+  },
   "/accounts": {
     breadcrumbs: ["Trading Accounts"],
     title: "Your Trading Accounts",
