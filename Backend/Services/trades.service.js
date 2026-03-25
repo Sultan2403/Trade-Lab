@@ -1,6 +1,10 @@
 const Trades = require("../DB/Models/trades.model");
 const Account = require("../DB/Models/accounts.model");
-const { calculateRiskPercent, calculateRiskToReward } = require("../Helpers/calculations.helpers");
+const {
+  calculateRiskPercent,
+  calculateRiskToReward,
+  generateExternalId,
+} = require("../Helpers/calculations.helpers");
 
 const createTrade = async ({ accountId, tradeData }) => {
   const session = await mongoose.startSession();
@@ -114,7 +118,13 @@ async function processAndUploadTrades({ accountId, trades }) {
       accountBalance: virtualBalance,
     });
 
-    const riskToReward = calculateRiskToReward(trade)
+    const riskToReward = calculateRiskToReward(trade);
+
+    const generatedExternalId = generateExternalId(trade);
+
+    if (!trade.external_id) {
+      trade.external_id = generatedExternalId;
+    }
 
     // update virtual balance with pnl
     virtualBalance += trade.pnl;
@@ -125,7 +135,7 @@ async function processAndUploadTrades({ accountId, trades }) {
       riskPercent,
       riskToReward,
       status: "Closed",
-      outcome: trade.pnl > 0 ? "Win" : trade.pnl < 0 ? "Loss" : "Breakeven"
+      outcome: trade.pnl > 0 ? "Win" : trade.pnl < 0 ? "Loss" : "Breakeven",
     };
   });
 

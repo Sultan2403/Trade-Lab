@@ -66,5 +66,18 @@ function calculateTradeDuration(openedAt, closedAt) {
   return parts.join(" ");
 }
 
+// ------------------------
+// HELPER: REPRODUCIBLE EXTERNAL ID
+// ------------------------
+function generateExternalId(trade) {
+  const str = `${trade.accountId}-${trade.pair}-${trade.direction}-${trade.entry_price}-${trade.exit_price}-${trade.openedAt}-${trade.closedAt}`;
+  return crypto.createHash("sha256").update(str).digest("hex").slice(0, 16);
+}
 
-module.exports = {calculateTradeDuration, calculateRiskPercent, calculateRiskToReward };
+
+module.exports = {
+  calculateTradeDuration,
+  generateExternalId,
+  calculateRiskPercent,
+  calculateRiskToReward,
+};

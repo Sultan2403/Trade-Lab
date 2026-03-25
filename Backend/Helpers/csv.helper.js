@@ -3,22 +3,90 @@ const {
 } = require("./calculations.helpers");
 
 const FIELD_ALIASES = {
-  external_id: ["ticket", "order", "id"],
-  symbol: ["symbol", "instrument", "pair"],
-  side: ["type", "side", "direction"],
-  size: ["lots", "volume", "size"],
-  entry_price: ["opening_price", "open_price", "price_open"],
-  exit_price: ["closing_price", "close_price", "price_close"],
+  external_id: ["ticket", "order", "id", "position id", "trade id"],
+
+  symbol: ["symbol", "instrument", "pair", "market", "asset"],
+
+  side: [
+    "type",
+    "side",
+    "direction",
+    "opening direction",
+    "position",
+    "order type",
+    "trade type",
+  ],
 
   stop_loss: ["stop_loss", "sl", "stoploss"],
   take_profit: ["take_profit", "tp", "takeprofit"],
 
-  entry_time: ["opening_time_utc", "open_time", "entry_time"],
-  exit_time: ["closing_time_utc", "close_time", "exit_time"],
+  size: [
+    "lots",
+    "lot",
+    "volume",
+    "size",
+    "quantity",
+    "closing quantity",
+    "position size",
+    "trade size",
+  ],
 
-  pnl: ["profit_usd", "profit", "pnl"],
-  commission: ["commission_usd", "commission"],
-  swap: ["swap_usd", "swap"],
+  entry_price: [
+    "opening_price",
+    "open_price",
+    "price_open",
+    "entry price",
+    "entry_price",
+    "open",
+    "price",
+    "buy price",
+    "sell price",
+  ],
+
+  exit_price: [
+    "closing_price",
+    "close_price",
+    "price_close",
+    "closing price",
+    "exit price",
+    "exit_price",
+    "close",
+  ],
+
+  entry_time: [
+    "opening_time_utc",
+    "open_time",
+    "entry_time",
+    "opening time",
+    "opening time (utc+1)",
+    "open time",
+    "date",
+    "time",
+  ],
+
+  exit_time: [
+    "closing_time_utc",
+    "close_time",
+    "exit_time",
+    "closing time",
+    "closing time (utc+1)",
+    "close time",
+  ],
+
+  pnl: [
+    "profit_usd",
+    "profit",
+    "pnl",
+    "net usd",
+    "net profit",
+    "profit/loss",
+    "pl",
+    "gain",
+  ],
+
+  commission: ["commission_usd", "commission", "fee", "fees"],
+
+  swap: ["swap_usd", "swap", "rollover", "swap fee"],
 };
 
 function normalizeKeys(row) {
