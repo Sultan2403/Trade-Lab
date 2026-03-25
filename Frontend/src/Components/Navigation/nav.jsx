@@ -1,5 +1,5 @@
 import { createElement, useMemo, useState } from "react";
-import { ArrowUpRight, BarChart3, History, LayoutGrid, LogOut, Plus, Settings, UserRound } from "lucide-react";
+import { ArrowUpRight, BarChart3, History, LayoutGrid, Lightbulb, LogOut, Plus, Settings, UserRound } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import AddTradeMethodModal from "../UI/Trades/addTradeMethodModal";
 
@@ -7,6 +7,7 @@ const primaryLinks = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutGrid },
   { label: "Trade History", to: "/trades", icon: History },
   { label: "Analytics", to: "/analytics", icon: BarChart3 },
+  { label: "Insights", to: "/insights", icon: Lightbulb },
 ];
 
 const accountLinks = [

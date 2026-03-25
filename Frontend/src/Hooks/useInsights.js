@@ -1,7 +1,7 @@
 import { useState } from "react";
 import insightsApi from "../Apis/Others/insights.api";
 
-export default function useAuth() {
+export default function useInsights() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
