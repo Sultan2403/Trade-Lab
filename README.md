@@ -8,7 +8,7 @@ Welcome to **Trade-Lab**, your one-stop solution for implementing various tradin
 - **Data Visualization**: Visualize trading data and performance metrics. 📈🗺️
 
 ## Usage 📘
-Here's a link to the live demo (https://trade-lab-pro.vercel.app)[https://trade-lab-pro.vercel.app]
+Here's a link to the live demo [https://trade-lab-pro.vercel.app](https://trade-lab-pro.vercel.app)
 
 ## License 📄
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
