@@ -35,7 +35,7 @@ This system evaluates traders based on multiple factors such as win rate, risk m
 - **APIs**: RESTful APIs for data exchange
 
 ## Live Demo
-Explore the live demo of Trade Lab [here](https://example.com/live-demo).
+Explore the live demo of Trade Lab [here](https://trade-lab-pro.vercel.app).
 
 ## License
 All rights reserved. 
