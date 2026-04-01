@@ -93,7 +93,7 @@ export default function LandingPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded bg-brand-800 text-white">
               <TrendingUp size={16} />
             </div>
-            <span className="text-lg font-semibold">TradeLog</span>
+            <span className="text-lg font-semibold">TradeLab</span>
           </div>
 
           <nav className="hidden items-center gap-8 text-sm text-text-secondary md:flex">
@@ -154,7 +154,7 @@ export default function LandingPage() {
             <div className="rounded-lg border border-[#e0e3e5] bg-white p-1 shadow-xl lg:rotate-2">
               <img
                 src="https://static.paraflowcontent.com/public/resource/image/981416ea-1a68-4b33-8ade-772f64d38276.jpeg"
-                alt="TradeLog dashboard preview"
+                alt="TradeLab dashboard preview"
                 className="h-full w-full rounded object-cover"
               />
             </div>
@@ -247,7 +247,7 @@ export default function LandingPage() {
             <p className="mb-8 text-center text-lg text-text-secondary">Institutional-grade analytics without the complexity</p>
             <img
               src="https://static.paraflowcontent.com/public/resource/image/08baea7f-079a-467b-b3a3-abc97b15ca06.jpeg"
-              alt="TradeLog performance analytics"
+              alt="TradeLab performance analytics"
               className="w-full rounded-lg border border-[#e0e3e5] bg-white"
             />
 
@@ -315,7 +315,7 @@ export default function LandingPage() {
                   <div className="flex h-8 w-8 items-center justify-center rounded bg-brand-800 text-white">
                     <TrendingUp size={16} />
                   </div>
-                  <span className="font-semibold">TradeLog</span>
+                  <span className="font-semibold">TradeLab</span>
                 </div>
                 <p className="text-text-muted">Performance through clarity</p>
               </div>
@@ -334,7 +334,7 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <p className="border-t border-[#e0e3e5] pt-8 text-center text-sm text-text-muted">© 2025 TradeLog. All rights reserved.</p>
+            <p className="border-t border-[#e0e3e5] pt-8 text-center text-sm text-text-muted">© 2025 TradeLab. All rights reserved.</p>
           </div>
         </footer>
       </main>

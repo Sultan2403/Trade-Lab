@@ -21,7 +21,7 @@ export default function AuthLayout({ children, footer, tab = "login" }) {
                 component="h1"
                 className="text-page-title text-text-primary"
               >
-                TradeLog
+                TradeLab
               </Typography>
               <Typography className="mt-2 max-w-sm text-body text-text-secondary">
                 Track, review, and improve your trading performance with clean
@@ -42,7 +42,7 @@ export default function AuthLayout({ children, footer, tab = "login" }) {
                 component="h1"
                 className="text-card-title text-text-primary"
               >
-                TradeLog
+                TradeLab
               </Typography>
               <Typography className="mt-1 text-caption text-text-secondary">
                 Your professional trading journal.

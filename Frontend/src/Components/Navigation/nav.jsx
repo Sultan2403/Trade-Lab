@@ -57,7 +57,7 @@ export default function Nav() {
           <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-brand-900 text-text-inverse">
             <ArrowUpRight size={18} />
           </span>
-          <h2 className="text-xl font-semibold">TradeLog</h2>
+          <h2 className="text-xl font-semibold">TradeLab</h2>
         </div>
 
         <ul className="space-y-1 px-3 py-5">

@@ -126,7 +126,7 @@ export default function Onboarding() {
           </span>
 
           <h1 className="text-3xl font-semibold leading-snug sm:text-4xl">
-            {showSelector ? "Select a Trading Account" : "Welcome to TradeLog"}
+            {showSelector ? "Select a Trading Account" : "Welcome to TradeLab"}
           </h1>
 
           <p className="mt-2 text-base font-medium text-text-secondary sm:text-lg">
